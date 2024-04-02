@@ -33,7 +33,7 @@ list(
                                 generation = "1711561705858375",
                                 bucket = "bgg_data"
                         ) |>
-                        preprocess_bgg_games()
+                        preprocess_games()
         ),
         tar_target(
                 name = collection,
@@ -45,10 +45,10 @@ list(
                 command = 
                         join_games_and_collection(
                                 games,
-                                collection |>
-                                        prep_collection()
-                        )
-        ),
+                                collection
+                        ) |>
+                        prep_collection()
+        ), 
         tar_target(
                 name = split,
                 command = 

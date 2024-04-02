@@ -67,6 +67,15 @@ load_games = function(object_name = "raw/objects/games",
         }
 }
 
+# function to apply standardized preprocessing to games
+preprocess_games = function(games,
+                            ...) {
+        
+        games |>
+                bggUtils::preprocess_bgg_games(...) |>
+                dplyr::mutate(usersrated = tidyr::replace_na(usersrated, 0))
+}
+
 # join collection with bgg games
 join_games_and_collection = function(games,
                                      collection) {
