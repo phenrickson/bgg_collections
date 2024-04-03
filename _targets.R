@@ -254,8 +254,7 @@ list(
                         {
                                 results = 
                                         list(
-                                                "valid" = metrics_valid,
-                                                "test" = metrics_test
+                                                metrics_valid
                                         ) |> 
                                         jsonlite::toJSON()
                                 
