@@ -857,6 +857,18 @@
       ],
       "Hash": "455e00c16ec193c8edcf1b2b522b3288"
     },
+    "future.callr": {
+      "Package": "future.callr",
+      "Version": "0.8.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "callr",
+        "future"
+      ],
+      "Hash": "0a5ad2f3fe4bf8a794bbf822d6c285bf"
+    },
     "gargle": {
       "Package": "gargle",
       "Version": "1.5.2",

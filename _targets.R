@@ -25,6 +25,16 @@ tar_source("src/data/load_data.R")
 tar_source("src/models/splitting.R")
 tar_source("src/models/training.R")
 
+# configure for parallel processing
+library(future)
+library(future.callr)
+plan(callr)
+
+# parameters used in the workflow
+username = 'phenrickson'
+end_train_year = 2021
+min_ratings = 25
+
 # Replace the target list below with your own:
 list(
         tar_target(
@@ -41,7 +51,7 @@ list(
         tar_target(
                 name = collection,
                 command = 
-                        load_user_collection(username = 'phenrickson')
+                        load_user_collection(username = username)
         ),
         tar_target(
                 name = collection_and_games,
@@ -57,7 +67,7 @@ list(
                 command = 
                         collection_and_games |>
                         split_by_year(
-                                end_train_year = 2021
+                                end_train_year = end_train_year
                         )
         ),
         tar_target(
@@ -65,7 +75,7 @@ list(
                 command = 
                         split |>
                         analysis() |>
-                        filter(usersrated >=25)
+                        filter(usersrated >=min_ratings)
         ),
         tar_target(
                 name = test_data,
@@ -78,7 +88,7 @@ list(
                 command = 
                         train_data |>
                         split_by_year(
-                                end_train_year = 2019
+                                end_train_year = end_train_year-2
                         )
         ),
         tar_target(
@@ -102,9 +112,11 @@ list(
                         add_preprocessing() |>
                         add_imputation() |>
                         add_bgg_dummies() |>
+                        # spline for year
                         add_splines(vars = "year", degree = 4) |>
                         # splines with fifth degree polynomials for mechanics/categories
                         add_splines(c("number_mechanics", "number_categories")) |>
+                        # remove zero variance
                         add_zv() |>
                         add_normalize()
         ),
@@ -120,7 +132,6 @@ list(
                 name = tune_metrics,
                 command = 
                         metric_set(yardstick::mn_log_loss,
-                                   yardstick::brier_class,
                                    yardstick::roc_auc)
         ),
         tar_target(
@@ -159,13 +170,20 @@ list(
                         )
         ),
         tar_target(
+                name = plot_tuning,
+                command = 
+                        tuned |>
+                        autoplot() +
+                        theme_bw()
+        ),
+        tar_target(
                 name = best_par,
                 command = 
                         tuned |> 
                         select_best(metric = 'mn_log_loss')
         ),
         tar_target(
-                name = best_preds_tuned,
+                name = preds_tuned_best,
                 command = 
                         tuned |> 
                         collect_predictions(parameters = best_par) |> 
@@ -187,5 +205,47 @@ list(
                                 split = valid_split,
                                 metrics = tune_metrics
                         )
+        ),
+        tar_target(
+                name = preds_valid,
+                command = 
+                        last_fit |> 
+                        collect_predictions() |>
+                        arrange(desc(.pred_yes)) |> 
+                        left_join(
+                                last_fit |> 
+                                        pluck("splits", 1) |> 
+                                        pluck("data") |>
+                                        select(game_id, name, yearpublished) |>
+                                        mutate(.row = row_number())
+                        )
+        ),
+        tar_target(
+                name = metrics_valid,
+                command = 
+                        last_fit |>
+                        collect_metrics()
+        ),
+        tar_target(
+                name = final_fit,
+                command = 
+                        wflow |>
+                        finalize_workflow(parameters = best_par) |>
+                        fit(
+                                valid_split$data
+                        )
+        ),
+        tar_target(
+                name = preds_test,
+                command =
+                        final_fit |>
+                        augment(test_data)
+        ),
+        tar_target(
+                name = metrics_test,
+                command = 
+                        preds_test |> 
+                        group_by(yearpublished) |> 
+                        tune_metrics(own, .pred_yes, event_level = 'second')
         )
 )
