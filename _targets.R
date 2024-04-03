@@ -254,7 +254,7 @@ list(
                         {
                                 results = metrics_valid
                                 
-                                write(results, "results.csv")
+                                write.csv(results, "results.csv")
                         },
                 format = "file"
         )
