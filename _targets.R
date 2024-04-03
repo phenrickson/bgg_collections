@@ -252,13 +252,9 @@ list(
                 name = results,
                 command = 
                         {
-                                results = 
-                                        list(
-                                                metrics_valid
-                                        ) |> 
-                                        jsonlite::toJSON()
+                                results = metrics_valid
                                 
-                                write(results, "results.json")
+                                write(results, "results.csv")
                         },
                 format = "file"
         )
