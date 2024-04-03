@@ -247,5 +247,20 @@ list(
                         preds_test |> 
                         group_by(yearpublished) |> 
                         tune_metrics(own, .pred_yes, event_level = 'second')
+        ),
+        tar_target(
+                name = results,
+                command = 
+                        {
+                                results = 
+                                        list(
+                                                "valid" = metrics_valid,
+                                                "test" = metrics_test
+                                        ) |> 
+                                        jsonlite::toJSON()
+                                
+                                write(results, "results.json")
+                        },
+                format = "file"
         )
 )
