@@ -1,0 +1,112 @@
+---
+title: "Examine Model"
+format: 
+        html:
+                code-fold: true
+                code-overflow: scroll
+                code-summary: 'Show the code'
+editor: visual
+---
+
+```{css, echo = FALSE}
+.scroll {
+max-height: 500px;
+overflow-y: scroll;
+}
+```
+
+# About
+
+Inspecting results from a penalized regression trained to predict a Boardgamegeek collection.
+
+```{r}
+#| label: setup
+#| include: false
+
+# load in dependencies from targets
+targets::tar_load_globals()
+targets::tar_source("src/visualization/inference.R")
+
+```
+
+```{r}
+#| label: objects
+#| cache: true
+
+tar_load(valid_split)
+tar_load(tuned)
+tar_load(last_fit)
+tar_load(final_fit)
+
+theme_set(
+        theme_bgg()
+)
+
+```
+
+# Tuning
+
+Results from tuning model over resamples.
+
+```{r}
+#: label: plot tuning parameters
+tuned |> 
+        autoplot() +
+        theme_bw()+
+        theme(legend.position = 'top')
+
+```
+
+# Coefficients
+
+Trace plot of coefficients over regularization path.
+
+```{r}
+#| label: trace plot
+#| warning: false
+#| message: false
+
+final_fit |>
+        trace_plot.glmnet(max.overlaps = 25)
+
+```
+
+Top positive and negative features and their impact on the outcome.
+
+```{r}
+#| label: top positive and negative features
+#| fig-height: 7
+
+final_fit |>
+        get_coefs.glmnet() |>
+        top_coefs_by_sign() |>
+        coef_plot.glmnet()
+
+```
+
+## Effects by Group
+
+Look at the top positive and negative effects from specific groups of predictors.
+
+```{r}
+#| label: plot effects by group
+#| class: scroll
+#| fig-height: 4
+
+coefs =
+        final_fit |>
+        get_coefs.glmnet()
+
+plots = 
+        map(
+        c('mechanics', 'designers', 'artists', 'publishers', 'categories', 'themes', 'components'),
+        ~ coefs |>
+                coef_plot_by_group(group = .x,
+                                   shrink = F,
+                                   scales = "free")
+)
+
+walk(plots,
+     print)
+
+```
