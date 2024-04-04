@@ -25,10 +25,10 @@ tar_source("src/data/load_data.R")
 tar_source("src/models/splitting.R")
 tar_source("src/models/training.R")
 
-# configure for parallel processing
-library(future)
-library(future.callr)
-plan(callr)
+# # configure for parallel processing
+# library(future)
+# library(future.callr)
+# plan(callr)
 
 # parameters used in the workflow
 username = 'phenrickson'
@@ -111,7 +111,7 @@ list(
                         step_rm(has_role("extras")) |>
                         add_preprocessing() |>
                         add_imputation() |>
-                        add_bgg_dummies() |>
+                        add_bgg_dummies(mechanics_threshold = 5) |>
                         # spline for year
                         add_splines(vars = "year", degree = 4) |>
                         # splines with fifth degree polynomials for mechanics/categories
