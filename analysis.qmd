@@ -99,14 +99,45 @@ coefs =
 
 plots = 
         map(
-        c('mechanics', 'designers', 'artists', 'publishers', 'categories', 'themes', 'components'),
-        ~ coefs |>
-                coef_plot_by_group(group = .x,
-                                   shrink = F,
-                                   scales = "free")
-)
+                c('mechanics', 'designers', 'artists', 'publishers', 'categories', 'themes', 'components'),
+                ~ coefs |>
+                        coef_plot_by_group(group = .x,
+                                           shrink = F,
+                                           scales = "free")
+        )
 
 walk(plots,
      print)
 
 ```
+
+
+## 
+
+```{r}
+
+data = valid_split$data
+
+prop_collection = 
+        data |> 
+        select(own, game_id, name, yearpublished, mechanics) |>
+        separate_longer_delim(mechanics,
+                              delim = ",") |>
+        mutate(mechanics = bggUtils::present_bgg_text(mechanics)) |>
+        mutate(games = n_distinct(game_id)) |>
+        group_by(games, mechanics, own) |>
+        count() |>
+        pivot_wider(
+                names_from = c("own"),
+                values_from = c("n"),
+                values_fill = 0
+        ) |>
+        ungroup() |>
+        mutate(total= yes+no,
+               prop_global = total / games,
+               prop_mechanic = yes /total,
+               prop_collection = yes / sum(yes)) |>
+        arrange(prop_collection) |>
+        mutate(log_odds = prop_collection / prop_global)
+```
+
