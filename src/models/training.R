@@ -9,14 +9,14 @@ predictor_vars= function(vars =
                                "thumbnail",
                                "minage",
                                "categories",
-                               "mechanics"
-                               # "publishers",
-                               # "designers",
-                               # "artists",
-                               # "families",
-                               # "mechanisms",
-                               # "components",
-                               # "themes"
+                               "mechanics",
+                               "publishers",
+                               "designers",
+                               "artists",
+                               "families",
+                               "mechanisms",
+                               "components",
+                               "themes"
                              )
 ) {vars}
 
