@@ -4,98 +4,60 @@
 
 pipeline
 
-``` r
-cat(c("```mermaid", targets::tar_mermaid(), "```"), sep = "\n")
+``` mermaid
+graph LR
+  style Legend fill:#FFFFFF00,stroke:#000000;
+  style Graph fill:#FFFFFF00,stroke:#000000;
+  subgraph Legend
+    direction LR
+    x7420bd9270f8d27d([""Up to date""]):::uptodate --- xa8565c104d8f0705([""Dispatched""]):::dispatched
+    xa8565c104d8f0705([""Dispatched""]):::dispatched --- xbf4603d6c2c2ad6b([""Stem""]):::none
+  end
+  subgraph Graph
+    direction LR
+    xdd53693f1cebf895(["collection_and_games"]):::uptodate --> x6a9d509448f9bd3e(["split"]):::uptodate
+    xa354680e3a0a9198(["train_data"]):::uptodate --> x63f0ab46674050dd(["valid_split"]):::uptodate
+    x6a9d509448f9bd3e(["split"]):::uptodate --> xa354680e3a0a9198(["train_data"]):::uptodate
+    xa6aa8cbcaf3aa39b(["best_par"]):::uptodate --> xcdc5e9efa9300424(["preds_tuned_best"]):::uptodate
+    x6dce03cb383bb1ac(["tuned"]):::uptodate --> xcdc5e9efa9300424(["preds_tuned_best"]):::uptodate
+    x45fb9126c55b327e(["last_fit"]):::uptodate --> x03cf1496912b9676(["metrics_valid"]):::uptodate
+    x6dce03cb383bb1ac(["tuned"]):::uptodate --> xa6aa8cbcaf3aa39b(["best_par"]):::uptodate
+    x255fb719121b2fe0(["collection"]):::uptodate --> xdd53693f1cebf895(["collection_and_games"]):::uptodate
+    x80d94f4f242b8556(["games"]):::uptodate --> xdd53693f1cebf895(["collection_and_games"]):::uptodate
+    xa6aa8cbcaf3aa39b(["best_par"]):::uptodate --> x78a31d9fd5bc184e(["final_fit"]):::uptodate
+    x63f0ab46674050dd(["valid_split"]):::uptodate --> x78a31d9fd5bc184e(["final_fit"]):::uptodate
+    x4d808230f0a1f61f(["wflow"]):::uptodate --> x78a31d9fd5bc184e(["final_fit"]):::uptodate
+    x5225ac863fffff5b(["model_spec"]):::uptodate --> x4d808230f0a1f61f(["wflow"]):::uptodate
+    xb6dfc0cb5058b89d(["recipe"]):::uptodate --> x4d808230f0a1f61f(["wflow"]):::uptodate
+    x98114bb0edb6848d(["preds_test"]):::uptodate --> x1bc6e7ac81875920(["metrics_test"]):::uptodate
+    xe932f1ccdd8e126d(["tune_metrics"]):::uptodate --> x1bc6e7ac81875920(["metrics_test"]):::uptodate
+    x03cf1496912b9676(["metrics_valid"]):::uptodate --> x26a6b9ffae1b7593(["results"]):::uptodate
+    x6a9d509448f9bd3e(["split"]):::uptodate --> x085de0518cede92e(["test_data"]):::uptodate
+    x1bc6e7ac81875920(["metrics_test"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
+    x03cf1496912b9676(["metrics_valid"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
+    x26a6b9ffae1b7593(["results"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
+    x6dce03cb383bb1ac(["tuned"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
+    x78a31d9fd5bc184e(["final_fit"]):::uptodate --> x98114bb0edb6848d(["preds_test"]):::uptodate
+    x085de0518cede92e(["test_data"]):::uptodate --> x98114bb0edb6848d(["preds_test"]):::uptodate
+    x6dce03cb383bb1ac(["tuned"]):::uptodate --> xbfc71a2c8f27c6ad(["plot_tuning"]):::uptodate
+    x45fb9126c55b327e(["last_fit"]):::uptodate --> xb6a79d075d8ed10b(["preds_valid"]):::uptodate
+    x63f0ab46674050dd(["valid_split"]):::uptodate --> x38e3964f5a728f78(["resamples"]):::uptodate
+    xa6aa8cbcaf3aa39b(["best_par"]):::uptodate --> x45fb9126c55b327e(["last_fit"]):::uptodate
+    xe932f1ccdd8e126d(["tune_metrics"]):::uptodate --> x45fb9126c55b327e(["last_fit"]):::uptodate
+    x63f0ab46674050dd(["valid_split"]):::uptodate --> x45fb9126c55b327e(["last_fit"]):::uptodate
+    x4d808230f0a1f61f(["wflow"]):::uptodate --> x45fb9126c55b327e(["last_fit"]):::uptodate
+    x63f0ab46674050dd(["valid_split"]):::uptodate --> xb6dfc0cb5058b89d(["recipe"]):::uptodate
+    x38e3964f5a728f78(["resamples"]):::uptodate --> x6dce03cb383bb1ac(["tuned"]):::uptodate
+    xe932f1ccdd8e126d(["tune_metrics"]):::uptodate --> x6dce03cb383bb1ac(["tuned"]):::uptodate
+    xa35bb8a740e7efd3(["tuning_grid"]):::uptodate --> x6dce03cb383bb1ac(["tuned"]):::uptodate
+    x4d808230f0a1f61f(["wflow"]):::uptodate --> x6dce03cb383bb1ac(["tuned"]):::uptodate
+  end
+  classDef uptodate stroke:#000000,color:#ffffff,fill:#354823;
+  classDef dispatched stroke:#000000,color:#000000,fill:#DC863B;
+  classDef none stroke:#000000,color:#000000,fill:#94a4ac;
+  linkStyle 0 stroke-width:0px;
+  linkStyle 1 stroke-width:0px;
 ```
-
-    ```mermaid
-    graph LR
-      style Legend fill:#FFFFFF00,stroke:#000000;
-      style Graph fill:#FFFFFF00,stroke:#000000;
-      subgraph Legend
-        direction LR
-        x7420bd9270f8d27d([""Up to date""]):::uptodate --- xa8565c104d8f0705([""Dispatched""]):::dispatched
-        xa8565c104d8f0705([""Dispatched""]):::dispatched --- xbf4603d6c2c2ad6b([""Stem""]):::none
-        xbf4603d6c2c2ad6b([""Stem""]):::none --- x5bffbffeae195fc9{{""Object""}}:::none
-        x5bffbffeae195fc9{{""Object""}}:::none --- xf0bce276fe2b9d3e>""Function""]:::none
-      end
-      subgraph Graph
-        direction LR
-        xb05c801f02135be0>"add_dummies"]:::uptodate --> x1373f204f5e72f48>"add_bgg_dummies"]:::uptodate
-        x59dce12145c55a67>"predictor_vars"]:::uptodate --> x64e5389c0640a7f1>"build_recipe"]:::uptodate
-        xa3e4ef73ff404256>"id_vars"]:::uptodate --> x64e5389c0640a7f1>"build_recipe"]:::uptodate
-        x0400e5dc95ec9594{{"username"}}:::uptodate --> x09c599e778aa02f7>"join_games_and_collection"]:::uptodate
-        xdd53693f1cebf895(["collection_and_games"]):::uptodate --> x6a9d509448f9bd3e(["split"]):::uptodate
-        x73f7f016f930bcc6{{"end_train_year"}}:::uptodate --> x6a9d509448f9bd3e(["split"]):::uptodate
-        xd8c46da472d76cbb>"split_by_year"]:::uptodate --> x6a9d509448f9bd3e(["split"]):::uptodate
-        x73f7f016f930bcc6{{"end_train_year"}}:::uptodate --> x63f0ab46674050dd(["valid_split"]):::uptodate
-        xd8c46da472d76cbb>"split_by_year"]:::uptodate --> x63f0ab46674050dd(["valid_split"]):::uptodate
-        xa354680e3a0a9198(["train_data"]):::uptodate --> x63f0ab46674050dd(["valid_split"]):::uptodate
-        x9a9480d612208ed0{{"valid_years"}}:::uptodate --> x63f0ab46674050dd(["valid_split"]):::uptodate
-        x5e926696f39c7669{{"min_ratings"}}:::uptodate --> xa354680e3a0a9198(["train_data"]):::uptodate
-        x6a9d509448f9bd3e(["split"]):::uptodate --> xa354680e3a0a9198(["train_data"]):::uptodate
-        xa6aa8cbcaf3aa39b(["best_par"]):::uptodate --> xcdc5e9efa9300424(["preds_tuned_best"]):::uptodate
-        x6dce03cb383bb1ac(["tuned"]):::uptodate --> xcdc5e9efa9300424(["preds_tuned_best"]):::uptodate
-        x45fb9126c55b327e(["last_fit"]):::uptodate --> x03cf1496912b9676(["metrics_valid"]):::uptodate
-        x67d327d4f15ebe32>"load_user_collection"]:::uptodate --> x255fb719121b2fe0(["collection"]):::uptodate
-        x0400e5dc95ec9594{{"username"}}:::uptodate --> x255fb719121b2fe0(["collection"]):::uptodate
-        x6dce03cb383bb1ac(["tuned"]):::uptodate --> xa6aa8cbcaf3aa39b(["best_par"]):::uptodate
-        x255fb719121b2fe0(["collection"]):::uptodate --> xdd53693f1cebf895(["collection_and_games"]):::uptodate
-        x80d94f4f242b8556(["games"]):::uptodate --> xdd53693f1cebf895(["collection_and_games"]):::uptodate
-        x09c599e778aa02f7>"join_games_and_collection"]:::uptodate --> xdd53693f1cebf895(["collection_and_games"]):::uptodate
-        x5a8794f15e82b45b>"prep_collection"]:::uptodate --> xdd53693f1cebf895(["collection_and_games"]):::uptodate
-        xa6aa8cbcaf3aa39b(["best_par"]):::uptodate --> x78a31d9fd5bc184e(["final_fit"]):::uptodate
-        x63f0ab46674050dd(["valid_split"]):::uptodate --> x78a31d9fd5bc184e(["final_fit"]):::uptodate
-        x4d808230f0a1f61f(["wflow"]):::uptodate --> x78a31d9fd5bc184e(["final_fit"]):::uptodate
-        x5225ac863fffff5b(["model_spec"]):::uptodate --> x4d808230f0a1f61f(["wflow"]):::uptodate
-        xb6dfc0cb5058b89d(["recipe"]):::uptodate --> x4d808230f0a1f61f(["wflow"]):::uptodate
-        x98114bb0edb6848d(["preds_test"]):::uptodate --> x1bc6e7ac81875920(["metrics_test"]):::uptodate
-        xe932f1ccdd8e126d(["tune_metrics"]):::uptodate --> x1bc6e7ac81875920(["metrics_test"]):::uptodate
-        x03cf1496912b9676(["metrics_valid"]):::uptodate --> x26a6b9ffae1b7593(["results"]):::uptodate
-        x6a9d509448f9bd3e(["split"]):::uptodate --> x085de0518cede92e(["test_data"]):::uptodate
-        x73f7f016f930bcc6{{"end_train_year"}}:::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
-        x1bc6e7ac81875920(["metrics_test"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
-        x03cf1496912b9676(["metrics_valid"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
-        x26a6b9ffae1b7593(["results"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
-        x6dce03cb383bb1ac(["tuned"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
-        x0400e5dc95ec9594{{"username"}}:::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
-        x4622d751989bc377>"load_games"]:::uptodate --> x80d94f4f242b8556(["games"]):::uptodate
-        xdd4d2a3cc6dfe646>"preprocess_games"]:::uptodate --> x80d94f4f242b8556(["games"]):::uptodate
-        x78a31d9fd5bc184e(["final_fit"]):::uptodate --> x98114bb0edb6848d(["preds_test"]):::uptodate
-        x085de0518cede92e(["test_data"]):::uptodate --> x98114bb0edb6848d(["preds_test"]):::uptodate
-        x6dce03cb383bb1ac(["tuned"]):::uptodate --> xbfc71a2c8f27c6ad(["plot_tuning"]):::uptodate
-        x45fb9126c55b327e(["last_fit"]):::uptodate --> xb6a79d075d8ed10b(["preds_valid"]):::uptodate
-        x63f0ab46674050dd(["valid_split"]):::uptodate --> x38e3964f5a728f78(["resamples"]):::uptodate
-        xa6aa8cbcaf3aa39b(["best_par"]):::uptodate --> x45fb9126c55b327e(["last_fit"]):::uptodate
-        xe932f1ccdd8e126d(["tune_metrics"]):::uptodate --> x45fb9126c55b327e(["last_fit"]):::uptodate
-        x63f0ab46674050dd(["valid_split"]):::uptodate --> x45fb9126c55b327e(["last_fit"]):::uptodate
-        x4d808230f0a1f61f(["wflow"]):::uptodate --> x45fb9126c55b327e(["last_fit"]):::uptodate
-        xb05c801f02135be0>"add_dummies"]:::uptodate --> xb6dfc0cb5058b89d(["recipe"]):::uptodate
-        x1fa54f1d74de212f>"add_imputation"]:::uptodate --> xb6dfc0cb5058b89d(["recipe"]):::uptodate
-        x504c0a71ea19e1c0>"add_preprocessing"]:::uptodate --> xb6dfc0cb5058b89d(["recipe"]):::uptodate
-        x64e5389c0640a7f1>"build_recipe"]:::uptodate --> xb6dfc0cb5058b89d(["recipe"]):::uptodate
-        xa3e4ef73ff404256>"id_vars"]:::uptodate --> xb6dfc0cb5058b89d(["recipe"]):::uptodate
-        x59dce12145c55a67>"predictor_vars"]:::uptodate --> xb6dfc0cb5058b89d(["recipe"]):::uptodate
-        x63f0ab46674050dd(["valid_split"]):::uptodate --> xb6dfc0cb5058b89d(["recipe"]):::uptodate
-        x38e3964f5a728f78(["resamples"]):::uptodate --> x6dce03cb383bb1ac(["tuned"]):::uptodate
-        xe932f1ccdd8e126d(["tune_metrics"]):::uptodate --> x6dce03cb383bb1ac(["tuned"]):::uptodate
-        xa35bb8a740e7efd3(["tuning_grid"]):::uptodate --> x6dce03cb383bb1ac(["tuned"]):::uptodate
-        x4d808230f0a1f61f(["wflow"]):::uptodate --> x6dce03cb383bb1ac(["tuned"]):::uptodate
-        x8f31db754b219563>"add_normalize"]:::uptodate --> x8f31db754b219563>"add_normalize"]:::uptodate
-        xa9e739d97068b1c7>"add_zv"]:::uptodate --> xa9e739d97068b1c7>"add_zv"]:::uptodate
-        xe5605527e478f847>"add_splines"]:::uptodate --> xe5605527e478f847>"add_splines"]:::uptodate
-      end
-      classDef uptodate stroke:#000000,color:#ffffff,fill:#354823;
-      classDef dispatched stroke:#000000,color:#000000,fill:#DC863B;
-      classDef none stroke:#000000,color:#000000,fill:#94a4ac;
-      linkStyle 0 stroke-width:0px;
-      linkStyle 1 stroke-width:0px;
-      linkStyle 2 stroke-width:0px;
-      linkStyle 3 stroke-width:0px;
-      linkStyle 64 stroke-width:0px;
-      linkStyle 65 stroke-width:0px;
-      linkStyle 66 stroke-width:0px;
-    ```
 
 # results
 
@@ -111,7 +73,7 @@ tuned |>
         display_results()
 ```
 
-<div id="enmtfuecyk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="xbvkomifdy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   &#10;  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false" style="-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;" bgcolor="#FFFFFF">
   <thead style="border-style: none;">
     <tr class="gt_col_headings" style="border-style: none; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">
@@ -379,7 +341,7 @@ tuned |>
         display_results()
 ```
 
-<div id="jwexowgiad" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="jovzoiobci" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   &#10;  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false" style="-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;" bgcolor="#FFFFFF">
   <thead style="border-style: none;">
     <tr class="gt_col_headings" style="border-style: none; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">
@@ -406,7 +368,7 @@ metrics_valid |>
         display_results()
 ```
 
-<div id="zropysnavi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="yealnmmgiv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   &#10;  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false" style="-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;" bgcolor="#FFFFFF">
   <thead style="border-style: none;">
     <tr class="gt_col_headings" style="border-style: none; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">
@@ -438,7 +400,7 @@ metrics_test |>
         display_results()
 ```
 
-<div id="ybljgbsfol" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ehhviypcpa" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   &#10;  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false" style="-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;" bgcolor="#FFFFFF">
   <thead style="border-style: none;">
     <tr class="gt_col_headings" style="border-style: none; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">

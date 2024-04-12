@@ -43,7 +43,10 @@ tar_load(metrics_test)
 pipeline
 
 ```{r}
-cat(c("```mermaid", targets::tar_mermaid(), "```"), sep = "\n")
+#| echo: false
+#| message: false
+#| results: "asis"
+cat(c("```mermaid", targets::tar_mermaid(targets_only = T), "```"), sep = "\n")
 ```
 
 # results

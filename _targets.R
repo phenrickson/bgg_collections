@@ -259,8 +259,6 @@ list(
         tar_quarto(
                 name = report,
                 path = "targets-run.qmd",
-                execute_params = list(username = username,
-                                      results = results,
-                                      end_train_year = end_train_year)
+                execute_params = list(my_param = results)
         )
 )
