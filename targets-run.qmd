@@ -1,0 +1,65 @@
+---
+title: "targets-results"
+format: gfm
+editor: source
+---
+
+```{r}
+#| include: false
+#| echo: false
+
+library(targets)
+library(dplyr)
+library(tibble)
+```
+
+```{r}
+#| include: false
+#| echo: false
+targets::tar_load_globals()
+
+tar_load(tuned)
+tar_load(metrics_valid)
+tar_load(metrics_test)
+
+```
+
+
+Results from tuning
+
+```{r}
+
+tuned |> 
+        collect_metrics() |>
+        mutate(across(where(is.numeric), ~ round(.x, 3))) |>
+        arrange(.metric) |>
+        as.data.frame()
+        
+```
+
+Best tuning parameters via log loss
+
+```{r}
+
+tuned |>
+        select_best(metric = 'mn_log_loss') |>
+        as.data.frame()
+
+```
+
+Results on validation set
+
+```{r}
+
+metrics_valid |>
+        as.data.frame()
+```
+
+Results on upcoming games
+
+```{r}
+
+metrics_test |>
+        as.data.frame()
+
+```
