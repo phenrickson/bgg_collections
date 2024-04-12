@@ -4,14 +4,18 @@
 
 pipeline
 
+``` r
+cat(c("```mermaid", targets::tar_mermaid(), "```"), sep = "\n")
+```
+
     ```mermaid
     graph LR
       style Legend fill:#FFFFFF00,stroke:#000000;
       style Graph fill:#FFFFFF00,stroke:#000000;
       subgraph Legend
         direction LR
-        x7420bd9270f8d27d([""Up to date""]):::uptodate --- x4b0c520b8bc07c5b([""Errored""]):::errored
-        x4b0c520b8bc07c5b([""Errored""]):::errored --- xbf4603d6c2c2ad6b([""Stem""]):::none
+        x7420bd9270f8d27d([""Up to date""]):::uptodate --- xa8565c104d8f0705([""Dispatched""]):::dispatched
+        xa8565c104d8f0705([""Dispatched""]):::dispatched --- xbf4603d6c2c2ad6b([""Stem""]):::none
         xbf4603d6c2c2ad6b([""Stem""]):::none --- x5bffbffeae195fc9{{""Object""}}:::none
         x5bffbffeae195fc9{{""Object""}}:::none --- xf0bce276fe2b9d3e>""Function""]:::none
       end
@@ -49,12 +53,12 @@ pipeline
         xe932f1ccdd8e126d(["tune_metrics"]):::uptodate --> x1bc6e7ac81875920(["metrics_test"]):::uptodate
         x03cf1496912b9676(["metrics_valid"]):::uptodate --> x26a6b9ffae1b7593(["results"]):::uptodate
         x6a9d509448f9bd3e(["split"]):::uptodate --> x085de0518cede92e(["test_data"]):::uptodate
-        x73f7f016f930bcc6{{"end_train_year"}}:::uptodate --> xe0fba61fbc506510(["report"]):::errored
-        x1bc6e7ac81875920(["metrics_test"]):::uptodate --> xe0fba61fbc506510(["report"]):::errored
-        x03cf1496912b9676(["metrics_valid"]):::uptodate --> xe0fba61fbc506510(["report"]):::errored
-        x26a6b9ffae1b7593(["results"]):::uptodate --> xe0fba61fbc506510(["report"]):::errored
-        x6dce03cb383bb1ac(["tuned"]):::uptodate --> xe0fba61fbc506510(["report"]):::errored
-        x0400e5dc95ec9594{{"username"}}:::uptodate --> xe0fba61fbc506510(["report"]):::errored
+        x73f7f016f930bcc6{{"end_train_year"}}:::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
+        x1bc6e7ac81875920(["metrics_test"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
+        x03cf1496912b9676(["metrics_valid"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
+        x26a6b9ffae1b7593(["results"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
+        x6dce03cb383bb1ac(["tuned"]):::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
+        x0400e5dc95ec9594{{"username"}}:::uptodate --> xe0fba61fbc506510(["report"]):::dispatched
         x4622d751989bc377>"load_games"]:::uptodate --> x80d94f4f242b8556(["games"]):::uptodate
         xdd4d2a3cc6dfe646>"preprocess_games"]:::uptodate --> x80d94f4f242b8556(["games"]):::uptodate
         x78a31d9fd5bc184e(["final_fit"]):::uptodate --> x98114bb0edb6848d(["preds_test"]):::uptodate
@@ -82,7 +86,7 @@ pipeline
         xe5605527e478f847>"add_splines"]:::uptodate --> xe5605527e478f847>"add_splines"]:::uptodate
       end
       classDef uptodate stroke:#000000,color:#ffffff,fill:#354823;
-      classDef errored stroke:#000000,color:#ffffff,fill:#C93312;
+      classDef dispatched stroke:#000000,color:#000000,fill:#DC863B;
       classDef none stroke:#000000,color:#000000,fill:#94a4ac;
       linkStyle 0 stroke-width:0px;
       linkStyle 1 stroke-width:0px;
@@ -107,7 +111,7 @@ tuned |>
         display_results()
 ```
 
-<div id="ofcjogfyea" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="enmtfuecyk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   &#10;  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false" style="-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;" bgcolor="#FFFFFF">
   <thead style="border-style: none;">
     <tr class="gt_col_headings" style="border-style: none; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">
@@ -375,7 +379,7 @@ tuned |>
         display_results()
 ```
 
-<div id="upjttyiojq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="jwexowgiad" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   &#10;  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false" style="-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;" bgcolor="#FFFFFF">
   <thead style="border-style: none;">
     <tr class="gt_col_headings" style="border-style: none; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">
@@ -402,7 +406,7 @@ metrics_valid |>
         display_results()
 ```
 
-<div id="yfcvtflrgb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="zropysnavi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   &#10;  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false" style="-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;" bgcolor="#FFFFFF">
   <thead style="border-style: none;">
     <tr class="gt_col_headings" style="border-style: none; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">
@@ -434,7 +438,7 @@ metrics_test |>
         display_results()
 ```
 
-<div id="jmwvisdvjk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ybljgbsfol" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   &#10;  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false" style="-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3;" bgcolor="#FFFFFF">
   <thead style="border-style: none;">
     <tr class="gt_col_headings" style="border-style: none; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3;">

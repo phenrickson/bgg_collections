@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|da7156b25f1c9876|||||||||||||||
+.Random.seed|object|38888f9833ced428|||||||||||||||
 add_bgg_dummies|function|f5223334d9ade40b|||||||||||||||
 add_corr|function|a7156d710f1b0e97|||||||||||||||
 add_discrete|function|60a12d53a6f50d6f|||||||||||||||
@@ -35,7 +35,7 @@ preds_valid|stem|54591f2ef3c6c8e3|4a5258dd11be1fa1|1577102ac8546c80|487533323||t
 prep_collection|function|b3663217a7c12621|||||||||||||||
 preprocess_games|function|392af6f4ef40e26b|||||||||||||||
 recipe|stem|f70ee11958ff36a4|04bc3d653c0aa1dd|d98ca66dac87c5d2|-2138210525||t19825.7752545448s|2b100c87afc15763|339084218|qs|local|vector|||0.262||
-report|stem|8079206711d833c8|04d9de8a91249a7d|253f4c76fdf0e1e1|-304183993|targets-run_files*targets-run.md*targets-run.qmd|t19825.7975141218s||183044|file|local|vector|||3.677||Error running quarto cli.ℹ Rerun with quiet  FALSE to see the full error message.Caused by error System command quarto failed
+report|stem|c301d2342a978cfa|04d9de8a91249a7d|253f4c76fdf0e1e1|-304183993|targets-run_files*targets-run.md*targets-run.qmd|t19825.805485716s|811314024455b080|225425|file|local|vector|||7.47||
 resamples|stem|e55d7b6b48c7a49a|686bf92b40aae6e3|9bde7c91b5d33dbd|1209460374||t19825.7737455295s|c40a9268dafd7ea2|64903609|qs|local|vector|||0.516||
 results|stem|e6edff991e9f8c97|3f4589b0775a5c60|d769d6967479cbe6|340660437||t0s|f4066a65ff755f48|0|file|local|vector|||0.008||
 spline_vars|function|b7bb2144a7131415|||||||||||||||
