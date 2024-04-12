@@ -13,14 +13,28 @@ tar_option_set(
         packages = c("tibble",
                      "dplyr",
                      "rsample",
+                     "tidymodels",
                      "bggUtils"),
         # default format for storing targets
-        format = "qs"
+        format = "qs",
+        seed = 1999
 )
 
 # functions used in project
 tar_source("src/data/load_data.R")
 tar_source("src/models/splitting.R")
+tar_source("src/models/training.R")
+
+# # configure for parallel processing
+# library(future)
+# library(future.callr)
+# plan(callr)
+
+# parameters used in the workflow
+username = 'phenrickson'
+end_train_year = 2021
+valid_years = 2
+min_ratings = 25
 
 # Replace the target list below with your own:
 list(
@@ -38,7 +52,7 @@ list(
         tar_target(
                 name = collection,
                 command = 
-                        load_user_collection(username = 'phenrickson')
+                        load_user_collection(username = username)
         ),
         tar_target(
                 name = collection_and_games,
@@ -54,19 +68,199 @@ list(
                 command = 
                         collection_and_games |>
                         split_by_year(
-                                end_train_year = 2021
+                                end_train_year = end_train_year
                         )
         ),
         tar_target(
                 name = train_data,
                 command = 
                         split |>
-                        analysis()
+                        analysis() |>
+                        filter(usersrated >=min_ratings)
         ),
         tar_target(
                 name = test_data,
                 command = 
                         split |>
                         assessment()
+        ),
+        tar_target(
+                name = valid_split,
+                command = 
+                        train_data |>
+                        split_by_year(
+                                end_train_year = end_train_year-valid_years
+                        )
+        ),
+        tar_target(
+                name = model_spec,
+                command = 
+                        logistic_reg(penalty = tune::tune(),
+                                     mixture = tune::tune()) %>%
+                        set_engine("glmnet")
+        ),
+        tar_target(
+                name = recipe,
+                command = 
+                        valid_split |>
+                        analysis() |>
+                        build_recipe(
+                                outcome = own,
+                                ids = id_vars(),
+                                predictors = predictor_vars()
+                        ) |>
+                        step_rm(has_role("extras")) |>
+                        add_preprocessing() |>
+                        add_imputation() |>
+                        add_dummies(mechanics,
+                                    threshold = 1) |>
+                        add_dummies(categories,
+                                    threshold = 1)
+        ),
+        tar_target(
+                name = tuning_grid,
+                command = 
+                        expand.grid(
+                                penalty = 10 ^ seq(-3, -0.75, length = 15),
+                                mixture = c(0)
+                        )
+        ),
+        tar_target(
+                name = tune_metrics,
+                command = 
+                        metric_set(yardstick::mn_log_loss,
+                                   yardstick::roc_auc)
+        ),
+        tar_target(
+                name = resamples,
+                command = 
+                        valid_split |>
+                        analysis() |>
+                        vfold_cv(
+                                v = 5,
+                                strata = own
+                        )
+        ),
+        tar_target(
+                name = wflow,
+                command = 
+                        workflow() |>
+                        add_recipe(
+                                recipe
+                        ) |>
+                        add_model(
+                                model_spec
+                        )
+        ),
+        tar_target(
+                name = tuned,
+                command = 
+                        wflow |>
+                        tune_grid(
+                                resamples = resamples,
+                                grid = tuning_grid,
+                                control = 
+                                        control_grid(
+                                                verbose = T,
+                                                save_pred = T),
+                                metrics = tune_metrics
+                        )
+        ),
+        tar_target(
+                name = plot_tuning,
+                command = 
+                        tuned |>
+                        autoplot() +
+                        theme_bw()
+        ),
+        tar_target(
+                name = best_par,
+                command = 
+                        tuned |> 
+                        select_best(metric = 'mn_log_loss')
+        ),
+        tar_target(
+                name = preds_tuned_best,
+                command = 
+                        tuned |> 
+                        collect_predictions(parameters = best_par) |> 
+                        arrange(desc(.pred_yes)) |> 
+                        left_join(
+                                tuned |> 
+                                        pluck("splits", 1) |> 
+                                        pluck("data") |>
+                                        select(game_id, name, yearpublished) |>
+                                        mutate(.row = row_number())
+                        )
+        ),
+        tar_target(
+                name = last_fit,
+                command = 
+                        wflow |> 
+                        finalize_workflow(parameters = best_par) |> 
+                        last_fit(
+                                split = valid_split,
+                                metrics = tune_metrics
+                        )
+        ),
+        tar_target(
+                name = preds_valid,
+                command = 
+                        last_fit |> 
+                        collect_predictions() |>
+                        arrange(desc(.pred_yes)) |> 
+                        left_join(
+                                last_fit |> 
+                                        pluck("splits", 1) |> 
+                                        pluck("data") |>
+                                        select(game_id, name, yearpublished) |>
+                                        mutate(.row = row_number())
+                        )
+        ),
+        tar_target(
+                name = metrics_valid,
+                command = 
+                        last_fit |>
+                        collect_metrics()
+        ),
+        tar_target(
+                name = final_fit,
+                command = 
+                        wflow |>
+                        finalize_workflow(parameters = best_par) |>
+                        fit(
+                                valid_split$data
+                        )
+        ),
+        tar_target(
+                name = preds_test,
+                command =
+                        final_fit |>
+                        augment(test_data)
+        ),
+        tar_target(
+                name = metrics_test,
+                command = 
+                        preds_test |> 
+                        group_by(yearpublished) |> 
+                        tune_metrics(own, .pred_yes, event_level = 'second')
+        ),
+        tar_target(
+                name = results,
+                command = 
+                        {
+                                results = metrics_valid |>
+                                        mutate_if(is.numeric, round, 4)
+                                
+                                write.csv(results, "results.csv")
+                        },
+                format = "file"
+        ),
+        tar_quarto(
+                name = report,
+                path = "targets-run.qmd",
+                execute_params = list(username = username,
+                                      results = results,
+                                      end_train_year = end_train_year)
         )
 )
