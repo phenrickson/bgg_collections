@@ -1,0 +1,95 @@
+---
+title: "targets-run"
+format: gfm
+editor: source
+---
+
+```{r}
+#| include: false
+#| echo: false
+library(targets)
+library(dplyr)
+library(tibble)
+library(gt)
+
+# function for displaying results
+display_results = function(data) {
+        data |>
+                gt::gt() |>
+                gt::fmt_auto() |>
+                gt::tab_options(
+                        container.overflow.y = T
+                ) |>
+                gt::as_raw_html()
+        
+}
+
+```
+
+```{r}
+#| include: false
+#| echo: false
+targets::tar_load_globals()
+
+tar_load(tuned)
+tar_load(metrics_valid)
+tar_load(metrics_test)
+
+```
+
+
+# targets
+
+pipeline
+
+```{r}
+#| echo: false
+
+cat(c("```mermaid", targets::tar_mermaid(), "```"), sep = "\n")
+```
+
+# results
+
+## tuning
+
+tuning results from resampling
+
+```{r}
+
+tuned |> 
+        collect_metrics() |>
+        mutate(across(where(is.numeric), ~ round(.x, 3))) |>
+        arrange(.metric) |>
+        display_results()
+
+```
+
+best tuning parameters via log loss
+
+```{r}
+
+tuned |>
+        select_best(metric = 'mn_log_loss') |>
+        display_results()
+
+```
+
+## validation
+
+results on validation set
+
+```{r}
+
+metrics_valid |>
+        display_results()
+```
+
+results on upcoming games
+
+```{r}
+
+metrics_test |>
+        mutate(across(any_of("yearpublished"), as.character)) |>
+        display_results()
+
+```
