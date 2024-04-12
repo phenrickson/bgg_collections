@@ -5,6 +5,7 @@ format:
                 code-fold: true
                 code-overflow: scroll
                 code-summary: 'Show the code'
+                self-contained: true
 editor: source
 ---
 
@@ -28,6 +29,7 @@ overflow-y: scroll;
 # load in dependencies from targets
 targets::tar_load_globals()
 targets::tar_source("src/visualization/inference.R")
+targets::tar_source("src/visualization/tables.R")
 library(gt)
 library(gtExtras)
 
@@ -52,6 +54,7 @@ tar_load(preds_tuned_best)
 tar_load(preds_valid)
 tar_load(preds_upcoming)
 tar_load(metrics_valid)
+tar_load(games)
 
 theme_set(
         theme_bgg()
@@ -71,19 +74,8 @@ Results on validation set
 
 metrics_valid |>
         mutate_if(is.numeric, round, 3) |>
-        as.data.frame()
-
-```
-
-Results from resampling
-
-```{r}
-
-tuned |>
-        collect_metrics() |>
-        arrange(desc(.metric)) |>
-        mutate_if(is.numeric, round, 3) |>
-        as.data.frame()
+        as.data.frame() |>
+        gt::gt()
 
 ```
 
@@ -141,93 +133,109 @@ walk(plots,
 
 ```
 
-## Log Odds
+<!-- ## Log Odds -->
 
-```{r}
+<!-- ```{r} -->
 
-data = valid_split$data
+<!-- data = valid_split$data -->
 
-prop_collection =
-        data |>
-        select(own, game_id, name, yearpublished, publishers) |>
-        separate_longer_delim(publishers,
-                              delim = ",") |>
-        mutate(publishers = bggUtils::present_bgg_text(publishers)) |>
-        mutate(games = n_distinct(game_id)) |>
-        group_by(games, publishers, own) |>
-        count() |>
-        pivot_wider(
-                names_from = c("own"),
-                values_from = c("n"),
-                values_fill = 0
-        ) |>
-        ungroup() |>
-        mutate(total= yes+no,
-               prop_global = total / games,
-               prop_mechanic = yes /total,
-               prop_collection = yes / sum(yes)) |>
-        arrange(prop_collection) |>
-        mutate(log_odds = log(prop_collection / prop_global)) |>
-        filter(total > 10)
+<!-- prop_collection = -->
+<!--         data |> -->
+<!--         select(own, game_id, name, yearpublished, publishers) |> -->
+<!--         separate_longer_delim(publishers, -->
+<!--                               delim = ",") |> -->
+<!--         mutate(publishers = bggUtils::present_bgg_text(publishers)) |> -->
+<!--         mutate(games = n_distinct(game_id)) |> -->
+<!--         group_by(games, publishers, own) |> -->
+<!--         count() |> -->
+<!--         pivot_wider( -->
+<!--                 names_from = c("own"), -->
+<!--                 values_from = c("n"), -->
+<!--                 values_fill = 0 -->
+<!--         ) |> -->
+<!--         ungroup() |> -->
+<!--         mutate(total= yes+no, -->
+<!--                prop_global = total / games, -->
+<!--                prop_mechanic = yes /total, -->
+<!--                prop_collection = yes / sum(yes)) |> -->
+<!--         arrange(prop_collection) |> -->
+<!--         mutate(log_odds = log(prop_collection / prop_global)) |> -->
+<!--         filter(total > 10) -->
 
-prop_collection |>
-        arrange(desc(log_odds)) |>
-        filter(!is.infinite(log_odds)) |>
-        select(publishers, yes, total, prop_global, prop_mechanic, prop_collection, log_odds) |>
-        mutate_if(is.numeric, round, 3) |>
-        select(publishers, yes, total, prop_global, prop_collection, log_odds) |>
-        gt::gt() |>
-        gt::tab_options(
-                table.font.size = 8
-        ) |>
-        gt::data_color(
-                columns = c("log_odds"),
-                method = c("numeric"),
-                direction = c("column"),
-                palette = "RdBu"
-        ) |>
-        gt::opt_interactive(
-                use_filters = TRUE,
-                use_compact_mode = TRUE,
-                use_text_wrapping = FALSE
-        )
+<!-- prop_collection |> -->
+<!--         arrange(desc(log_odds)) |> -->
+<!--         filter(!is.infinite(log_odds)) |> -->
+<!--         select(publishers, yes, total, prop_global, prop_mechanic, prop_collection, log_odds) |> -->
+<!--         mutate_if(is.numeric, round, 3) |> -->
+<!--         select(publishers, yes, total, prop_global, prop_collection, log_odds) |> -->
+<!--         gt::gt() |> -->
+<!--         gt::tab_options( -->
+<!--                 table.font.size = 8 -->
+<!--         ) |> -->
+<!--         gt::data_color( -->
+<!--                 columns = c("log_odds"), -->
+<!--                 method = c("numeric"), -->
+<!--                 direction = c("column"), -->
+<!--                 palette = "RdBu" -->
+<!--         ) |> -->
+<!--         gt::opt_interactive( -->
+<!--                 use_filters = TRUE, -->
+<!--                 use_compact_mode = TRUE, -->
+<!--                 use_text_wrapping = FALSE -->
+<!--         ) -->
 
-```
+<!-- ``` -->
 
 # Games
+
+## Training
 
 What were the top games from resampling?
 
 ```{r}
 #| class: scroll
-preds_tuned_best |>
-        arrange(desc(.pred_yes)) |>
-        head(25) |>
-        display_preds() |>
-        gt::gt()
+
+preds_tuned_best|>
+        head(100) |>
+        prep_predictions_tbl(
+                games = games
+        ) |>
+        gt_predictions()
 
 ```
+
+## Validation
 
 What were the top games from the validation set?
 
 ```{r}
 #| class: scroll
 preds_valid |>
-        arrange(desc(.pred_yes)) |>
-        head(25) |>
-        display_preds() |>
-        gt::gt()
-
+        head(100) |>
+        prep_predictions_tbl(
+                games = games
+        ) |>
+        gt_predictions()
 ```
 
-What were the top games upcoming?
+
+## Upcoming
+
+What were the top upcoming games?
 
 ```{r}
 #| class: scroll
 preds_upcoming |>
-        arrange(desc(.pred_yes)) |>
-        head(25) |>
-        display_preds() |>
-        gt::gt()
+        prep_predictions_tbl(
+                games = games
+        ) |>
+        left_join(
+                games |> 
+                        select(game_id, usersrated),
+                by = join_by(game_id)
+        ) |>
+        filter(usersrated >= 5) |>
+        mutate(rank = row_number()) |>
+        gt_predictions()
 
 ```
