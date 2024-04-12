@@ -112,10 +112,14 @@ list(
                         step_rm(has_role("extras")) |>
                         add_preprocessing() |>
                         add_imputation() |>
-                        add_dummies(mechanics,
-                                    threshold = 1) |>
-                        add_dummies(categories,
-                                    threshold = 1)
+                        add_bgg_dummies(mechanics_threshold = 5) |>
+                        # spline for year
+                        add_splines(vars = "year", degree = 4) |>
+                        # splines with fifth degree polynomials for mechanics/categories
+                        add_splines(c("number_mechanics", "number_categories")) |>
+                        # remove zero variance
+                        add_zv() |>
+                        add_normalize()
         ),
         tar_target(
                 name = tuning_grid,
