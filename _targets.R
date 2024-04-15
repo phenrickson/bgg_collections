@@ -14,6 +14,8 @@ tar_option_set(
                      "dplyr",
                      "rsample",
                      "tidymodels",
+                     "quarto",
+                     "visNetwork",
                      "bggUtils"),
         # default format for storing targets
         format = "qs",
@@ -33,6 +35,7 @@ tar_source("src/models/training.R")
 # parameters used in the workflow
 username = 'phenrickson'
 end_train_year = 2021
+valid_years = 2
 min_ratings = 25
 
 # Replace the target list below with your own:
@@ -88,7 +91,7 @@ list(
                 command = 
                         train_data |>
                         split_by_year(
-                                end_train_year = end_train_year-2
+                                end_train_year = end_train_year-valid_years
                         )
         ),
         tar_target(
@@ -252,10 +255,18 @@ list(
                 name = results,
                 command = 
                         {
+
+                                results = metrics_valid |>
+                                        mutate_if(is.numeric, round, 4)
                                 results = metrics_valid
                                 
                                 write.csv(results, "results.csv")
                         },
                 format = "file"
+        ),
+        tar_quarto(
+                name = report,
+                path = "targets-run.qmd",
+                execute_params = list(my_param = results)
         )
 )
