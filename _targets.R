@@ -14,6 +14,8 @@ tar_option_set(
                      "dplyr",
                      "rsample",
                      "tidymodels",
+                     "quarto",
+                     "visNetwork",
                      "bggUtils"),
         # default format for storing targets
         format = "qs",
