@@ -30,8 +30,10 @@ overflow-y: scroll;
 targets::tar_load_globals()
 targets::tar_source("src/visualization/inference.R")
 targets::tar_source("src/visualization/tables.R")
+
 library(gt)
 library(gtExtras)
+library(ggrepel)
 
 display_preds = function(preds,
                          digits =2) {
@@ -52,7 +54,7 @@ tar_load(tuned)
 tar_load(final_fit)
 tar_load(preds_tuned_best)
 tar_load(preds_valid)
-tar_load(preds_upcoming)
+tar_load(preds_test)
 tar_load(metrics_valid)
 tar_load(games)
 
@@ -225,7 +227,7 @@ What were the top upcoming games?
 
 ```{r}
 #| class: scroll
-preds_upcoming |>
+preds_test |>
         prep_predictions_tbl(
                 games = games
         ) |>

@@ -681,18 +681,6 @@
       ],
       "Hash": "455e00c16ec193c8edcf1b2b522b3288"
     },
-    "future.callr": {
-      "Package": "future.callr",
-      "Version": "0.8.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "callr",
-        "future"
-      ],
-      "Hash": "0a5ad2f3fe4bf8a794bbf822d6c285bf"
-    },
     "gargle": {
       "Package": "gargle",
       "Version": "1.5.2",
@@ -751,23 +739,21 @@
       ],
       "Hash": "52ef83f93f74833007f193b2d4c159a2"
     },
-    "glmnet": {
-      "Package": "glmnet",
-      "Version": "4.1-8",
+    "ggrepel": {
+      "Package": "ggrepel",
+      "Version": "0.9.5",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "RSPM",
       "Requirements": [
-        "Matrix",
         "R",
         "Rcpp",
-        "RcppEigen",
-        "foreach",
-        "methods",
-        "shape",
-        "survival",
-        "utils"
+        "ggplot2",
+        "grid",
+        "rlang",
+        "scales",
+        "withr"
       ],
-      "Hash": "eb6fc70e561aae41d5911a6726188f71"
+      "Hash": "cc3361e234c4a5050e29697d675764aa"
     },
     "glmnet": {
       "Package": "glmnet",
@@ -884,6 +870,28 @@
         "xml2"
       ],
       "Hash": "03009c105dfae79460b8eb9d8cf791e4"
+    },
+    "gtExtras": {
+      "Package": "gtExtras",
+      "Version": "0.5.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "cli",
+        "commonmark",
+        "dplyr",
+        "fontawesome",
+        "ggplot2",
+        "glue",
+        "gt",
+        "htmltools",
+        "knitr",
+        "paletteer",
+        "rlang",
+        "scales"
+      ],
+      "Hash": "654cdd2db0d2d1c2ab4ae8ee8af63168"
     },
     "gtable": {
       "Package": "gtable",
@@ -1377,6 +1385,20 @@
       ],
       "Hash": "2a0dc8c6adfb6f032e4d4af82d258ab5"
     },
+    "paletteer": {
+      "Package": "paletteer",
+      "Version": "1.6.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "prismatic",
+        "rematch2",
+        "rlang",
+        "rstudioapi"
+      ],
+      "Hash": "ac364dee7ff8277fb4144fcc1e26302f"
+    },
     "parallelly": {
       "Package": "parallelly",
       "Version": "1.37.1",
@@ -1472,6 +1494,19 @@
         "R"
       ],
       "Hash": "6b01fc98b1e86c4f705ce9dcfd2f57c7"
+    },
+    "prismatic": {
+      "Package": "prismatic",
+      "Version": "1.1.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "farver",
+        "grDevices",
+        "graphics"
+      ],
+      "Hash": "51967d2e55a523791ae22832e86209ae"
     },
     "processx": {
       "Package": "processx",
@@ -1644,6 +1679,16 @@
         "withr"
       ],
       "Hash": "69783cdd607c58fffb21c5c26c6ededf"
+    },
+    "rematch2": {
+      "Package": "rematch2",
+      "Version": "2.1.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "tibble"
+      ],
+      "Hash": "76c9e04c712a05848ae7a23d2f170a40"
     },
     "renv": {
       "Package": "renv",
