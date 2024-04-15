@@ -14,6 +14,8 @@ tar_option_set(
                      "dplyr",
                      "rsample",
                      "tidymodels",
+                     "quarto",
+                     "visNetwork",
                      "bggUtils"),
         # default format for storing targets
         format = "qs",
@@ -25,14 +27,15 @@ tar_source("src/data/load_data.R")
 tar_source("src/models/splitting.R")
 tar_source("src/models/training.R")
 
-# configure for parallel processing
-library(future)
-library(future.callr)
-plan(callr)
+# # configure for parallel processing
+# library(future)
+# library(future.callr)
+# plan(callr)
 
 # parameters used in the workflow
 username = 'phenrickson'
 end_train_year = 2021
+valid_years = 2
 min_ratings = 25
 
 # Replace the target list below with your own:
@@ -88,7 +91,7 @@ list(
                 command = 
                         train_data |>
                         split_by_year(
-                                end_train_year = end_train_year-2
+                                end_train_year = end_train_year-valid_years
                         )
         ),
         tar_target(
@@ -111,7 +114,7 @@ list(
                         step_rm(has_role("extras")) |>
                         add_preprocessing() |>
                         add_imputation() |>
-                        add_bgg_dummies() |>
+                        add_bgg_dummies(mechanics_threshold = 5) |>
                         # spline for year
                         add_splines(vars = "year", degree = 4) |>
                         # splines with fifth degree polynomials for mechanics/categories
@@ -252,10 +255,17 @@ list(
                 name = results,
                 command = 
                         {
-                                results = metrics_valid
-                                
+
+                                results = metrics_valid |>
+                                        mutate_if(is.numeric, round, 4)
+
                                 write.csv(results, "results.csv")
                         },
                 format = "file"
+        ),
+        tar_quarto(
+                name = report,
+                path = "targets-run.qmd",
+                execute_params = list(my_param = results)
         )
 )
