@@ -258,8 +258,7 @@ list(
 
                                 results = metrics_valid |>
                                         mutate_if(is.numeric, round, 4)
-                                results = metrics_valid
-                                
+
                                 write.csv(results, "results.csv")
                         },
                 format = "file"
