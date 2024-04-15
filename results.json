@@ -1,0 +1,1 @@
+[[{".metric":"mn_log_loss",".estimator":"binary",".estimate":0.0434,".config":"Preprocessor1_Model1"},{".metric":"roc_auc",".estimator":"binary",".estimate":0.9471,".config":"Preprocessor1_Model1"}]]
