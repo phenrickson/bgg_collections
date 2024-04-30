@@ -77,7 +77,8 @@ Results on validation set
 metrics_valid |>
         mutate_if(is.numeric, round, 3) |>
         as.data.frame() |>
-        gt::gt()
+        gt::gt() |>
+        gt::as_raw_html()
 
 ```
 
@@ -125,6 +126,8 @@ plots =
         map(
                 c('mechanics', 'designers', 'artists', 'publishers', 'categories', 'themes', 'components'),
                 ~ coefs |>
+                        mutate(term = gsub("themes_theme", "themes_")) |>
+                        mutate(term = gsub(""))
                         coef_plot_by_group(group = .x,
                                            shrink = F,
                                            scales = "free")
