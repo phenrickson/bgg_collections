@@ -27,14 +27,9 @@ tar_source("src/data/load_data.R")
 tar_source("src/models/splitting.R")
 tar_source("src/models/training.R")
 
-# # configure for parallel processing
-# library(future)
-# library(future.callr)
-# plan(callr)
-
 # parameters used in the workflow
 username = 'phenrickson'
-end_train_year = 2021
+end_train_year = 2020
 valid_years = 2
 min_ratings = 25
 
@@ -114,7 +109,10 @@ list(
                         step_rm(has_role("extras")) |>
                         add_preprocessing() |>
                         add_imputation() |>
-                        add_bgg_dummies(mechanics_threshold = 5) |>
+                        add_bgg_dummies(mechanics_threshold = 5,
+                                        designers_threshold = 10,
+                                        artists_threshold = 10,
+                                        publishers_threshold = 10) |>
                         # spline for year
                         add_splines(vars = "year", degree = 4) |>
                         # splines with fifth degree polynomials for mechanics/categories
@@ -196,7 +194,8 @@ list(
                                         pluck("splits", 1) |> 
                                         pluck("data") |>
                                         select(game_id, name, yearpublished) |>
-                                        mutate(.row = row_number())
+                                        mutate(.row = row_number()),
+                                by = join_by(.row)
                         )
         ),
         tar_target(
@@ -227,7 +226,7 @@ list(
                 name = metrics_valid,
                 command = 
                         last_fit |>
-                        collect_metrics()
+                        collect_metrics(type = 'wide')
         ),
         tar_target(
                 name = final_fit,
@@ -255,17 +254,16 @@ list(
                 name = results,
                 command = 
                         {
-
                                 results = metrics_valid |>
                                         mutate_if(is.numeric, round, 4)
 
-                                write.csv(results, "results.csv")
+                                write.csv(results, "targets-runs/results.csv")
                         },
                 format = "file"
         ),
         tar_quarto(
                 name = report,
-                path = "targets-run.qmd",
+                path = "targets-runs/report.qmd",
                 execute_params = list(my_param = results)
         )
 )
