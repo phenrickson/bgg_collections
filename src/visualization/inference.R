@@ -250,50 +250,11 @@ coef_plot_by_group = function(coefs,
         
 }
 
-# averageweight_model |>
-#         coef_plot.glmnet()
-# 
-# averageweight_model|>
-#         trace_plot.glmnet(
-#                 upper_estimate = 0.01,
-#                 max.overlaps = 25
-#         )
-# 
-# average_model |>
-#         trace_plot.glmnet(
-#                 upper_estimate = 0.05,
-#                 max.overlaps = 25
-#         )
-# 
-# average_model |>
-#         coef_plot.glmnet()
-# 
-# average_model |>
-#         trace_plot.glmnet()
-# 
-# extract_fit_parsnip() |> 
-#         tidy() |>
-#         filter(term != '(Intercept)') |>
-#         slice_max(
-#                 abs(estimate),
-#                 n = 50,
-#                 with_ties = F
-#         ) |>
-#         mutate(tidy_term = bggUtils::present_bgg_text(term)) |>
-#         ggplot(aes(x=estimate,
-#                    fill = estimate,
-#                    y= reorder(tidy_term, estimate)))+
-#         geom_col()+
-#         theme_bgg()+
-#         labs(y = "Feature",
-#              x = "Effect on Outcome")+
-#         scale_fill_gradient2(low = 'red', 
-#                              mid = 'grey60', 
-#                              high = 'deepskyblue1',
-#                              limit = c(-0.1, 0.1),
-#                              oob = scales::squish)+
-#         guides(fill = guide_colorbar(barheight = 0.5,
-#                                      barwidth = 15,
-#                                      title.position = 'top')
-#         )
-# 
+plot_roc_curve = function(preds) {
+        
+        metrics_valid |>
+        mutate_if(is.numeric, round, 3) |>
+        as.data.frame() |>
+        gt::gt() |>
+        gt::as_raw_html()
+}

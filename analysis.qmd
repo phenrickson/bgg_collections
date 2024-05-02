@@ -56,7 +56,34 @@ tar_load(preds_tuned_best)
 tar_load(preds_valid)
 tar_load(preds_test)
 tar_load(metrics_valid)
+tar_load(metrics_test)
 tar_load(games)
+tar_load(tune_metrics)
+
+metrics_combined =
+        bind_rows(
+                preds_tuned_best |>
+                        mutate(type = 'resamples'),
+                preds_valid |>
+                        mutate(type = 'validation'),
+                preds_test |>
+                        mutate(type = 'upcoming')
+        ) |>
+        mutate(type = factor(type, levels = c("resamples", "validation", "upcoming"))) |>
+        group_by(type) |>
+        tune_metrics(own, .pred_yes, event_level = 'second')
+
+preds_combined = 
+        bind_rows(
+                preds_tuned_best |>
+                        mutate(type = 'resamples'),
+                preds_valid |>
+                        mutate(type = 'validation'),
+                preds_test |>
+                        mutate(type = 'upcoming')
+        ) |> 
+        filter(yearpublished <= max(yearpublished, na.rm = T)-valid_years) |>
+        mutate(type = factor(type, levels = c("resamples", "validation", "upcoming")))
 
 theme_set(
         theme_bgg()
@@ -66,21 +93,61 @@ theme_set(
 
 # Tuning
 
-Results from tuning model over resamples.
-
-# Metrics
-
-Results on validation set
+Results from tuning over resamples 
 
 ```{r}
 
-metrics_valid |>
+tuned |>
+        autoplot()
+
+```
+
+
+# Metrics
+
+Results from resampling, validation, and upcoming.
+
+```{r}
+#| page-layout: full
+metrics_combined |>
         mutate_if(is.numeric, round, 3) |>
-        as.data.frame() |>
+        pivot_wider(
+                names_from = c(".metric"),
+                values_from = c(".estimate")
+        ) |>
         gt::gt() |>
         gt::as_raw_html()
 
 ```
+
+```{r}
+
+preds_combined |>
+        group_by(type) |>
+        yardstick::roc_curve(
+                own,
+                .pred_yes,
+                event_level = 'second'
+        ) |>
+        ggplot(aes(x=1-specificity,
+                   color = type,
+                   y=sensitivity))+
+        geom_line()+
+        bggUtils::theme_bgg()+
+        geom_abline(slope = 1,
+                    linetype = 'dotted')
+
+```
+
+
+```{r}
+
+preds_combined |>
+        nest(data = -type) |> 
+        mutate(data = map(data, ~ .x |> arrange(desc(.pred_yes)) |> mutate(rank = row_number()))) |> unnest(data) |> ggplot(aes(x=rank, y=.pred_yes))+geom_point(size = 0.25) +facet_wrap(type ~., ncol = 1, scales = "free_x")
+
+```
+
 
 # Coefficients
 
@@ -90,7 +157,7 @@ Trace plot of coefficients over regularization path.
 #| label: trace plot
 #| warning: false
 #| message: false
-
+#| page-layout: full
 final_fit |>
         trace_plot.glmnet(max.overlaps = 30)
 
@@ -101,7 +168,7 @@ Top positive and negative features and their impact on the outcome.
 ```{r}
 #| label: top positive and negative features
 #| fig-height: 7
-
+#| page-layout: full
 final_fit |>
         get_coefs.glmnet() |>
         top_coefs_by_sign() |>
@@ -116,6 +183,7 @@ Look at the top positive and negative effects from specific groups of predictors
 ```{r}
 #| label: plot effects by group
 #| class: scroll
+#| page-layout: full
 #| fig-height: 4
 
 coefs =
@@ -126,7 +194,7 @@ plots =
         map(
                 c('mechanics', 'designers', 'artists', 'publishers', 'categories', 'themes', 'components'),
                 ~ coefs |>
-                        mutate(term = gsub("themes_theme", "themes_")) |>
+                        mutate(term = gsub("themes_theme", "themes_", term)) |>
                         coef_plot_by_group(group = .x,
                                            shrink = F,
                                            scales = "free")
@@ -145,9 +213,10 @@ What were the top games from resampling?
 
 ```{r}
 #| class: scroll
-
+#| page-layout: full
 preds_tuned_best|>
-        head(100) |>
+        arrange(desc(.pred_yes)) |>
+        head(500) |>
         prep_predictions_tbl(
                 games = games
         ) |>
@@ -161,11 +230,12 @@ What were the top games from the validation set?
 
 ```{r}
 #| class: scroll
+#| page-layout: full
 preds_valid |>
-        head(100) |>
         prep_predictions_tbl(
                 games = games
         ) |>
+        head(500) |>
         gt_predictions()
 ```
 
@@ -176,6 +246,7 @@ What were the top upcoming games?
 
 ```{r}
 #| class: scroll
+#| page-layout: full
 preds_test |>
         prep_predictions_tbl(
                 games = games
@@ -187,6 +258,7 @@ preds_test |>
         ) |>
         filter(usersrated >= 5) |>
         mutate(rank = row_number()) |>
+        select(-usersrated) |>
         gt_predictions()
 
 ```

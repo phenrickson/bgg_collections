@@ -47,13 +47,16 @@ prep_predictions_tbl = function(predictions,
                         own,
                         link,
                         .keep = 'none') |>
+                # remove if missing image
+                filter(!is.na(image)) |>
                 # make link
                 mutate(game = map2(paste0(game, " (", published, ")"),
                                    link,
                                    ~ gt_hyperlink(.x, .y))) |>
                 # truncate description
                 mutate(description = stringr::str_trunc(description,
-                                                        description_length))
+                                                        description_length)) |>
+                arrange(desc(.pred_yes))
         
 }
 
@@ -106,7 +109,7 @@ gt_predictions = function(data) {
                         game ~ px(150),
                         description ~ px(400)
                 ) |>
-                fmt_number(
+                gt::fmt_number(
                         columns = starts_with(".pred"),
                         decimals = 3
                 ) |>

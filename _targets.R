@@ -29,7 +29,7 @@ tar_source("src/models/training.R")
 
 # parameters used in the workflow
 username = 'phenrickson'
-end_train_year = 2020
+end_train_year = 2021
 valid_years = 2
 min_ratings = 25
 
@@ -69,25 +69,25 @@ list(
                         )
         ),
         tar_target(
-                name = train_data,
-                command = 
-                        split |>
-                        analysis() |>
-                        filter(usersrated >=min_ratings)
-        ),
-        tar_target(
                 name = test_data,
                 command = 
                         split |>
                         assessment()
         ),
         tar_target(
-                name = valid_split,
+                name = train_data,
                 command = 
-                        train_data |>
-                        split_by_year(
-                                end_train_year = end_train_year-valid_years
-                        )
+                        split |>
+                        analysis() |>
+                        filter(yearpublished <= end_train_year - valid_years) |>
+                        filter(usersrated >= 25)
+        ),
+        tar_target(
+                name = valid_data,
+                command = 
+                        split |>
+                        analysis() |>
+                        filter(yearpublished > end_train_year - valid_years)
         ),
         tar_target(
                 name = model_spec,
@@ -99,27 +99,14 @@ list(
         tar_target(
                 name = recipe,
                 command = 
-                        valid_split |>
-                        analysis() |>
+                        train_data |>
                         build_recipe(
                                 outcome = own,
                                 ids = id_vars(),
                                 predictors = predictor_vars()
                         ) |>
-                        step_rm(has_role("extras")) |>
-                        add_preprocessing() |>
-                        add_imputation() |>
-                        add_bgg_dummies(mechanics_threshold = 5,
-                                        designers_threshold = 10,
-                                        artists_threshold = 10,
-                                        publishers_threshold = 10) |>
-                        # spline for year
-                        add_splines(vars = "year", degree = 4) |>
-                        # splines with fifth degree polynomials for mechanics/categories
-                        add_splines(c("number_mechanics", "number_categories")) |>
-                        # remove zero variance
-                        add_zv() |>
-                        add_normalize()
+                        add_bgg_preprocessing() |>
+                        add_linear_preprocessing()
         ),
         tar_target(
                 name = tuning_grid,
@@ -138,9 +125,8 @@ list(
         tar_target(
                 name = resamples,
                 command = 
-                        valid_split |>
-                        analysis() |>
-                        vfold_cv(
+                        train_data |>
+                        create_resamples(
                                 v = 5,
                                 strata = own
                         )
@@ -187,46 +173,33 @@ list(
                 name = preds_tuned_best,
                 command = 
                         tuned |> 
-                        collect_predictions(parameters = best_par) |> 
-                        arrange(desc(.pred_yes)) |> 
-                        left_join(
-                                tuned |> 
-                                        pluck("splits", 1) |> 
-                                        pluck("data") |>
-                                        select(game_id, name, yearpublished) |>
-                                        mutate(.row = row_number()),
-                                by = join_by(.row)
+                        get_best_preds(
+                                parameters = best_par
                         )
         ),
         tar_target(
-                name = last_fit,
+                name = train_fit,
                 command = 
                         wflow |> 
                         finalize_workflow(parameters = best_par) |> 
-                        last_fit(
-                                split = valid_split,
-                                metrics = tune_metrics
+                        fit(
+                                train_data
                         )
         ),
         tar_target(
                 name = preds_valid,
                 command = 
-                        last_fit |> 
-                        collect_predictions() |>
-                        arrange(desc(.pred_yes)) |> 
-                        left_join(
-                                last_fit |> 
-                                        pluck("splits", 1) |> 
-                                        pluck("data") |>
-                                        select(game_id, name, yearpublished) |>
-                                        mutate(.row = row_number())
-                        )
+                        train_fit |>
+                        augment(
+                                valid_data
+                        ) |>
+                        arrange(desc(.pred_yes))
         ),
         tar_target(
                 name = metrics_valid,
                 command = 
-                        last_fit |>
-                        collect_metrics(type = 'wide')
+                        preds_valid |>
+                        tune_metrics(own, .pred_yes, event_level = 'second')
         ),
         tar_target(
                 name = final_fit,
@@ -234,7 +207,11 @@ list(
                         wflow |>
                         finalize_workflow(parameters = best_par) |>
                         fit(
-                                valid_split$data
+                                bind_rows(
+                                        train_data,
+                                        valid_data
+                                ) |>
+                                        filter(usersrated >=25)
                         )
         ),
         tar_target(
@@ -247,18 +224,15 @@ list(
                 name = metrics_test,
                 command = 
                         preds_test |> 
+                        filter(yearpublished <= max(yearpublished, na.rm = T)-valid_years) |>
                         group_by(yearpublished) |> 
                         tune_metrics(own, .pred_yes, event_level = 'second')
         ),
         tar_target(
                 name = results,
                 command = 
-                        {
-                                results = metrics_valid |>
-                                        mutate_if(is.numeric, round, 4)
-
-                                write.csv(results, "targets-runs/results.csv")
-                        },
+                        metrics_valid |>
+                        write_results(),
                 format = "file"
         ),
         tar_quarto(
