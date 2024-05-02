@@ -15,6 +15,7 @@ Inspecting results from a penalized regression trained to predict a Boardgamegee
 
 
 ```{css, echo = FALSE}
+
 .scroll {
 max-height: 800px;
 overflow-y: scroll;

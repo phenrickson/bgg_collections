@@ -127,12 +127,12 @@ add_dummies = function(recipe,
 
 # standard dummy recipes
 add_bgg_dummies = function(recipe,
-                           mechanics_threshold = 1,
+                           mechanics_threshold = 10,
                            categories_threshold = 1,
                            families_threshold = 100,
                            publishers_threshold = 10,
                            designers_threshold = 10,
-                           artists_threshold = 25,
+                           artists_threshold = 10,
                            components_threshold = 25,
                            themes_threshold = 25,
                            mechanisms_threshold = 25
