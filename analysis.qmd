@@ -137,59 +137,6 @@ walk(plots,
 
 ```
 
-<!-- ## Log Odds -->
-
-<!-- ```{r} -->
-
-<!-- data = valid_split$data -->
-
-<!-- prop_collection = -->
-<!--         data |> -->
-<!--         select(own, game_id, name, yearpublished, publishers) |> -->
-<!--         separate_longer_delim(publishers, -->
-<!--                               delim = ",") |> -->
-<!--         mutate(publishers = bggUtils::present_bgg_text(publishers)) |> -->
-<!--         mutate(games = n_distinct(game_id)) |> -->
-<!--         group_by(games, publishers, own) |> -->
-<!--         count() |> -->
-<!--         pivot_wider( -->
-<!--                 names_from = c("own"), -->
-<!--                 values_from = c("n"), -->
-<!--                 values_fill = 0 -->
-<!--         ) |> -->
-<!--         ungroup() |> -->
-<!--         mutate(total= yes+no, -->
-<!--                prop_global = total / games, -->
-<!--                prop_mechanic = yes /total, -->
-<!--                prop_collection = yes / sum(yes)) |> -->
-<!--         arrange(prop_collection) |> -->
-<!--         mutate(log_odds = log(prop_collection / prop_global)) |> -->
-<!--         filter(total > 10) -->
-
-<!-- prop_collection |> -->
-<!--         arrange(desc(log_odds)) |> -->
-<!--         filter(!is.infinite(log_odds)) |> -->
-<!--         select(publishers, yes, total, prop_global, prop_mechanic, prop_collection, log_odds) |> -->
-<!--         mutate_if(is.numeric, round, 3) |> -->
-<!--         select(publishers, yes, total, prop_global, prop_collection, log_odds) |> -->
-<!--         gt::gt() |> -->
-<!--         gt::tab_options( -->
-<!--                 table.font.size = 8 -->
-<!--         ) |> -->
-<!--         gt::data_color( -->
-<!--                 columns = c("log_odds"), -->
-<!--                 method = c("numeric"), -->
-<!--                 direction = c("column"), -->
-<!--                 palette = "RdBu" -->
-<!--         ) |> -->
-<!--         gt::opt_interactive( -->
-<!--                 use_filters = TRUE, -->
-<!--                 use_compact_mode = TRUE, -->
-<!--                 use_text_wrapping = FALSE -->
-<!--         ) -->
-
-<!-- ``` -->
-
 # Games
 
 ## Training
