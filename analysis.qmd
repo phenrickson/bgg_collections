@@ -127,7 +127,6 @@ plots =
                 c('mechanics', 'designers', 'artists', 'publishers', 'categories', 'themes', 'components'),
                 ~ coefs |>
                         mutate(term = gsub("themes_theme", "themes_")) |>
-                        mutate(term = gsub(""))
                         coef_plot_by_group(group = .x,
                                            shrink = F,
                                            scales = "free")
