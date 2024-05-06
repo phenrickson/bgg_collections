@@ -1,0 +1,256 @@
+---
+title: "Examine Model"
+format: 
+        html:
+                code-fold: true
+                code-overflow: scroll
+                code-summary: 'Show the code'
+                self-contained: true
+editor: source
+---
+
+```{r}
+#| include: false
+library(targets)
+library(dplyr)
+library(tibble)
+library(gt)
+```
+
+# About
+
+Inspecting results from a penalized regression trained to predict a Boardgamegeek collection.
+
+```{r}
+#| include: false
+# load in dependencies from targets
+targets::tar_load_globals()
+targets::tar_source("src/visualization/inference.R")
+targets::tar_source("src/visualization/tables.R")
+
+library(gt)
+library(gtExtras)
+library(ggrepel)
+
+display_preds = function(preds,
+                         digits =2) {
+        
+        preds |>
+                select(yearpublished, game_id, name, .pred_yes, own) |>
+                mutate_if(is.numeric, round, digits) |>
+                as.data.frame()
+}
+
+```
+
+```{r}
+tar_load(valid_split)
+tar_load(tuned)
+tar_load(final_fit)
+tar_load(preds_tuned_best)
+tar_load(preds_valid)
+tar_load(preds_test)
+tar_load(metrics_valid)
+tar_load(metrics_test)
+tar_load(games)
+tar_load(tune_metrics)
+
+metrics_combined =
+        bind_rows(
+                preds_tuned_best |>
+                        mutate(type = 'resamples'),
+                preds_valid |>
+                        mutate(type = 'validation'),
+                preds_test |>
+                        mutate(type = 'upcoming')
+        ) |>
+        mutate(type = factor(type, levels = c("resamples", "validation", "upcoming"))) |>
+        group_by(type) |>
+        tune_metrics(own, .pred_yes, event_level = 'second')
+
+preds_combined = 
+        bind_rows(
+                preds_tuned_best |>
+                        mutate(type = 'resamples'),
+                preds_valid |>
+                        mutate(type = 'validation'),
+                preds_test |>
+                        mutate(type = 'upcoming')
+        ) |> 
+        filter(yearpublished <= max(yearpublished, na.rm = T)-valid_years) |>
+        mutate(type = factor(type, levels = c("resamples", "validation", "upcoming")))
+
+theme_set(
+        theme_bgg()
+)
+
+```
+
+# Tuning
+
+Results from tuning over resamples 
+
+```{r}
+
+tuned |>
+        autoplot()
+
+```
+
+
+# Metrics
+
+Results from resampling, validation, and upcoming.
+
+```{r}
+#| page-layout: full
+metrics_combined |>
+        mutate_if(is.numeric, round, 3) |>
+        pivot_wider(
+                names_from = c(".metric"),
+                values_from = c(".estimate")
+        ) |>
+        gt::gt() |>
+        gt::as_raw_html()
+
+```
+
+```{r}
+
+preds_combined |>
+        group_by(type) |>
+        yardstick::roc_curve(
+                own,
+                .pred_yes,
+                event_level = 'second'
+        ) |>
+        ggplot(aes(x=1-specificity,
+                   color = type,
+                   y=sensitivity))+
+        geom_line()+
+        bggUtils::theme_bgg()+
+        geom_abline(slope = 1,
+                    linetype = 'dotted')
+
+```
+
+
+```{r}
+
+preds_combined |>
+        nest(data = -type) |> 
+        mutate(data = map(data, ~ .x |> arrange(desc(.pred_yes)) |> mutate(rank = row_number()))) |> unnest(data) |> ggplot(aes(x=rank, y=.pred_yes))+geom_point(size = 0.25) +facet_wrap(type ~., ncol = 1, scales = "free_x")
+
+```
+
+
+# Coefficients
+
+Trace plot of coefficients over regularization path.
+
+```{r}
+#| warning: false
+#| message: false
+#| page-layout: full
+final_fit |>
+        trace_plot.glmnet(max.overlaps = 30)
+
+```
+
+Top positive and negative features and their impact on the outcome.
+
+```{r}
+#| fig-height: 7
+#| page-layout: full
+final_fit |>
+        get_coefs.glmnet() |>
+        top_coefs_by_sign() |>
+        coef_plot.glmnet()
+
+```
+
+## Effects by Group
+
+Look at the top positive and negative effects from specific groups of predictors.
+
+```{r}
+#| class: scroll
+#| page-layout: full
+#| fig-height: 4
+
+coefs =
+        final_fit |>
+        get_coefs.glmnet()
+
+plots =
+        map(
+                c('mechanics', 'designers', 'artists', 'publishers', 'categories', 'families', 'themes', 'components'),
+                ~ coefs |>
+                        mutate(term = gsub("themes_theme", "themes_", term)) |>
+                        coef_plot_by_group(group = .x,
+                                           shrink = F,
+                                           scales = "free")
+        )
+
+walk(plots,
+     print)
+
+```
+
+# Games
+
+## Training
+
+What were the top games from resampling?
+
+```{r}
+#| class: scroll
+#| page-layout: full
+preds_tuned_best|>
+        arrange(desc(.pred_yes)) |>
+        head(500) |>
+        prep_predictions_tbl(
+                games = games
+        ) |>
+        gt_predictions()
+
+```
+
+## Validation
+
+What were the top games from the validation set?
+
+```{r}
+#| class: scroll
+#| page-layout: full
+preds_valid |>
+        prep_predictions_tbl(
+                games = games
+        ) |>
+        head(500) |>
+        gt_predictions()
+```
+
+
+## Upcoming
+
+What were the top upcoming games?
+
+```{r}
+#| class: scroll
+#| page-layout: full
+preds_test |>
+        prep_predictions_tbl(
+                games = games
+        ) |>
+        left_join(
+                games |> 
+                        select(game_id, usersrated),
+                by = join_by(game_id)
+        ) |>
+        filter(usersrated >= 5) |>
+        mutate(rank = row_number()) |>
+        select(-usersrated) |>
+        gt_predictions()
+
+```

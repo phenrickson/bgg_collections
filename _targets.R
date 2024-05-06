@@ -36,15 +36,20 @@ min_ratings = 25
 # Replace the target list below with your own:
 list(
         tar_target(
-                name = games,
+                name = games_raw,
                 packages = c("googleCloudStorageR"),
                 command = 
                         load_games(
                                 object_name = "raw/objects/games",
                                 generation = "1711561705858375",
                                 bucket = "bgg_data"
-                        ) |>
-                        preprocess_games()
+                        )
+        ),
+        tar_target(
+                name = games,
+                command = 
+                        games_raw |>
+                        bggUtils::preprocess_bgg_games()
         ),
         tar_target(
                 name = collection,
@@ -235,9 +240,18 @@ list(
                         write_results(),
                 format = "file"
         ),
+        # tar_quarto(
+        #         name = report,
+        #         path = "targets-runs/report.qmd"
+        # ),
         tar_quarto(
-                name = report,
-                path = "targets-runs/report.qmd",
-                execute_params = list(my_param = results)
+                name = user_report,
+                path = "targets-runs/analysis.qmd",
+                quiet = F
         )
+        # tar_quarto(
+        #         name = collection_report,
+        #         path = "analysis.qmd",
+        #         quiet = F
+        # )
 )
