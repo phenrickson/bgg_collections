@@ -26,8 +26,10 @@ tar_option_set(
 tar_source("src/data/load_data.R")
 tar_source("src/models/splitting.R")
 tar_source("src/models/training.R")
+tar_source("src/visualization/inference.R")
+tar_source("src/visualization/tables.R")
 
-# parameters used in the workflow
+# parameters used in the pipeline
 username = 'phenrickson'
 end_train_year = 2021
 valid_years = 2
@@ -246,7 +248,7 @@ list(
         # ),
         tar_quarto(
                 name = user_report,
-                path = "targets-runs/analysis.qmd",
+                path = "docs/analysis.qmd",
                 quiet = F
         )
         # tar_quarto(

@@ -106,6 +106,7 @@ top_coefs_by_sign = function(coefs,
         coefs |>
                 mutate(sign = case_when(estimate > 0 ~ 'increases probability',
                                         estimate < 0 ~ 'decreases probability')) |>
+                mutate(sign = factor(sign, levels = c("increases probability", "decreases probability"))) |>
                 group_by(sign) |>
                 slice_max(abs(estimate),
                           n =n)
