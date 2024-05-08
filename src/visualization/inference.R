@@ -106,6 +106,7 @@ top_coefs_by_sign = function(coefs,
         coefs |>
                 mutate(sign = case_when(estimate > 0 ~ 'increases probability',
                                         estimate < 0 ~ 'decreases probability')) |>
+                mutate(sign = factor(sign, levels = c("increases probability", "decreases probability"))) |>
                 group_by(sign) |>
                 slice_max(abs(estimate),
                           n =n)
@@ -113,7 +114,7 @@ top_coefs_by_sign = function(coefs,
 
 coef_plot.glmnet = function(coefs,
                             minlength = 50,
-                            limits = c(-0.1,0.1),
+                            limits = c(-0.05,0.05),
                             midpoint = 0,
                             facet_by_sign = F,
                             ...) {

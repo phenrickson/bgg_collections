@@ -26,8 +26,11 @@ tar_option_set(
 tar_source("src/data/load_data.R")
 tar_source("src/models/splitting.R")
 tar_source("src/models/training.R")
+tar_source("src/visualization/inference.R")
+tar_source("src/visualization/tables.R")
+tar_source("src/visualization/plots.R")
 
-# parameters used in the workflow
+# parameters used in the pipeline
 username = 'phenrickson'
 end_train_year = 2021
 valid_years = 2
@@ -36,15 +39,20 @@ min_ratings = 25
 # Replace the target list below with your own:
 list(
         tar_target(
-                name = games,
+                name = games_raw,
                 packages = c("googleCloudStorageR"),
                 command = 
                         load_games(
                                 object_name = "raw/objects/games",
                                 generation = "1711561705858375",
                                 bucket = "bgg_data"
-                        ) |>
-                        preprocess_games()
+                        )
+        ),
+        tar_target(
+                name = games,
+                command = 
+                        games_raw |>
+                        bggUtils::preprocess_bgg_games()
         ),
         tar_target(
                 name = collection,
@@ -235,9 +243,47 @@ list(
                         write_results(),
                 format = "file"
         ),
+        tar_target(
+                name = metrics_combined,
+                command = 
+                        bind_rows(
+                                preds_tuned_best |>
+                                        mutate(type = 'resamples'),
+                                preds_valid |>
+                                        mutate(type = 'validation'),
+                                preds_test |>
+                                        mutate(type = 'upcoming')
+                        ) |>
+                        mutate(type = factor(type, levels = c("resamples", "validation", "upcoming"))) |>
+                        group_by(type) |>
+                        tune_metrics(own, .pred_yes, event_level = 'second')
+        ),
+        tar_target(
+                name = preds_combined,
+                command = 
+                        bind_rows(
+                                preds_tuned_best |>
+                                        mutate(type = 'resamples'),
+                                preds_valid |>
+                                        mutate(type = 'validation'),
+                                preds_test |>
+                                        mutate(type = 'upcoming')
+                        ) |> 
+                        filter(yearpublished <= max(yearpublished, na.rm = T)-valid_years) |>
+                        mutate(type = factor(type, levels = c("resamples", "validation", "upcoming")))
+        ),
+        # tar_quarto(
+        #         name = report,
+        #         path = "targets-runs/report.qmd"
+        # ),
         tar_quarto(
-                name = report,
-                path = "targets-runs/report.qmd",
-                execute_params = list(my_param = results)
+                name = user_report,
+                path = "docs/analysis.qmd",
+                quiet = F
         )
+        # tar_quarto(
+        #         name = collection_report,
+        #         path = "analysis.qmd",
+        #         quiet = F
+        # )
 )
