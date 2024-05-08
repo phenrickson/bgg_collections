@@ -158,8 +158,8 @@ gt_predictions = function(data,
 
 
 
-make_collection_datable = function(collection_table,
-                                   page_length = 10) {
+collection_datatable = function(collection_table,
+                                page_length = 10) {
         
         
         rating = seq(3, 13)
@@ -236,7 +236,7 @@ prep_collection_datatable = function(collection,
         
         
         playercounts = 
-                games_raw |>
+                games |>
                 inner_join(
                         collection |>
                                 select(game_id),
@@ -246,11 +246,11 @@ prep_collection_datatable = function(collection,
                 bggUtils:::wider_playercounts()
         
         outcomes = 
-                games_raw |>
+                games |>
                 bggUtils:::unnest_outcomes()
         
         info =
-                games_raw |>
+                games|>
                 inner_join(
                         collection |>
                                 select(game_id),
@@ -283,6 +283,7 @@ prep_collection_datatable = function(collection,
                                 TRUE ~ as.character(playingtime)
                         )
                 ) |>
+                mutate(name = make_hyperlink(make_bgg_link(game_id), mytext = name)) |>
                 mutate(
                         id = game_id,
                         game = name,
@@ -294,3 +295,169 @@ prep_collection_datatable = function(collection,
                 )
         
 }
+
+top_n_preds = function(preds, 
+                       games,
+                       top_n = 15,
+                       n_years = 10) {
+        
+        top_preds = 
+                preds |>
+                nest(data = -yearpublished) |>
+                slice_max(yearpublished, n = n_years, with_ties = F) |>
+                unnest(data) |>
+                group_by(yearpublished) |>
+                arrange(desc(.pred_yes)) |>
+                slice_max(.pred_yes, n = top_n) |>
+                mutate(rank =row_number()) |>
+                select(yearpublished, game_id, rank, .pred_yes, own) |>
+                inner_join(
+                        games |>
+                                select(game_id, name),
+                        by = join_by(game_id)
+                )
+        
+        top_preds
+}
+
+gt_top_n = function(preds, collection) {
+        
+        
+        highlight_own = 
+                collection %>%
+                filter(own == 'yes') %>% 
+                pull(name)
+        
+        highlight_ever_owned = 
+                collection %>%
+                filter(ever_owned == 'yes') %>%
+                pull(name)
+        
+        table = preds %>%
+                select(name, yearpublished, rank) %>%
+                pivot_wider(id_cols = c("rank"),
+                            names_from = c("yearpublished"),
+                            values_from = c("name"),
+                            values_fn = list)
+        
+        table |>
+                unnest(cols = names(table)) |>
+                gt::gt() |>
+                gt::cols_label(
+                        rank = "Rank"
+                ) |>
+                gt::cols_align(align = c("center")) |>
+                # add color for own
+                gt::data_color(
+                        columns = everything(),
+                        method = "factor",
+                        na_color = "white",
+                        autocolor_text = T,
+                        fn = function(x) case_when(x %in% highlight_own ~ 'dodgerblue2',
+                                                   x %in% highlight_ever_owned ~ 'skyblue1',
+                                                   TRUE ~ 'white')
+                ) |>
+                gtExtras::gt_theme_espn() |>
+                gt::tab_options(table.font.size = 10,
+                                container.height = 600,
+                                data_row.padding = gt::px(5),
+                                container.overflow.x = T,
+                                container.overflow.y = T)
+        
+}
+
+prep_predictions_datatable = function(predictions, 
+                                      games) {
+        
+        predictions |>
+                select(
+                        .pred_yes,
+                        own,
+                        game_id,
+                        name,
+                        yearpublished
+                ) |>
+                arrange(desc(.pred_yes)) |>
+                mutate(name = make_hyperlink(make_bgg_link(game_id), 
+                                             mytext = paste(name, yearpublished))
+                ) |>
+                left_join(
+                        games |>
+                                select(game_id, description, image, thumbnail),
+                        by = join_by(game_id)
+                ) |>
+                filter(!is.na(image)) |>
+                mutate(
+                        Rank = row_number(),
+                        Image = make_image_link(thumbnail),
+                        Game = name,
+                        Description = stringr::str_trunc(description, 300),
+                        `Pr(Own)` = .pred_yes,
+                        Own = own,
+                        .keep = 'none') 
+        
+}
+
+predictions_datatable = function(preds,
+                                 pagelength = 10) {
+        
+        cuts = seq(0, 1.2, 0.05)
+        
+        color = 'dodgerblue2'
+        
+        my_color_ramp = colorRampPalette(c("white", color))
+        
+        max_color = my_color_ramp(length(cuts)-5)[length(cuts)-5]
+        
+        preds |>
+                DT::datatable(escape=F,
+                              rownames = F,
+                              extensions = c('Responsive'),
+                              #  caption = "Games",
+                              class = list(stripe =F),
+                              filter = list(position = 'top'),
+                              options = list(pageLength = pagelength,
+                                             initComplete = htmlwidgets::JS(
+                                                     "function(settings, json) {",
+                                                     paste0("$(this.api().table().container()).css({'font-size': '", '10pt', "'});"),
+                                                     "}"),
+                                             scrollX=F,
+                                             columnDefs = list(
+                                                     list(className = 'dt-center',
+                                                          visible=T,
+                                                          targets = c("Rank",
+                                                                      "Image",
+                                                                      "Pr(Own)",
+                                                                      "Own")
+                                                     )
+                                             )
+                              )
+                ) |> 
+                DT::formatRound(columns=c('Pr(Own)'), digits=3) |>
+                DT::formatStyle(
+                        'Own',
+                        valueColumns = 'Own',
+                        backgroundColor = DT::styleEqual(levels = c('yes','no'),
+                                                         c(max_color,
+                                                           'white'))
+                ) |>
+                DT::formatStyle(
+                        columns = 'Pr(Own)',
+                        backgroundColor = 
+                                DT::styleInterval(
+                                        cuts = cuts,
+                                        values = my_color_ramp(length(cuts)+1)
+                                )
+                )
+        
+}
+
+# preds_tuned_best |>
+#         top_n_preds(
+#                 games = games,
+#                 top_n = 15
+#         ) |>
+#         gt_top_n(
+#                 collection = collection |>
+#                         prep_collection()
+#         )

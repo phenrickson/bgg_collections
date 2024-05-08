@@ -114,7 +114,7 @@ top_coefs_by_sign = function(coefs,
 
 coef_plot.glmnet = function(coefs,
                             minlength = 50,
-                            limits = c(-0.1,0.1),
+                            limits = c(-0.05,0.05),
                             midpoint = 0,
                             facet_by_sign = F,
                             ...) {

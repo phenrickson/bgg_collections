@@ -28,6 +28,7 @@ tar_source("src/models/splitting.R")
 tar_source("src/models/training.R")
 tar_source("src/visualization/inference.R")
 tar_source("src/visualization/tables.R")
+tar_source("src/visualization/plots.R")
 
 # parameters used in the pipeline
 username = 'phenrickson'
@@ -241,6 +242,35 @@ list(
                         metrics_valid |>
                         write_results(),
                 format = "file"
+        ),
+        tar_target(
+                name = metrics_combined,
+                command = 
+                        bind_rows(
+                                preds_tuned_best |>
+                                        mutate(type = 'resamples'),
+                                preds_valid |>
+                                        mutate(type = 'validation'),
+                                preds_test |>
+                                        mutate(type = 'upcoming')
+                        ) |>
+                        mutate(type = factor(type, levels = c("resamples", "validation", "upcoming"))) |>
+                        group_by(type) |>
+                        tune_metrics(own, .pred_yes, event_level = 'second')
+        ),
+        tar_target(
+                name = preds_combined,
+                command = 
+                        bind_rows(
+                                preds_tuned_best |>
+                                        mutate(type = 'resamples'),
+                                preds_valid |>
+                                        mutate(type = 'validation'),
+                                preds_test |>
+                                        mutate(type = 'upcoming')
+                        ) |> 
+                        filter(yearpublished <= max(yearpublished, na.rm = T)-valid_years) |>
+                        mutate(type = factor(type, levels = c("resamples", "validation", "upcoming")))
         ),
         # tar_quarto(
         #         name = report,
