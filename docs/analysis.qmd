@@ -1,0 +1,372 @@
+---
+title: "Predicting BGG Collections"
+format: 
+        html:
+                code-fold: true
+                code-overflow: scroll
+                code-summary: 'Show the code'
+                self-contained: true
+                toc: true
+                fig-align: center
+                theme: cerulean
+                message: false
+                include-in-header:
+                - text: |
+                      <style>
+                      .panel-tabset > .nav-tabs,
+                      .panel-tabset > .tab-content {border: none;}
+                      </style>
+css: styles.css
+editor: source
+---
+
+```{r}
+#| echo: false
+#| include: false
+library(targets)
+library(dplyr)
+library(tibble)
+library(gt)
+library(gtExtras)
+library(ggrepel)
+```
+
+# About
+
+Inspecting results from a predictive model trained to predict a BoardGameGeek collection.
+
+```{r}
+#| include: false
+#| echo: false
+# load in dependencies from targets
+targets::tar_load_globals()
+
+```
+
+```{r}
+#| echo: false
+tar_load(collection)
+tar_load(tuned)
+tar_load(final_fit)
+tar_load(preds_tuned_best)
+tar_load(preds_valid)
+tar_load(preds_test)
+tar_load(metrics_valid)
+tar_load(metrics_test)
+tar_load(games)
+tar_load(games_raw)
+tar_load(tune_metrics)
+tar_load(metrics_combined)
+tar_load(preds_combined)
+
+theme_set(
+        theme_bgg()
+)
+
+```
+
+# Collection
+
+## Types of Games
+
+What types of game does the user own? The following plot displays the most frequent publishers, mechanics, designers, artists, etc that appear in a user’s collection.
+
+```{r}
+#| fig-height: 7
+collection |>
+        filter(own == 1) |>
+        collection_by_category(
+                games = games_raw
+        ) |>
+        plot_collection_by_category()
+
+```
+
+## Games in Collection
+
+What games does the user currently have in their collection? The following table can be used to examine games the user owns, along with some helpful information for selecting the right game for a game night!
+
+Use the filters above the table to sort/filter based on information about the game, such as year published, recommended player counts, or playing time.
+
+```{r}
+
+collection |>
+        filter(own == 1) |>
+        prep_collection_datatable(
+                games = games_raw
+        ) |>
+        collection_datatable()
+
+```
+
+# Modeling
+
+I’ll now the examine predictive models trained on the user’s collection.
+
+For an individual user, I train a predictive model on their collection in order to predict whether a user owns a game. The outcome, in this case, is binary: does the user have a game listed in their collection or not? This is the setting for training a classification model, where the model aims to learn the probability that a user will add a game to their collection based on its observable features.
+
+How does a model learn what a user is likely to own? The training process is a matter of examining historical games and finding patterns that exist between game features (designers, mechanics, playing time, etc) and games in the user’s collection.
+
+::: {.callout-note}
+
+I train models to predict whether a user owns a game based only on information that could be observed about the game at its release: playing time, player count, mechanics, categories, genres, and selected designers, artists, and publishers. I do not make use of BGG community information, such as its average rating, weight, or number of user ratings. This is to ensure the model can predict newly released games without relying on information from the BGG community.
+
+:::
+
+## What Predict's a User's Collection?
+
+A predictive model gives us more than just predictions. We can also ask, what did the model learn from the data? What predicts the outcome? In the case of predicting a boardgame collection, what did the model find to be predictive of games a user has in their collection?
+
+To answer this, I examine the coefficients from a model logistic regression with ridge regularization (which I will refer to as a penalized logistic regression).
+
+Positive values indicate that a feature increases a user’s probability of owning/rating a game, while negative values indicate a feature decreases the probability. To be precise, the coefficients indicate the effect of a particular feature on the log-odds of a user owning a game.
+
+```{r}
+#| include: false
+top_coefs_plot = 
+        final_fit |>
+        get_coefs.glmnet() |>
+        top_coefs_by_sign() |>
+        coef_plot.glmnet()
+
+```
+
+```{r}
+#| fig-height: 6
+top_coefs_plot
+        
+```
+
+The following visualization shows the path of each feature as it enters the model, with highly influential features tending to enter the model early with large positive or negative effects. The dashed line indicates 
+
+```{r}
+#| warning: false
+#| message: false
+#| 
+final_fit |>
+        trace_plot.glmnet(max.overlaps = 30)
+
+```
+
+## Partial Effects
+
+What 
+Use the buttons below to examine the effects different types of predictors had in predicting the user's collection.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+coefs =
+        final_fit |>
+        get_coefs.glmnet()
+
+groups = c('Mechanics', 'Designers', 'Artists', 'Publishers', 'Categories', 'Families', 'Themes', 'Components')
+
+plots =
+        map(
+                tolower(groups),
+                ~ coefs |>
+                        mutate(term = gsub("themes_theme_", "themes_", term)) |>
+                        coef_plot_by_group(group = .x,
+                                           shrink = F,
+                                           scales = "free")+
+                        ggh4x::facet_grid2(
+                                sign~.,
+                                scales = "free_y"
+                        )+
+                        geom_vline(xintercept = c(min(coefs$estimate),
+                                                  max(coefs$estimate)),
+                                   linetype = 'dotted',
+                                   alpha = 0.25)+
+                        labs(
+                                subtitle = ''
+                        )
+        )
+
+names(plots) = groups
+
+```
+
+::: {.panel-tabset .nav-pills}
+
+### Categories
+
+```{r}
+#| echo: false
+#| class: scroll
+#| fig-height: 6
+plots$Categories
+
+```
+
+### Themes
+
+```{r}
+#| echo: false
+#| class: scroll
+#| fig-height: 6
+plots$Themes
+
+```
+
+### Families
+
+```{r}
+#| echo: false
+#| class: scroll
+#| fig-height: 6
+plots$Families
+
+```
+
+### Publishers
+
+```{r}
+#| echo: false
+#| class: scroll
+#| fig-height: 6
+plots$Publishers
+
+```
+
+### Designers
+
+```{r}
+#| echo: false
+#| class: scroll
+#| fig-height: 6
+plots$Designers
+```
+
+### Artists
+
+```{r}
+#| echo: false
+#| class: scroll
+#| fig-height: 6
+plots$Artists
+
+```
+
+### Components
+
+```{r}
+#| echo: false
+#| class: scroll
+#| fig-height: 6
+plots$Components
+
+```
+
+:::
+
+# Assessment
+
+How well did the model do in predicting the user’s collection?
+
+This section contains a variety of visualizations and metrics for assessing the performance of the model(s). If you’re not particularly interested in predictive modeling, skip down further to the predictions from the model.
+
+The following displays the model's performance in resampling on a training set, a validation set, and a holdout set of upcoming games.
+
+```{r}
+
+metrics_combined |>
+        mutate_if(is.numeric, round, 3) |>
+        pivot_wider(
+                names_from = c(".metric"),
+                values_from = c(".estimate")
+        ) |>
+        gt::gt() |>
+        gt::as_raw_html()
+
+```
+
+```{r}
+
+preds_combined |>
+        group_by(type) |>
+        yardstick::roc_curve(
+                own,
+                .pred_yes,
+                event_level = 'second'
+        ) |>
+        ggplot(aes(x=1-specificity,
+                   color = type,
+                   y=sensitivity))+
+        geom_line()+
+        bggUtils::theme_bgg()+
+        geom_abline(slope = 1,
+                    linetype = 'dotted')
+
+```
+
+## Top Games in Training
+
+What were the top games from resampling the training set?
+
+```{r}
+#| class: scroll
+
+preds_tuned_best |>
+        slice_max(.pred_yes, n=500) |>
+        prep_predictions_datatable(
+                games = games
+        ) |>
+        predictions_datatable()
+```
+
+## Top Games by Year
+
+Displaying the model's top games for individual years in recent years.
+
+```{r}
+#| warning: false
+#| message: false
+#| class: scroll
+
+bind_rows(
+        preds_tuned_best,
+        preds_valid
+) |>
+        top_n_preds(
+                games = games,
+                top_n = 15
+        ) |>
+        gt_top_n(
+                collection = collection |>
+                        prep_collection()
+        ) |>
+        gt::opt_row_striping(row_striping = F)
+```
+
+## Validation
+
+What were the top games from the validation set?
+
+```{r}
+#| class: scroll
+
+preds_valid |>
+        slice_max(.pred_yes, n=500) |>
+        prep_predictions_datatable(
+                games = games
+        ) |>
+        predictions_datatable()
+```
+
+# Predictions
+
+What were the model's top predictions for upcoming games?
+
+```{r}
+#| class: scroll
+#| message: false
+#| warning: false
+preds_test |>
+        filter(usersrated >= 5) |>
+        prep_predictions_datatable(
+                games = games
+        ) |>
+        predictions_datatable()
+```
