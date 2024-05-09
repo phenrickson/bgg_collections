@@ -190,9 +190,7 @@ list(
                 command = 
                         wflow |> 
                         finalize_workflow(parameters = best_par) |> 
-                        fit(
-                                train_data
-                        )
+                        fit(train_data)
         ),
         tar_target(
                 name = preds_valid,
@@ -210,17 +208,20 @@ list(
                         tune_metrics(own, .pred_yes, event_level = 'second')
         ),
         tar_target(
+                name = final_data,
+                command = 
+                        bind_rows(
+                                train_data,
+                                valid_data
+                        ) |>
+                        filter(usersrated >= 25)
+        ),
+        tar_target(
                 name = final_fit,
                 command = 
                         wflow |>
                         finalize_workflow(parameters = best_par) |>
-                        fit(
-                                bind_rows(
-                                        train_data,
-                                        valid_data
-                                ) |>
-                                        filter(usersrated >=25)
-                        )
+                        fit(final_data)
         ),
         tar_target(
                 name = preds_test,
@@ -244,21 +245,6 @@ list(
                 format = "file"
         ),
         tar_target(
-                name = metrics_combined,
-                command = 
-                        bind_rows(
-                                preds_tuned_best |>
-                                        mutate(type = 'resamples'),
-                                preds_valid |>
-                                        mutate(type = 'validation'),
-                                preds_test |>
-                                        mutate(type = 'upcoming')
-                        ) |>
-                        mutate(type = factor(type, levels = c("resamples", "validation", "upcoming"))) |>
-                        group_by(type) |>
-                        tune_metrics(own, .pred_yes, event_level = 'second')
-        ),
-        tar_target(
                 name = preds_combined,
                 command = 
                         bind_rows(
@@ -272,13 +258,21 @@ list(
                         filter(yearpublished <= max(yearpublished, na.rm = T)-valid_years) |>
                         mutate(type = factor(type, levels = c("resamples", "validation", "upcoming")))
         ),
-        # tar_quarto(
-        #         name = report,
-        #         path = "targets-runs/report.qmd"
-        # ),
-        tar_quarto(
-                name = user_report,
-                path = "docs/analysis.qmd",
+        tar_target(
+                name = metrics_combined,
+                command = 
+                        preds_combined |>
+                        group_by(type) |>
+                        tune_metrics(own, .pred_yes, event_level = 'second')
+        ),
+        tar_render(
+                name = report,
+                path = "report.qmd",
+                output_file = "docs/report.qmd",
+                quiet = F
+        ),
+        tar_quarto_raw(
+                name = "user_report",
                 quiet = F
         )
         # tar_quarto(
