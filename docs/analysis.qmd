@@ -137,7 +137,7 @@ top_coefs_plot
         
 ```
 
-The following visualization shows the path of each feature as it enters the model, with highly influential features tending to enter the model early with large positive or negative effects. The dashed line indicates 
+The following visualization shows the path of each feature as it enters the model, with highly influential features tending to enter the model early with large positive or negative effects. The dotted line indicates the level of regularization that was selected during tuning.
 
 ```{r}
 #| warning: false
