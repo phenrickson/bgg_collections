@@ -14,12 +14,17 @@ tar_option_set(
                      "dplyr",
                      "rsample",
                      "tidymodels",
+                     "lightgbm",
+                     'bonsai',
+                     "glmnet",
                      "quarto",
                      "visNetwork",
                      "bggUtils"),
         # default format for storing targets
         format = "qs",
-        seed = 1999
+        seed = 1999,
+        memory = "transient",
+        garbage_collection = T
 )
 
 # functions used in project
@@ -29,7 +34,6 @@ tar_source("src/models/training.R")
 tar_source("src/visualization/inference.R")
 tar_source("src/visualization/tables.R")
 tar_source("src/visualization/plots.R")
-
 
 # parameters used in the pipeline
 username = "phenrickson"
@@ -99,21 +103,6 @@ list(
                         filter(yearpublished > end_train_year - valid_years)
         ),
         tar_target(
-                name = model_spec,
-                command = 
-                        logistic_reg(penalty = tune::tune(),
-                                     mixture = tune::tune()) %>%
-                        set_engine("glmnet")
-        ),
-        tar_target(
-                name = tuning_grid,
-                command = 
-                        expand.grid(
-                                penalty = 10 ^ seq(-3, -0.75, length = 15),
-                                mixture = c(0)
-                        )
-        ),
-        tar_target(
                 name = tune_metrics,
                 command = 
                         metric_set(yardstick::mn_log_loss,
@@ -129,72 +118,68 @@ list(
                         )
         ),
         tar_target(
-                name = wflow,
+                tuned_glmnet,
                 command = 
-                        workflow() |>
-                        add_recipe(
-                                train_data |>
-                                        build_recipe(
-                                                outcome = own,
-                                                ids = id_vars(),
-                                                predictors = predictor_vars()
-                                        ) |>
-                                        add_bgg_preprocessing() |>
-                                        add_linear_preprocessing()
-                        ) |>
-                        add_model(
-                                model_spec
-                        )
-        ),
-        tar_target(
-                name = tuned,
-                command = 
-                        wflow |>
-                        tune_grid(
+                        train_data |>
+                        tune_wflow_glmnet(
                                 resamples = resamples,
-                                grid = tuning_grid,
-                                control = 
-                                        control_grid(
-                                                verbose = T,
-                                                save_pred = T),
                                 metrics = tune_metrics
                         )
         ),
         tar_target(
-                name = best_par,
+                tuned_lightgbm,
                 command = 
-                        tuned |> 
-                        select_best(metric = 'mn_log_loss')
+                        train_data |>
+                        tune_wflow_lightgbm(
+                                resamples = resamples,
+                                metrics = tune_metrics,
+                                grid = 10
+                        )
+        ),
+        tar_target(
+                wflows,
+                command =
+                        as_workflow_set(
+                                glmnet = tuned_glmnet,
+                                lightgbm = tuned_lightgbm
+                        )
         ),
         tar_target(
                 name = preds_tuned_best,
+                command =
+                        wflows |>
+                        collect_tune_preds()
+        ),
+        tar_target(
+                best_wflow,
+                command =
+                        wflows |>
+                        fit_best_wflow()
+        ),
+        tar_target(
+                best_wflow_id,
                 command = 
-                        tuned |> 
-                        get_best_preds(
-                                parameters = best_par
-                        )
+                        best_flow |>
+                        pull(wflow_id)
         ),
         tar_target(
                 name = preds_valid,
-                command = 
-                        wflow |> 
-                        finalize_workflow(parameters = best_par) |> 
-                        fit(train_data) |>
-                        augment(
-                                valid_data
-                        )
+                command =
+                        best_wflow |>
+                        pluck("wflow",1) |>
+                        augment(valid_data)
         ),
         tar_target(
                 name = metrics_valid,
-                command = 
+                command =
                         preds_valid |>
-                        tune_metrics(own, 
-                                     .pred_yes, 
+                        tune_metrics(own,
+                                     .pred_yes,
                                      event_level = 'second')
         ),
         tar_target(
                 name = final_data,
-                command = 
+                command =
                         bind_rows(
                                 train_data,
                                 valid_data
@@ -203,9 +188,9 @@ list(
         ),
         tar_target(
                 name = final_fit,
-                command = 
-                        wflow |>
-                        finalize_workflow(parameters = best_par) |>
+                command =
+                        best_wflow |>
+                        pluck("wflow",1) |>
                         fit(final_data)
         ),
         tar_target(
@@ -216,22 +201,22 @@ list(
         ),
         tar_target(
                 name = metrics_test,
-                command = 
-                        preds_test |> 
+                command =
+                        preds_test |>
                         filter(yearpublished <= max(yearpublished, na.rm = T)-valid_years) |>
-                        group_by(yearpublished) |> 
+                        group_by(yearpublished) |>
                         tune_metrics(own, .pred_yes, event_level = 'second')
         ),
         tar_target(
                 name = results,
-                command = 
+                command =
                         metrics_valid |>
                         write_results(),
                 format = "file"
         ),
         tar_target(
                 name = preds_combined,
-                command = 
+                command =
                         bind_rows(
                                 preds_tuned_best |>
                                         mutate(type = 'resamples'),
@@ -239,25 +224,26 @@ list(
                                         mutate(type = 'validation'),
                                 preds_test |>
                                         mutate(type = 'upcoming')
-                        ) |> 
+                        ) |>
                         filter(yearpublished <= max(yearpublished, na.rm = T)-valid_years) |>
+                        select(.pred_yes, own, game_id, name, yearpublished, type) |>
                         mutate(type = factor(type, levels = c("resamples", "validation", "upcoming")))
         ),
         tar_target(
                 name = metrics_combined,
-                command = 
+                command =
                         preds_combined |>
                         group_by(type) |>
                         tune_metrics(own, .pred_yes, event_level = 'second')
-        ),
-        tar_render(
-                name = report,
-                path = "report.qmd",
-                output_file = "docs/report.qmd",
-                quiet = F
-        ),
-        tar_quarto_raw(
-                name = "user_report",
-                quiet = F
         )
+        # tar_render(
+        #         name = report,
+        #         path = "report.qmd",
+        #         output_file = "docs/report.qmd",
+        #         quiet = F
+        # ),
+        # tar_quarto_raw(
+        #         name = "user_report",
+        #         quiet = F
+        # )
 )

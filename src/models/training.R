@@ -33,12 +33,6 @@ id_vars = function(vars =
                              "thumbnail",
                              "description")) {vars}
 
-# spline_vars = function(vars = c("number_mechanics",
-#                                 "number_categories")) {vars}
-# 
-# discrete_vars = function(vars = spline_vars()) {vars}
-# 
-# 
 # # basic recipe setup
 build_recipe = function(data,
                         outcome,
@@ -71,6 +65,41 @@ build_recipe = function(data,
                 )
 }
 
+fit_best_wflow = function(wflow_set,
+                          metric = 'mn_log_loss',
+                          eval_time = NULL,
+                          ...
+) {
+        
+        
+        result_1 <- extract_workflow_set_result(wflow_set, id = wflow_set$wflow_id[[1]])
+        
+        met_set <- tune::.get_tune_metrics(result_1)
+        
+        if (is.null(metric)) {
+                metric <- .get_tune_metric_names(result_1)[1]
+        }
+        else {
+                tune::check_metric_in_tune_results(tibble::as_tibble(met_set), 
+                                                   metric)
+        }
+        if (is.null(eval_time) & tune:::is_dyn(met_set, metric)) {
+                eval_time <- tune::.get_tune_eval_times(result_1)[1]
+        }
+        rankings <- rank_results(wflow_set, rank_metric = metric, select_best = TRUE, 
+                                 eval_time = eval_time)
+        best_id = rankings$wflow_id[1]
+        tune_res <- workflowsets::extract_workflow_set_result(wflow_set, id = rankings$wflow_id[1])
+        best_params <- tune::select_best(tune_res, metric = metric, eval_time = eval_time)
+        
+        fit = fit_best(tune_res, parameters = best_params, ...)
+        
+        tibble(
+                wflow_id = best_id,
+                wflow = list(fit)
+        )
+}
+
 # create resamples
 create_resamples = function(data,
                             v,
@@ -81,6 +110,198 @@ create_resamples = function(data,
                         v = v,
                         strata = own
                 )
+}
+
+recipe_linear = function(data,
+                         outcome = own,
+                         ids = id_vars(),
+                         predictors = predictor_vars()) {
+        
+        data |>
+                build_recipe(
+                        outcome = {{outcome}},
+                        ids = ids,
+                        predictors,
+                ) |>
+                add_bgg_preprocessing() |>
+                add_linear_preprocessing()
+}
+
+recipe_trees = function(data,
+                        outcome = own,
+                        ids = id_vars(),
+                        predictors = predictor_vars()) {
+        
+        data |>
+                build_recipe(
+                        outcome = {{outcome}},
+                        ids = ids,
+                        predictors,
+                ) |>
+                add_bgg_preprocessing()
+}
+
+fit_wflow = function(recipe,
+                     model,
+                     control = control_grid(verbose = T, save_pred = T, save_workflow =  T),
+                     resamples,
+                     metrics,
+                     data,
+                     grid = 10) {
+        
+        workflow() |>
+                add_recipe(
+                        recipe
+                ) |>
+                add_model(
+                        model
+                ) |>
+                fit(
+                        data
+                )
+}
+
+
+tune_wflow = function(recipe,
+                      model,
+                      control = control_grid(verbose = T, save_pred = T, save_workflow =  T),
+                      resamples,
+                      metrics,
+                      grid = 10) {
+        
+        workflow() |>
+                add_recipe(
+                        recipe
+                ) |>
+                add_model(
+                        model
+                ) |>
+                tune_grid(
+                        resamples = resamples,
+                        grid = grid,
+                        control = control,
+                        metrics = metrics
+                )
+}
+
+fit_wflow = function(data,
+                     recipe,
+                     model,
+                     params) {
+        
+        workflow() |>
+                add_recipe(
+                        recipe
+                ) |>
+                add_model(
+                        model
+                ) |>
+                tune_grid(
+                        resamples = resamples,
+                        grid = grid,
+                        control = control,
+                        metrics = metrics
+                )
+        
+        
+}
+
+glmnet_grid = function(penalty = seq(-3, -0.75, length = 15),
+                       mixture = c(0)) {
+        
+        expand.grid(
+                penalty = 10^penalty,
+                mixture = mixture
+        )
+}
+
+glmnet_spec = function() {
+        
+        logistic_reg(penalty = tune::tune(),
+                     mixture = tune::tune()) |>
+                set_engine("glmnet")
+}
+
+lightgbm_spec = function(trees = 500) {
+        
+        parsnip::boost_tree(
+                mode = "classification",
+                trees = trees,
+                min_n = tune(),
+                tree_depth = tune()) |>
+                set_engine("lightgbm", objective = "binary")
+}
+
+tune_wflow_glmnet = function(data,
+                             resamples,
+                             metrics,
+                             grid = glmnet_grid()) {
+        
+        rec = 
+                data |>
+                recipe_linear()
+        
+        mod = 
+                glmnet_spec()
+        
+        tuned = 
+                tune_wflow(
+                        recipe = rec,
+                        model = mod,
+                        grid = grid,
+                        resamples = resamples,
+                        metrics = metrics
+                )
+        
+        return(tuned)
+}
+
+fit_wflow_glmnet = function(data,
+                            params,
+                            ...) {
+        
+        rec = 
+                data |>
+                recipe_linear()
+        
+        mod = 
+                glmnet_spec()
+        
+        tuned = 
+                tune_wflow(
+                        recipe = rec,
+                        model = mod,
+                        grid = grid,
+                        resamples = resamples,
+                        metrics = metrics
+                )
+        
+        return(tuned)
+}
+
+
+tune_wflow_lightgbm = function(data,
+                               resamples,
+                               metrics,
+                               grid) {
+        
+        rec = 
+                data |>
+                recipe_trees()
+        
+        mod = 
+                lightgbm_spec()
+        
+        tuned = 
+                tune_wflow(
+                        recipe = rec,
+                        model = mod,
+                        grid = grid,
+                        resamples = resamples,
+                        metrics = metrics
+                )
+        
+        return(tuned)
 }
 
 # standard preprocessing for bgg variables
@@ -317,6 +538,7 @@ add_splines= function(recipe,
         
 }
 
+# get preds and combine with split
 get_best_preds = function(obj,
                           ...) {
         
@@ -332,6 +554,35 @@ get_best_preds = function(obj,
                         by = join_by(.row)
                 )
         
+}
+
+collect_best_tune_preds = function(tuned,
+                                   metric = 'mn_log_loss') {
+        
+        best_params = 
+                tuned |>
+                select_best(metric = metric)
+        
+        tuned |> 
+                get_best_preds(
+                        parameters = best_params
+                ) |>
+                select(game_id, name, yearpublished,
+                       everything())
+        
+        
+}
+
+collect_tune_preds = function(wflow_set) {
+        
+        
+        wflow_set |> 
+                mutate(
+                        best_preds = map(result,
+                                         ~ .x |> collect_best_tune_preds())
+                ) |>
+                select(wflow_id,
+                       best_preds)
 }
 
 
