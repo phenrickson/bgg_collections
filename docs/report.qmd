@@ -361,18 +361,25 @@ display: none;
   style Graph fill:#FFFFFF00,stroke:#000000;
   subgraph Legend
     direction LR
-    xf1522833a4d242c5([&quot;&quot;Up to date&quot;&quot;]):::uptodate --- xb6630624a7b3aa0f([&quot;&quot;Dispatched&quot;&quot;]):::dispatched
-    xb6630624a7b3aa0f([&quot;&quot;Dispatched&quot;&quot;]):::dispatched --- x2db1ec7a48f65a9b([&quot;&quot;Outdated&quot;&quot;]):::outdated
-    x2db1ec7a48f65a9b([&quot;&quot;Outdated&quot;&quot;]):::outdated --- xd03d7c7dd2ddda2b([&quot;&quot;Stem&quot;&quot;]):::none
+    xf1522833a4d242c5([&quot;&quot;Up to date&quot;&quot;]):::uptodate --- x2db1ec7a48f65a9b([&quot;&quot;Outdated&quot;&quot;]):::outdated
+    x2db1ec7a48f65a9b([&quot;&quot;Outdated&quot;&quot;]):::outdated --- xb6630624a7b3aa0f([&quot;&quot;Dispatched&quot;&quot;]):::dispatched
+    xb6630624a7b3aa0f([&quot;&quot;Dispatched&quot;&quot;]):::dispatched --- xd03d7c7dd2ddda2b([&quot;&quot;Stem&quot;&quot;]):::none
   end
   subgraph Graph
     direction LR
-    x88354a4a9990c907([&quot;collection_and_games&quot;]):::uptodate --&gt; xe28457b7180d9865([&quot;split&quot;]):::uptodate
+    xef8327747f7d2bc8([&quot;metrics_test&quot;]):::uptodate --&gt; xb72891f20a5b8df1([&quot;report&quot;]):::dispatched
+    x7523a0f48f305b50([&quot;metrics_valid&quot;]):::uptodate --&gt; xb72891f20a5b8df1([&quot;report&quot;]):::dispatched
+    x864ebfd4dc9e834b([&quot;tuned&quot;]):::uptodate --&gt; xb72891f20a5b8df1([&quot;report&quot;]):::dispatched
+    x7f453562c3005740([&quot;preds_test&quot;]):::uptodate --&gt; xf6526a6c8e7b5c4d([&quot;preds_combined&quot;]):::uptodate
+    xa43912232ee9e271([&quot;preds_tuned_best&quot;]):::uptodate --&gt; xf6526a6c8e7b5c4d([&quot;preds_combined&quot;]):::uptodate
+    xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate --&gt; xf6526a6c8e7b5c4d([&quot;preds_combined&quot;]):::uptodate
+    x453d7e7e0805b06d([&quot;model_spec&quot;]):::uptodate --&gt; x8c0a5b3d939d47ea([&quot;wflow&quot;]):::uptodate
+    x50558fc6e6286095([&quot;train_data&quot;]):::uptodate --&gt; x8c0a5b3d939d47ea([&quot;wflow&quot;]):::uptodate
     xcd8149c2b07551bf([&quot;collection&quot;]):::uptodate --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
     x8a7f51ea03016762([&quot;final_fit&quot;]):::uptodate --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
     x574e5c623f867900([&quot;games&quot;]):::uptodate --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
     x01736553d0998ccd([&quot;games_raw&quot;]):::uptodate --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
-    x5ee4aad29dbba4c6([&quot;metrics_combined&quot;]):::uptodate --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
+    x5ee4aad29dbba4c6([&quot;metrics_combined&quot;]):::outdated --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
     xef8327747f7d2bc8([&quot;metrics_test&quot;]):::uptodate --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
     x7523a0f48f305b50([&quot;metrics_valid&quot;]):::uptodate --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
     xf6526a6c8e7b5c4d([&quot;preds_combined&quot;]):::uptodate --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
@@ -381,58 +388,55 @@ display: none;
     xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
     x5d0642e6ee71d657([&quot;tune_metrics&quot;]):::uptodate --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
     x864ebfd4dc9e834b([&quot;tuned&quot;]):::uptodate --&gt; x262e924792a63921([&quot;user_report&quot;]):::outdated
+    xf6526a6c8e7b5c4d([&quot;preds_combined&quot;]):::uptodate --&gt; x5ee4aad29dbba4c6([&quot;metrics_combined&quot;]):::outdated
+    x5d0642e6ee71d657([&quot;tune_metrics&quot;]):::uptodate --&gt; x5ee4aad29dbba4c6([&quot;metrics_combined&quot;]):::outdated
+    x6fb6138f75f217bd([&quot;best_par&quot;]):::uptodate --&gt; xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate
+    x50558fc6e6286095([&quot;train_data&quot;]):::uptodate --&gt; xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate
+    xc048e79f475294dc([&quot;valid_data&quot;]):::uptodate --&gt; xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate
+    x8c0a5b3d939d47ea([&quot;wflow&quot;]):::uptodate --&gt; xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate
     xe28457b7180d9865([&quot;split&quot;]):::uptodate --&gt; x50558fc6e6286095([&quot;train_data&quot;]):::uptodate
-    x6fb6138f75f217bd([&quot;best_par&quot;]):::uptodate --&gt; xa43912232ee9e271([&quot;preds_tuned_best&quot;]):::uptodate
-    x864ebfd4dc9e834b([&quot;tuned&quot;]):::uptodate --&gt; xa43912232ee9e271([&quot;preds_tuned_best&quot;]):::uptodate
-    xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate --&gt; x7523a0f48f305b50([&quot;metrics_valid&quot;]):::uptodate
-    x5d0642e6ee71d657([&quot;tune_metrics&quot;]):::uptodate --&gt; x7523a0f48f305b50([&quot;metrics_valid&quot;]):::uptodate
+    xe28457b7180d9865([&quot;split&quot;]):::uptodate --&gt; xbb782543df7528d1([&quot;test_data&quot;]):::uptodate
     x864ebfd4dc9e834b([&quot;tuned&quot;]):::uptodate --&gt; x6fb6138f75f217bd([&quot;best_par&quot;]):::uptodate
-    x7f453562c3005740([&quot;preds_test&quot;]):::uptodate --&gt; xf6526a6c8e7b5c4d([&quot;preds_combined&quot;]):::uptodate
-    xa43912232ee9e271([&quot;preds_tuned_best&quot;]):::uptodate --&gt; xf6526a6c8e7b5c4d([&quot;preds_combined&quot;]):::uptodate
-    xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate --&gt; xf6526a6c8e7b5c4d([&quot;preds_combined&quot;]):::uptodate
-    xe28457b7180d9865([&quot;split&quot;]):::uptodate --&gt; xc048e79f475294dc([&quot;valid_data&quot;]):::uptodate
-    xcd8149c2b07551bf([&quot;collection&quot;]):::uptodate --&gt; x88354a4a9990c907([&quot;collection_and_games&quot;]):::uptodate
-    x574e5c623f867900([&quot;games&quot;]):::uptodate --&gt; x88354a4a9990c907([&quot;collection_and_games&quot;]):::uptodate
-    x6fb6138f75f217bd([&quot;best_par&quot;]):::uptodate --&gt; x8a7f51ea03016762([&quot;final_fit&quot;]):::uptodate
-    x50558fc6e6286095([&quot;train_data&quot;]):::uptodate --&gt; x8a7f51ea03016762([&quot;final_fit&quot;]):::uptodate
-    xc048e79f475294dc([&quot;valid_data&quot;]):::uptodate --&gt; x8a7f51ea03016762([&quot;final_fit&quot;]):::uptodate
-    x8c0a5b3d939d47ea([&quot;wflow&quot;]):::uptodate --&gt; x8a7f51ea03016762([&quot;final_fit&quot;]):::uptodate
-    x453d7e7e0805b06d([&quot;model_spec&quot;]):::uptodate --&gt; x8c0a5b3d939d47ea([&quot;wflow&quot;]):::uptodate
-    x004377234d3bacac([&quot;recipe&quot;]):::uptodate --&gt; x8c0a5b3d939d47ea([&quot;wflow&quot;]):::uptodate
-    x6fb6138f75f217bd([&quot;best_par&quot;]):::uptodate --&gt; xa0490811cd9f5ad9([&quot;train_fit&quot;]):::uptodate
-    x50558fc6e6286095([&quot;train_data&quot;]):::uptodate --&gt; xa0490811cd9f5ad9([&quot;train_fit&quot;]):::uptodate
-    x8c0a5b3d939d47ea([&quot;wflow&quot;]):::uptodate --&gt; xa0490811cd9f5ad9([&quot;train_fit&quot;]):::uptodate
     x7f453562c3005740([&quot;preds_test&quot;]):::uptodate --&gt; xef8327747f7d2bc8([&quot;metrics_test&quot;]):::uptodate
     x5d0642e6ee71d657([&quot;tune_metrics&quot;]):::uptodate --&gt; xef8327747f7d2bc8([&quot;metrics_test&quot;]):::uptodate
-    x7f453562c3005740([&quot;preds_test&quot;]):::uptodate --&gt; x5ee4aad29dbba4c6([&quot;metrics_combined&quot;]):::uptodate
-    xa43912232ee9e271([&quot;preds_tuned_best&quot;]):::uptodate --&gt; x5ee4aad29dbba4c6([&quot;metrics_combined&quot;]):::uptodate
-    xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate --&gt; x5ee4aad29dbba4c6([&quot;metrics_combined&quot;]):::uptodate
-    x5d0642e6ee71d657([&quot;tune_metrics&quot;]):::uptodate --&gt; x5ee4aad29dbba4c6([&quot;metrics_combined&quot;]):::uptodate
-    x7523a0f48f305b50([&quot;metrics_valid&quot;]):::uptodate --&gt; xcefe76d3b82ee85b([&quot;results&quot;]):::uptodate
-    xe28457b7180d9865([&quot;split&quot;]):::uptodate --&gt; xbb782543df7528d1([&quot;test_data&quot;]):::uptodate
-    xef8327747f7d2bc8([&quot;metrics_test&quot;]):::uptodate --&gt; xb72891f20a5b8df1([&quot;report&quot;]):::dispatched
-    x7523a0f48f305b50([&quot;metrics_valid&quot;]):::uptodate --&gt; xb72891f20a5b8df1([&quot;report&quot;]):::dispatched
-    x864ebfd4dc9e834b([&quot;tuned&quot;]):::uptodate --&gt; xb72891f20a5b8df1([&quot;report&quot;]):::dispatched
     x01736553d0998ccd([&quot;games_raw&quot;]):::uptodate --&gt; x574e5c623f867900([&quot;games&quot;]):::uptodate
+    x50558fc6e6286095([&quot;train_data&quot;]):::uptodate --&gt; x6a38faa6025f40e0([&quot;resamples&quot;]):::uptodate
+    xe28457b7180d9865([&quot;split&quot;]):::uptodate --&gt; xc048e79f475294dc([&quot;valid_data&quot;]):::uptodate
+    x6fb6138f75f217bd([&quot;best_par&quot;]):::uptodate --&gt; x8a7f51ea03016762([&quot;final_fit&quot;]):::uptodate
+    x5d37574f202d831a([&quot;final_data&quot;]):::uptodate --&gt; x8a7f51ea03016762([&quot;final_fit&quot;]):::uptodate
+    x8c0a5b3d939d47ea([&quot;wflow&quot;]):::uptodate --&gt; x8a7f51ea03016762([&quot;final_fit&quot;]):::uptodate
+    xcd8149c2b07551bf([&quot;collection&quot;]):::uptodate --&gt; x88354a4a9990c907([&quot;collection_and_games&quot;]):::uptodate
+    x574e5c623f867900([&quot;games&quot;]):::uptodate --&gt; x88354a4a9990c907([&quot;collection_and_games&quot;]):::uptodate
+    xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate --&gt; x7523a0f48f305b50([&quot;metrics_valid&quot;]):::uptodate
+    x5d0642e6ee71d657([&quot;tune_metrics&quot;]):::uptodate --&gt; x7523a0f48f305b50([&quot;metrics_valid&quot;]):::uptodate
     x8a7f51ea03016762([&quot;final_fit&quot;]):::uptodate --&gt; x7f453562c3005740([&quot;preds_test&quot;]):::uptodate
     xbb782543df7528d1([&quot;test_data&quot;]):::uptodate --&gt; x7f453562c3005740([&quot;preds_test&quot;]):::uptodate
-    x864ebfd4dc9e834b([&quot;tuned&quot;]):::uptodate --&gt; x386eba9038421de8([&quot;plot_tuning&quot;]):::uptodate
-    xa0490811cd9f5ad9([&quot;train_fit&quot;]):::uptodate --&gt; xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate
-    xc048e79f475294dc([&quot;valid_data&quot;]):::uptodate --&gt; xe83778cac602c1f4([&quot;preds_valid&quot;]):::uptodate
-    x50558fc6e6286095([&quot;train_data&quot;]):::uptodate --&gt; x6a38faa6025f40e0([&quot;resamples&quot;]):::uptodate
-    x50558fc6e6286095([&quot;train_data&quot;]):::uptodate --&gt; x004377234d3bacac([&quot;recipe&quot;]):::uptodate
     x6a38faa6025f40e0([&quot;resamples&quot;]):::uptodate --&gt; x864ebfd4dc9e834b([&quot;tuned&quot;]):::uptodate
     x5d0642e6ee71d657([&quot;tune_metrics&quot;]):::uptodate --&gt; x864ebfd4dc9e834b([&quot;tuned&quot;]):::uptodate
     x6337128dbe1a467a([&quot;tuning_grid&quot;]):::uptodate --&gt; x864ebfd4dc9e834b([&quot;tuned&quot;]):::uptodate
     x8c0a5b3d939d47ea([&quot;wflow&quot;]):::uptodate --&gt; x864ebfd4dc9e834b([&quot;tuned&quot;]):::uptodate
+    x7523a0f48f305b50([&quot;metrics_valid&quot;]):::uptodate --&gt; xcefe76d3b82ee85b([&quot;results&quot;]):::uptodate
+    x88354a4a9990c907([&quot;collection_and_games&quot;]):::uptodate --&gt; xe28457b7180d9865([&quot;split&quot;]):::uptodate
+    x6fb6138f75f217bd([&quot;best_par&quot;]):::uptodate --&gt; xa43912232ee9e271([&quot;preds_tuned_best&quot;]):::uptodate
+    x864ebfd4dc9e834b([&quot;tuned&quot;]):::uptodate --&gt; xa43912232ee9e271([&quot;preds_tuned_best&quot;]):::uptodate
+    x50558fc6e6286095([&quot;train_data&quot;]):::uptodate --&gt; x5d37574f202d831a([&quot;final_data&quot;]):::uptodate
+    xc048e79f475294dc([&quot;valid_data&quot;]):::uptodate --&gt; x5d37574f202d831a([&quot;final_data&quot;]):::uptodate
+    xba150fe9c6eb7a24([&quot;collection_GOBBluth89&lt;br&gt;GOBBluth89&quot;]):::uptodate --&gt; xba150fe9c6eb7a24([&quot;collection_GOBBluth89&lt;br&gt;GOBBluth89&quot;]):::uptodate
+    xd5d5cdc157ece9cc([&quot;collection_phenrickson&lt;br&gt;phenrickson&quot;]):::uptodate --&gt; xd5d5cdc157ece9cc([&quot;collection_phenrickson&lt;br&gt;phenrickson&quot;]):::uptodate
+    x3da6b420b229f5bc([&quot;collection_report_GOBBluth89&lt;br&gt;GOBBluth89&quot;]):::uptodate --&gt; x3da6b420b229f5bc([&quot;collection_report_GOBBluth89&lt;br&gt;GOBBluth89&quot;]):::uptodate
+    x72a2f0fb53695a77([&quot;collection_report_phenrickson&lt;br&gt;phenrickson&quot;]):::uptodate --&gt; x72a2f0fb53695a77([&quot;collection_report_phenrickson&lt;br&gt;phenrickson&quot;]):::uptodate
   end
   classDef uptodate stroke:#000000,color:#ffffff,fill:#354823;
-  classDef dispatched stroke:#000000,color:#000000,fill:#DC863B;
   classDef outdated stroke:#000000,color:#000000,fill:#78B7C5;
+  classDef dispatched stroke:#000000,color:#000000,fill:#DC863B;
   classDef none stroke:#000000,color:#000000,fill:#94a4ac;
   linkStyle 0 stroke-width:0px;
   linkStyle 1 stroke-width:0px;
-  linkStyle 2 stroke-width:0px;</code></pre>
+  linkStyle 2 stroke-width:0px;
+  linkStyle 57 stroke-width:0px;
+  linkStyle 58 stroke-width:0px;
+  linkStyle 59 stroke-width:0px;
+  linkStyle 60 stroke-width:0px;</code></pre>
 </div>
 <div id="results" class="section level1">
 <h1>results</h1>

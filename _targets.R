@@ -30,8 +30,9 @@ tar_source("src/visualization/inference.R")
 tar_source("src/visualization/tables.R")
 tar_source("src/visualization/plots.R")
 
+
 # parameters used in the pipeline
-username = 'phenrickson'
+username = "phenrickson"
 end_train_year = 2021
 valid_years = 2
 min_ratings = 25
@@ -105,18 +106,6 @@ list(
                         set_engine("glmnet")
         ),
         tar_target(
-                name = recipe,
-                command = 
-                        train_data |>
-                        build_recipe(
-                                outcome = own,
-                                ids = id_vars(),
-                                predictors = predictor_vars()
-                        ) |>
-                        add_bgg_preprocessing() |>
-                        add_linear_preprocessing()
-        ),
-        tar_target(
                 name = tuning_grid,
                 command = 
                         expand.grid(
@@ -144,7 +133,14 @@ list(
                 command = 
                         workflow() |>
                         add_recipe(
-                                recipe
+                                train_data |>
+                                        build_recipe(
+                                                outcome = own,
+                                                ids = id_vars(),
+                                                predictors = predictor_vars()
+                                        ) |>
+                                        add_bgg_preprocessing() |>
+                                        add_linear_preprocessing()
                         ) |>
                         add_model(
                                 model_spec
@@ -165,13 +161,6 @@ list(
                         )
         ),
         tar_target(
-                name = plot_tuning,
-                command = 
-                        tuned |>
-                        autoplot() +
-                        theme_bw()
-        ),
-        tar_target(
                 name = best_par,
                 command = 
                         tuned |> 
@@ -186,26 +175,22 @@ list(
                         )
         ),
         tar_target(
-                name = train_fit,
+                name = preds_valid,
                 command = 
                         wflow |> 
                         finalize_workflow(parameters = best_par) |> 
-                        fit(train_data)
-        ),
-        tar_target(
-                name = preds_valid,
-                command = 
-                        train_fit |>
+                        fit(train_data) |>
                         augment(
                                 valid_data
-                        ) |>
-                        arrange(desc(.pred_yes))
+                        )
         ),
         tar_target(
                 name = metrics_valid,
                 command = 
                         preds_valid |>
-                        tune_metrics(own, .pred_yes, event_level = 'second')
+                        tune_metrics(own, 
+                                     .pred_yes, 
+                                     event_level = 'second')
         ),
         tar_target(
                 name = final_data,
@@ -275,9 +260,4 @@ list(
                 name = "user_report",
                 quiet = F
         )
-        # tar_quarto(
-        #         name = collection_report,
-        #         path = "analysis.qmd",
-        #         quiet = F
-        # )
 )
