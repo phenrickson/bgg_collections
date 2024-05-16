@@ -45,7 +45,7 @@ list(
                 command = 
                         load_games(
                                 object_name = "raw/objects/games",
-                                generation = "1711561705858375",
+                                generation = "1715797632435985",
                                 bucket = "bgg_data"
                         )
         ),
