@@ -32,9 +32,11 @@ tar_source("src/visualization/plots.R")
 
 
 # parameters used in the pipeline
-username = "phenrickson"
+users = data.frame(username = 'phenrickson')
+#username = "phenrickson"
 end_train_year = 2021
 valid_years = 2
+retrain_years = 1
 min_ratings = 25
 
 # Replace the target list below with your own:
@@ -55,209 +57,38 @@ list(
                         games_raw |>
                         bggUtils::preprocess_bgg_games()
         ),
-        tar_target(
-                name = collection,
-                command = 
+        tar_map(
+                values = users,
+                tar_target(
+                        collection,
                         load_user_collection(username = username)
-        ),
-        tar_target(
-                name = collection_and_games,
-                command = 
-                        join_games_and_collection(
-                                games,
-                                collection
-                        ) |>
-                        prep_collection()
-        ), 
-        tar_target(
-                name = split,
-                command = 
-                        collection_and_games |>
-                        split_by_year(
-                                end_train_year = end_train_year
-                        )
-        ),
-        tar_target(
-                name = test_data,
-                command = 
-                        split |>
-                        assessment()
-        ),
-        tar_target(
-                name = train_data,
-                command = 
-                        split |>
-                        analysis() |>
-                        filter(yearpublished <= end_train_year - valid_years) |>
-                        filter(usersrated >= 25)
-        ),
-        tar_target(
-                name = valid_data,
-                command = 
-                        split |>
-                        analysis() |>
-                        filter(yearpublished > end_train_year - valid_years)
-        ),
-        tar_target(
-                name = model_spec,
-                command = 
-                        logistic_reg(penalty = tune::tune(),
-                                     mixture = tune::tune()) %>%
-                        set_engine("glmnet")
-        ),
-        tar_target(
-                name = tuning_grid,
-                command = 
-                        expand.grid(
-                                penalty = 10 ^ seq(-3, -0.75, length = 15),
-                                mixture = c(0)
-                        )
-        ),
-        tar_target(
-                name = tune_metrics,
-                command = 
-                        metric_set(yardstick::mn_log_loss,
-                                   yardstick::roc_auc)
-        ),
-        tar_target(
-                name = resamples,
-                command = 
-                        train_data |>
-                        create_resamples(
-                                v = 5,
-                                strata = own
-                        )
-        ),
-        tar_target(
-                name = wflow,
-                command = 
-                        workflow() |>
-                        add_recipe(
-                                train_data |>
-                                        build_recipe(
-                                                outcome = own,
-                                                ids = id_vars(),
-                                                predictors = predictor_vars()
-                                        ) |>
-                                        add_bgg_preprocessing() |>
-                                        add_linear_preprocessing()
-                        ) |>
-                        add_model(
-                                model_spec
-                        )
-        ),
-        tar_target(
-                name = tuned,
-                command = 
-                        wflow |>
-                        tune_grid(
-                                resamples = resamples,
-                                grid = tuning_grid,
-                                control = 
-                                        control_grid(
-                                                verbose = T,
-                                                save_pred = T),
-                                metrics = tune_metrics
-                        )
-        ),
-        tar_target(
-                name = best_par,
-                command = 
-                        tuned |> 
-                        select_best(metric = 'mn_log_loss')
-        ),
-        tar_target(
-                name = preds_tuned_best,
-                command = 
-                        tuned |> 
-                        get_best_preds(
-                                parameters = best_par
-                        )
-        ),
-        tar_target(
-                name = preds_valid,
-                command = 
-                        wflow |> 
-                        finalize_workflow(parameters = best_par) |> 
-                        fit(train_data) |>
-                        augment(
-                                valid_data
-                        )
-        ),
-        tar_target(
-                name = metrics_valid,
-                command = 
-                        preds_valid |>
-                        tune_metrics(own, 
-                                     .pred_yes, 
-                                     event_level = 'second')
-        ),
-        tar_target(
-                name = final_data,
-                command = 
-                        bind_rows(
-                                train_data,
-                                valid_data
-                        ) |>
-                        filter(usersrated >= 25)
-        ),
-        tar_target(
-                name = final_fit,
-                command = 
-                        wflow |>
-                        finalize_workflow(parameters = best_par) |>
-                        fit(final_data)
-        ),
-        tar_target(
-                name = preds_test,
-                command =
-                        final_fit |>
-                        augment(test_data)
-        ),
-        tar_target(
-                name = metrics_test,
-                command = 
-                        preds_test |> 
-                        filter(yearpublished <= max(yearpublished, na.rm = T)-valid_years) |>
-                        group_by(yearpublished) |> 
-                        tune_metrics(own, .pred_yes, event_level = 'second')
-        ),
-        tar_target(
-                name = results,
-                command = 
-                        metrics_valid |>
-                        write_results(),
-                format = "file"
-        ),
-        tar_target(
-                name = preds_combined,
-                command = 
-                        bind_rows(
-                                preds_tuned_best |>
-                                        mutate(type = 'resamples'),
-                                preds_valid |>
-                                        mutate(type = 'validation'),
-                                preds_test |>
-                                        mutate(type = 'upcoming')
-                        ) |> 
-                        filter(yearpublished <= max(yearpublished, na.rm = T)-valid_years) |>
-                        mutate(type = factor(type, levels = c("resamples", "validation", "upcoming")))
-        ),
-        tar_target(
-                name = metrics_combined,
-                command = 
-                        preds_combined |>
-                        group_by(type) |>
-                        tune_metrics(own, .pred_yes, event_level = 'second')
-        ),
-        tar_render(
-                name = report,
-                path = "report.qmd",
-                output_file = "docs/report.qmd",
-                quiet = F
-        ),
-        tar_quarto_raw(
-                name = "user_report",
-                quiet = F
+                ),
+                tar_target(
+                        model_glmnet,
+                        command =
+                                collection |>
+                                train_user_model(games = games,
+                                                 outcome = own,
+                                                 recipe = recipe_linear,
+                                                 model = glmnet_spec(),
+                                                 wflow_id = "glmnet",
+                                                 grid = glmnet_grid(),
+                                                 metrics = tune_metrics(),
+                                                 metric = 'mn_log_loss',
+                                                 end_train_year = end_train_year,
+                                                 valid_years = valid_years,
+                                                 retrain_years = retrain_years)
+                ),
+                tar_target(
+                        metrics,
+                        command = 
+                                bind_rows(model_glmnet) |>
+                                gather_predictions() |>
+                                assess_predictions(metrics = tune_metrics())
+                ),
+                tar_quarto(
+                        name = report,
+                        path = "report"
+                )
         )
 )

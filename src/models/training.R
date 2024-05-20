@@ -1,3 +1,451 @@
+recipe_linear = function(data,
+                         outcome,
+                         ids = id_vars(),
+                         predictors = predictor_vars()) {
+        
+        data |>
+                build_recipe(
+                        outcome = {{outcome}},
+                        ids = ids,
+                        predictors = predictors
+                ) |>
+                add_bgg_preprocessing() |>
+                add_linear_preprocessing()   
+        
+}
+
+recipe_trees = function(data,
+                        outcome,
+                        ids = id_vars(),
+                        predictors = predictor_vars()) {
+        
+        data |>
+                build_recipe(
+                        outcome = {{outcome}},
+                        ids = ids,
+                        predictors = predictors
+                ) |>
+                add_bgg_preprocessing()
+        
+}
+
+
+lightgbm_spec = function(trees = 500, ...) {
+        
+        
+        require(bonsai)
+        
+        parsnip::boost_tree(
+                mode = "classification",
+                trees = trees,
+                min_n = tune(),
+                tree_depth = tune(),
+                ...) |>
+                set_engine("lightgbm", 
+                           objective = "binary")
+}
+
+lightgbm_grid = 
+        function(size = 15) {
+                
+                grid_max_entropy(
+                        x = dials::parameters(
+                                min_n(), # 2nd important
+                                tree_depth() # 3rd most important
+                        ),
+                        size = size
+                )
+        }
+
+glmnet_spec = function() {
+        
+        logistic_reg(penalty = tune::tune(),
+                     mixture = tune::tune()) %>%
+                set_engine("glmnet")
+}
+
+glmnet_grid = function(penalty = seq(-3, -0.75, length = 10),
+                       mixture = c(0)) {
+        
+        expand.grid(
+                penalty = 10 ^ penalty,
+                mixture = mixture
+        )
+}
+
+tune_metrics = function() {
+        
+        metric_set(yardstick::mn_log_loss,
+                   yardstick::roc_auc)
+}
+
+
+train_user_model = function(collection, 
+                            games,
+                            outcome,
+                            recipe,
+                            model,
+                            wflow_id,
+                            grid,
+                            metrics = tune_metrics(),
+                            metric = 'mn_log_loss',
+                            end_train_year = 2021,
+                            valid_years = 2,
+                            retrain_years = 1,
+                            min_ratings = 25,
+                            v = 5) {
+        
+        collection |>
+                prepare_user_model(games = games,
+                                   outcome = {{outcome}},
+                                   recipe = recipe,
+                                   model = model,
+                                   wflow_id = wflow_id,
+                                   end_train_year = end_train_year,
+                                   valid_years = valid_years,
+                                   retrain_years = retrain_years,
+                                   min_ratings = min_ratings,
+                                   v = v) |>
+                tune_user_model(grid = grid,
+                                metrics = metrics,
+                                metric = metric) |>
+                validate_user_model() |>
+                finalize_user_model()
+        
+}
+
+
+prepare_split = function(collection, 
+                         games,
+                         end_train_year = 2021,
+                         valid_years = 2,
+                         retrain_years = 1,
+                         v = 5) {
+        
+        collection_and_games = 
+                join_games_and_collection(
+                        games,
+                        collection
+                ) |>
+                prep_collection()
+        
+        split = 
+                collection_and_games |>
+                split_by_year(
+                        end_train_year = end_train_year
+                )
+        
+        train_data = 
+                split |>
+                analysis() |>
+                filter(yearpublished <= end_train_year - valid_years) |>
+                filter(usersrated >= min_ratings)
+        
+        valid_data = 
+                split |>
+                analysis() |>
+                filter(yearpublished > end_train_year - valid_years)
+        
+        test_data = 
+                split |>
+                assessment()
+        
+        new_split = 
+                list(
+                        "train" = train_data,
+                        "valid" = valid_data,
+                        "test" = test_data
+                )
+        
+        tibble(username = unique(collection$username),
+               split = list(new_split),
+               settings = list(tibble(end_train_year = end_train_year,
+                                      valid_years = valid_years,
+                                      retrain_years = retrain_years,
+                                      min_ratings = min_ratings))
+        )
+}
+
+prepare_wflow = function(prepared_collection,
+                         recipe,
+                         model,
+                         outcome,
+                         v = 5) {
+        
+        
+        train_data = 
+                prepared_collection |>
+                pluck("split", 1) |>
+                pluck("train")
+        
+        resamples = 
+                train_data |>
+                create_resamples(
+                        v = v,
+                        strata = {{outcome}}
+                )
+        
+        rec = 
+                train_data |>
+                recipe(
+                        outcome = {{outcome}}
+                )
+        
+        wflow =
+                workflow() |>
+                add_recipe(
+                        rec
+                ) |>
+                add_model(
+                        model
+                )
+        
+        prepared_collection |>
+                add_column(
+                        resamples = list(resamples),
+                        wflow = list(wflow)
+                )
+        
+}
+
+tune_wflow = function(prepared_wflow,
+                      grid,
+                      control = control_grid(verbose = T, save_pred = T),
+                      metrics = tune_metrics,
+                      ...) {
+        
+        resamples = 
+                prepared_wflow |>
+                pluck("resamples", 1)
+        
+        wflow = 
+                prepared_wflow |> 
+                pluck("wflow", 1)
+        
+        tuned = 
+                wflow |>
+                tune_grid(
+                        resamples = resamples,
+                        grid = grid,
+                        control = control,
+                        metrics = metrics,
+                        ...
+                )
+        
+        prepared_wflow |>
+                add_column(result = list(tuned))
+}
+
+best_params = function(tuned_wflow,
+                       metric = 'mn_log_loss',
+                       ...) {
+        
+        tuned_wflow |> 
+                mutate(params = map(result, ~ .x |> select_best(metric = metric)))
+}
+
+fit_wflow = function(tuned_wflow,
+                     data = c("train", "valid"),
+                     valid = T) {
+        
+        params = 
+                tuned_wflow |>
+                pluck("params", 1)
+        
+        wflow = 
+                tuned_wflow |>
+                pluck("wflow", 1)
+        
+        settings = 
+                tuned_wflow |>
+                pluck("settings", 1)
+        
+        split = 
+                tuned_wflow |>
+                pluck("split", 1)
+        
+        dat = 
+                map_df(data, ~ pluck(split, .x))
+        
+        if (valid==T) {
+                
+                dat =  dat |>
+                        filter(yearpublished <= (settings$end_train_year + settings$valid_years - settings$retrain_years))
+        }
+        
+        new =
+                dat |>
+                filter(usersrated >= settings$min_ratings)
+        
+        fit = 
+                wflow |>
+                finalize_workflow(parameters = params) |>
+                fit(new)
+        
+        tuned_wflow |>
+                mutate(wflow = list(fit))
+}
+
+predict_split = function(tuned_wflow,
+                         data = "train") {
+        
+        wflow = 
+                tuned_wflow |>
+                pluck("wflow", 1)
+        
+        split = 
+                tuned_wflow |>
+                pluck("split", 1)
+        
+        dat = 
+                split |>
+                pluck(data)
+        
+        preds = 
+                wflow |>
+                augment(dat,
+                        type = 'prob') |>
+                arrange(desc(.pred_yes))
+        
+        return(preds)
+        
+}
+
+best_tune_preds = function(tuned_wflow) {
+        
+        result = 
+                tuned_wflow |> 
+                pluck("result", 1)
+        
+        params =
+                tuned_wflow |>
+                pluck("params", 1)
+        
+        result |>
+                get_best_preds(parameters = params) |>
+                arrange(desc(.pred_yes)) |>
+                mutate(type = 'resamples')
+}
+
+
+prepare_user_model = function(collection,
+                              games,
+                              outcome,
+                              recipe,
+                              model,
+                              wflow_id,
+                              end_train_year = 2021,
+                              valid_years = 2,
+                              retrain_years = 1,
+                              min_ratings = 25,
+                              v = v) {
+        
+        tuned = 
+                collection |>
+                prepare_split(games = games) |>
+                prepare_wflow(recipe = recipe,
+                              outcome = {{outcome}},
+                              model = model,
+                              v = v) |>
+                add_column(wflow_id = wflow_id) |>
+                select(username, wflow_id, everything())
+        
+}
+
+tune_user_model = function(wflow,
+                           grid,
+                           metrics = tune_metrics(),
+                           metric = 'mn_log_loss',
+                           ...) {
+        
+        tuned = 
+                wflow |>
+                tune_wflow(grid = grid,
+                           metrics = metrics,
+                           ...) |>
+                best_params(metric = metric)
+        
+        tune_preds = 
+                tuned |>
+                best_tune_preds()
+        
+        tuned |>
+                add_column(tune_preds = list(tune_preds))
+}
+
+validate_user_model = function(tuned_wflow) {
+        
+        train_fit = 
+                tuned_wflow |>
+                fit_wflow(data = 'train')
+        
+        valid_preds = 
+                train_fit |>
+                predict_split(data = "valid") |>
+                mutate(type = 'valid')
+        
+        train_fit |>
+                add_column(valid_preds = list(valid_preds))
+        
+}
+
+finalize_user_model = function(tuned_wflow) {
+        
+        final_fit = 
+                tuned_wflow |>
+                fit_wflow(data = c('train', 'valid'))
+        
+        test_preds =
+                final_fit |>
+                predict_split("test") |>
+                mutate(type = 'test')
+        
+        final_fit |>
+                add_column(test_preds = list(test_preds))
+        
+}
+
+gather_predictions = function(tuned) {
+        
+        tmp = 
+                tuned |>
+                select(ends_with("_preds"))
+        
+        preds = 
+                tmp  |>
+                pivot_longer(cols = c(ends_with("preds")),
+                             names_to = c("set"),
+                             values_to = c("preds")
+                ) |> 
+                mutate(set = gsub("*_preds", "", set)) |>
+                unnest(preds) |>
+                select(-username) |>
+                nest(preds = everything())
+        
+        tuned |>
+                select(-ends_with("_preds")) |>
+                bind_cols(preds)
+        
+}
+
+assess_predictions = function(tuned,
+                              metrics = tune_metrics(),
+                              outcome = own,
+                              event_level = 'second') {
+        
+                tuned |>
+                select(username, wflow_id, preds) |>
+                unnest(preds) |>
+                group_by(username, wflow_id, set) |>
+                metrics(
+                        {{outcome}},
+                        .pred_yes,
+                        event_level = 'second'
+                ) |>
+                arrange(username, wflow_id, set)
+}
+   
+
 # recipes for bgg outcomes
 predictor_vars= function(vars =
                                  c("minplayers",
