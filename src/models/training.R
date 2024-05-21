@@ -76,7 +76,8 @@ glmnet_grid = function(penalty = seq(-3, -0.75, length = 10),
 tune_metrics = function() {
         
         metric_set(yardstick::mn_log_loss,
-                   yardstick::roc_auc)
+                   yardstick::roc_auc,
+                   yardstick::pr_auc)
 }
 
 
@@ -436,13 +437,13 @@ assess_predictions = function(tuned,
                 tuned |>
                 select(username, wflow_id, preds) |>
                 unnest(preds) |>
-                group_by(username, wflow_id, set) |>
+                group_by(username, wflow_id, type) |>
                 metrics(
                         {{outcome}},
                         .pred_yes,
                         event_level = 'second'
                 ) |>
-                arrange(username, wflow_id, set)
+                arrange(username, wflow_id, type)
 }
    
 

@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|819f084a336d9d2e|||||||||||||||
+.Random.seed|object|de3d8545a7deff46|||||||||||||||
 add_bgg_dummies|function|56805705c72a679d|||||||||||||||
 add_bgg_preprocessing|function|41de562255a503ef|||||||||||||||
 add_corr|function|a7156d710f1b0e97|||||||||||||||
@@ -24,7 +24,7 @@ collection|stem|e29d1a037fc1cf15|335a2fed5a70c88d|95f0ea7424f313cf|1771228424||t
 collection_and_games|stem|eea4f4604979f733|2080a6d9b027c631|5843b758c4640d65|348542047||t19860.6053325496s|cd8f8f7f75247342|56688594|qs|local|vector|||0.118||
 collection_by_category|function|668b75ac91b9ab30|||||||||||||||
 collection_datatable|function|f7476b44b75aaf1d|||||||||||||||
-collection_GOBBluth89|stem|95053332181d8dd8|335a2fed5a70c88d|95f0ea7424f313cf|740611715||t19852.0391187178s|5477e007180e468c|3816|qs|local|vector|||0.201||
+collection_GOBBluth89|stem|ced415a5a7cd4891|84b7defc31122d6b|d8556027b005e587|740611715||t19863.6481385425s|1159aab282beb7ef|3933|qs|local|vector|||32.606||
 collection_phenrickson|stem|56fa0a4a48488007|c1d0edebb0461a7d|d8556027b005e587|1187939399||t19860.633666215s|5477e007180e468c|3816|qs|local|vector|||2.429||
 collection_report|stem||03409716f0c60787|5ef6eb4f563554ae|-644973146||t19849.5837343222s||0|file|local|vector|||4.62||Error running quarto cli.Caused by error System command quarto failed
 collection_report_GOBBluth89|stem|5d6f17b79fc52710|b73d39be8a0aa7bb|2c530c1562a7fbd1|-122161863|collection_files*collection.html*collection.qmd|t19852.0472716039s|cc86ac6970dcc75f|875766|file|local|vector|||4.81||
@@ -66,11 +66,14 @@ make_hyperlink|function|91570e010b66dc21|||||||||||||||
 make_image_link|function|9d6675dd3c98bb3d|||||||||||||||
 make_web_image|function|100cf929d3f96823|||||||||||||||
 metrics_combined|stem|bdfedb1cbf1b5aed|e9792510f245b650|a34c3ca96ddac1cf|1958967592||t19859.7199077302s|8b83e689a5078b2e|269|qs|local|vector|||0.23||
-metrics_phenrickson|stem|f121cd96642ee1e0|ea0c278cb7ae872c|293c7d52e74cd467|903249926||t19860.6741645506s|b3acff78117e63c5|263|qs|local|vector|||0.377||
+metrics_GOBBluth89|stem|2d40067c64db1f38|ad6b20914d7c3d50|4d7bdfd6cd4b43a8|953573731||t19863.6508827479s|b878194e47bf1258|268|qs|local|vector|||0.38||
+metrics_phenrickson|stem|26fb97475ec9099d|ac62f267dd09e387|7cd0b9c607b8bb10|903249926||t19863.6640361198s|261958e199aa3742|291|qs|local|vector|||0.376||
 metrics_test|stem|d4e52e5c3cd3c480|fd3219d2e642fe70|a01d4886ece04e77|-111948634||t19859.7197156642s|b3acff78117e63c5|263|qs|local|vector|||0.151|No event observations were detected in truth with event level yes.. No event observations were detected in truth with event level yes.|
 metrics_valid|stem|c5310b4426194850|75c8a7a55ce3f4af|970ecd4cc20b1bc2|-68516632||t19859.7197137121s|cf7aa924f3ed9ba7|168|qs|local|vector|||0.073||
 min_ratings|object|5328423ee29e059b|||||||||||||||
+model_glmnet_GOBBluth89|stem|6d880d562a244235|f24bb3e774468b02|760c2351b2216984|-932060626||t19863.6508713483s|1af516c2629eaeea|923207622|qs|local|vector|||220.287||
 model_glmnet_phenrickson|stem|4637f430542f2b61|f93c19d698593220|2f8656b843583a87|-76090033||t19860.6741528884s|e9a655c8f451f173|923358254|qs|local|vector|||270.232||
+model_lightgbm_phenrickson|stem|4c9e25ea067f98fc|3f91cd835e9c1d4b|da29152956d63173|1749875615||t19863.6639404753s|46aefa9b0cc23d4c|866509361|qs|local|vector|||193.346||
 model_spec|stem|153c51fbf0a9506d|1a3c7684c10d34f3|2c530c1562a7fbd1|-1375492627||t19843.8172503555s|da4d06df31f910c0|299|qs|local|vector|||0.002||
 plot_collection_by_category|function|b7bc932b702dd524|||||||||||||||
 plot_roc_curve|function|5228373f0d8868d3|||||||||||||||
@@ -94,7 +97,10 @@ preprocess_games|function|100ca0faa69c4f72|||||||||||||||
 recipe|stem|7e7a38d8b964d914|adcdd20c18c7b6ee|ba5244e54534550d|-2138210525||t19852.0409669462s|c5cd49ad9d9381b8|702912274|qs|local|vector|||0.05||
 recipe_linear|function|6c57572ec29f6a46|||||||||||||||
 recipe_trees|function|84af2d7cf5c9930b|||||||||||||||
+render_report|function|0f1daf4c778d4dd3|||||||||||||||
 report|stem|b69d20259910da54|91d25a0d2d2c7a18|5785c2aca1c4e0e8|-304183993|docs/report.qmd*report.qmd|t19859.7199044349s|bb0e090321480b52|804517|file|local|vector|||15.916||
+report_GOBBluth89|stem|5a1c9b8fe95edd89|1a0bf2ff2e1b9868|b0b99053b4b41dd7|-2145589515||t19863.651815014s||49|qs|local|vector|||13.201|Unknown or uninitialised column GOBBluth89.|Error running quarto cli.Caused by error System command quarto failed
+report_phenrickson|stem|3b56b8ffa0e62a6f|b858b558c6c7fe21|d136881b1af5908c|468604336||t19863.6590359945s|28e76c0917097715|38|qs|local|vector|||43.231||
 resamples|stem|7ba2b27e498e2353|9c03248405688dda|a37586e52dd9b2b9|1209460374||t19859.7137984967s|7dd6a1501df0d66b|65246198|qs|local|vector|||0.061||
 results|stem|08d5f59e833de599|1b45f4edd662ea3f|f6b29e38216e8144|340660437||t0s|a10b0861f057ffab|0|file|local|vector|||0.013||
 retrain_years|object|9f0cda529028d8d9|||||||||||||||
