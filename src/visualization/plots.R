@@ -158,7 +158,7 @@ plot_collection_by_year = function(data, min_year = 1990) {
                         y = "games"
                 )+
                 annotate(
-                        "text", x = 1989, y = count_min_year+ 1, 
+                        "text", x = 1989, y = count_min_year+ 2, 
                         size = 3,
                         label = paste("published prior \n to 1990"), 
                         hjust = 0, vjust = 1
