@@ -428,7 +428,7 @@ prep_predictions_datatable = function(predictions,
                 filter(!is.na(image)) |>
                 mutate(
                         Rank = row_number(),
-                        Published = yearpublished,
+                        Published = factor(yearpublished),
                         Image = make_image_link(thumbnail),
                         Game = name,
                         Description = stringr::str_trunc(description, 200),
@@ -442,7 +442,7 @@ gt_options = function(tab) {
         
         tab |>
                 gtExtras::gt_theme_espn() |>
-                gt::tab_options(uarto.disable_processing = T,
+                gt::tab_options(quarto.disable_processing = T,
                                 data_row.padding = gt::px(5),
                                 container.overflow.x = T,
                                 container.overflow.y = T)

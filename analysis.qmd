@@ -108,17 +108,7 @@ I train a classification model at the user level to learn the relationship betwe
 
 ```{r}
 #| message: false
-extract_split = function(model) {
-        
-        model |>
-                pluck("split", 1) |>
-                bind_rows(.id = 'type') |>
-                group_by(username, type) |>
-                mutate(years = paste(min(yearpublished), max(yearpublished), sep = "-")) |>
-                ungroup()
-}
-
-
+#| echo: false
 collection_and_games = 
 model_glmnet |>
         extract_split()
@@ -157,8 +147,10 @@ collection |>
 The following plot shows the years in which games in the user's collection were published. This can usually indicate when someone first entered the hobby.
 
 ```{r}
+#| echo: false
 collection_and_games |>
-        plot_collection_by_year()
+        plot_collection_by_year()+
+        facet_wrap(~params$username)
 ```
 
 ## Games in Collection
@@ -472,7 +464,7 @@ Displaying the model's top games for individual years in recent years.
 #| class: scroll
 
 preds |>
-        filter(type %in% c('resamples', 'valid', 'test')) |>
+        filter(type %in% c('resamples', 'valid')) |>
         filter(yearpublished <= max(yearpublished)-2) |>
         top_n_preds(
                 games = games,
