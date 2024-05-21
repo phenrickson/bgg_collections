@@ -19,7 +19,9 @@ tar_option_set(
                      "bggUtils"),
         # default format for storing targets
         format = "qs",
-        seed = 1999
+        seed = 1999,
+        memory = "transient"
+        
 )
 
 # functions used in project
@@ -34,21 +36,26 @@ tar_source("src/visualization/plots.R")
 # function to render quarto report and output given username
 render_report = function(username,
                          input,
+                         metrics,
                          ...) {
         
         
         quarto::quarto_render(
                 input = input,
-                execute_params = list(username = username),
+                execute_params = list(username = username,
+                                      metrics = metrics),
                 output_file = glue::glue("{username}.html")
         )
 }
 
 # parameters used in the pipeline
-users = data.frame(username = c('phenrickson'))
-#'GOBBluth89'))
+users = data.frame(bgg_username = c('phenrickson',
+                                'rahdo',
+                                'GOBBluth89',
+                                'Gyges'))
+
 #username = "phenrickson"
-end_train_year = 2021
+end_train_year = 2022
 valid_years = 2
 retrain_years = 1
 min_ratings = 25
@@ -75,7 +82,7 @@ list(
                 values = users,
                 tar_target(
                         collection,
-                        load_user_collection(username = username)
+                        load_user_collection(username = bgg_username)
                 ),
                 tar_target(
                         model_glmnet,
@@ -93,46 +100,46 @@ list(
                                                  valid_years = valid_years,
                                                  retrain_years = retrain_years)
                 ),
-                tar_target(
-                        model_lightgbm,
-                        command =
-                                collection |>
-                                train_user_model(games = games,
-                                                 outcome = own,
-                                                 recipe = recipe_trees,
-                                                 model = lightgbm_spec(),
-                                                 wflow_id = "lightgbm",
-                                                 grid = lightgbm_grid(),
-                                                 metrics = tune_metrics(),
-                                                 metric = 'mn_log_loss',
-                                                 end_train_year = end_train_year,
-                                                 valid_years = valid_years,
-                                                 retrain_years = retrain_years)
-                ),
                 # tar_target(
-                #         metrics,
-                #         command = 
-                #                 bind_rows(model_glmnet,
-                #                           model_lightgbm) |>
-                #                 gather_predictions() |>
-                #                 assess_predictions(metrics = tune_metrics())
-                # )
-                # tar_target(
-                #         report,
-                #         command = 
-                #                 username |>
-                #                 render_report(
-                #                         input = "analysis.qmd"
-                #                 )
-                #                 
-                # )
-                # tar_target(
-                #         report,
+                #         model_lightgbm,
                 #         command =
-                #                 username |>
-                #                 render_report(
-                #                         input = "collections.qmd"
-                #                 )
-                # )
+                #                 collection |>
+                #                 train_user_model(games = games,
+                #                                  outcome = own,
+                #                                  recipe = recipe_trees,
+                #                                  model = lightgbm_spec(),
+                #                                  wflow_id = "lightgbm",
+                #                                  grid = lightgbm_grid(),
+                #                                  metrics = tune_metrics(),
+                #                                  metric = 'mn_log_loss',
+                #                                  end_train_year = end_train_year,
+                #                                  valid_years = valid_years,
+                #                                  retrain_years = retrain_years)
+                # ),
+                tar_target(
+                        preds,
+                        command = 
+                                model_glmnet |>
+                                gather_predictions()
+                ),
+                tar_target(
+                        metrics,
+                        command = 
+                                preds |>
+                                group_by(username, wflow_id, type) |>
+                                assess_predictions(metrics = tune_metrics(),
+                                                   outcome = own,
+                                                   event_level = 'second')
+                ),
+                tar_target(
+                        report,
+                        command =
+                                bgg_username |>
+                                render_report(
+                                        input = "analysis.qmd",
+                                        metrics = metrics
+                                ),
+                        cue = tar_cue(mode = "always")
+                )
         )
 )

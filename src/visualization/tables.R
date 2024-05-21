@@ -1,3 +1,42 @@
+table_collection = function(data) {
+        
+        data |>
+                select(username, game_id, any_of(c("own", "ever_owned", "rated"))) |>
+                pivot_longer(cols = -c(username, game_id),
+                             names_to = "status") |>
+                filter(value == 'yes') |>
+                group_by(username, status) |>
+                summarize(games = n_distinct(game_id),
+                          .groups = 'drop') |> 
+                gt::gt() |>
+                gtExtras::gt_theme_espn() |>
+                gt::tab_options(quarto.disable_processing = TRUE,
+                                row.striping.background_color = NULL)
+        
+        
+}
+
+table_splits = function(data) {
+        
+        data |>
+                group_by(username, type) |>
+                mutate(years = paste(min(yearpublished), max(yearpublished), sep = "-")) |>
+                group_by(username, years, type, own) |>
+                count() |>
+                pivot_wider(names_from = c("own"),
+                            values_from = c("n")) |>
+                ungroup() |>
+                mutate(type = factor(type, levels = c("test", "valid", "train"))) |>
+                arrange(desc(yes)) |>
+                gt::gt() |>
+                gtExtras::gt_theme_espn() |>
+                gt::tab_options(quarto.disable_processing = TRUE,
+                                row.striping.background_color = NULL) |>
+                gt::tab_spanner(label = "Own",
+                                columns = c("no", "yes"))
+        
+}
+
 # functions for add linkjing
 make_bgg_link = function(game_id) {
         
@@ -359,6 +398,7 @@ gt_top_n = function(preds, collection) {
                 ) |>
                 gtExtras::gt_theme_espn() |>
                 gt::tab_options(table.font.size = 10,
+                                quarto.disable_processing = T,
                                 container.height = 600,
                                 data_row.padding = gt::px(5),
                                 container.overflow.x = T,
@@ -379,8 +419,7 @@ prep_predictions_datatable = function(predictions,
                 ) |>
                 arrange(desc(.pred_yes)) |>
                 mutate(name = make_hyperlink(make_bgg_link(game_id), 
-                                             mytext = paste(name, yearpublished))
-                ) |>
+                                             mytext = paste(name))) |>
                 left_join(
                         games |>
                                 select(game_id, description, image, thumbnail),
@@ -389,19 +428,38 @@ prep_predictions_datatable = function(predictions,
                 filter(!is.na(image)) |>
                 mutate(
                         Rank = row_number(),
+                        Published = yearpublished,
                         Image = make_image_link(thumbnail),
                         Game = name,
-                        Description = stringr::str_trunc(description, 300),
+                        Description = stringr::str_trunc(description, 200),
                         `Pr(Own)` = .pred_yes,
                         Own = own,
                         .keep = 'none') 
         
 }
 
+gt_options = function(tab) {
+        
+        tab |>
+                gtExtras::gt_theme_espn() |>
+                gt::tab_options(uarto.disable_processing = T,
+                                data_row.padding = gt::px(5),
+                                container.overflow.x = T,
+                                container.overflow.y = T)
+}
+
 predictions_datatable = function(preds,
+                                 remove_image = F,
+                                 remove_description = F,
                                  pagelength = 10) {
         
         cuts = seq(0, 1.2, 0.05)
+        
+        targ = c("Rank",
+                 "Published",
+                 "Image",
+                 "Pr(Own)",
+                 "Own")
         
         color = 'dodgerblue2'
         
@@ -409,6 +467,18 @@ predictions_datatable = function(preds,
         
         max_color = my_color_ramp(length(cuts)-5)[length(cuts)-5]
         
+        if (remove_description == T) { 
+                
+                preds = preds |> select(-Description)
+        }
+        
+        if (remove_image == T) {
+                preds = preds |> select(-Image)
+                targ = c("Rank",
+                         "Published",
+                         "Pr(Own)",
+                         "Own")
+        }
         preds |>
                 DT::datatable(escape=F,
                               rownames = F,
@@ -425,10 +495,7 @@ predictions_datatable = function(preds,
                                              columnDefs = list(
                                                      list(className = 'dt-center',
                                                           visible=T,
-                                                          targets = c("Rank",
-                                                                      "Image",
-                                                                      "Pr(Own)",
-                                                                      "Own")
+                                                          targets = targ
                                                      )
                                              )
                               )

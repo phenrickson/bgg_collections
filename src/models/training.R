@@ -90,7 +90,7 @@ train_user_model = function(collection,
                             grid,
                             metrics = tune_metrics(),
                             metric = 'mn_log_loss',
-                            end_train_year = 2021,
+                            end_train_year,
                             valid_years = 2,
                             retrain_years = 1,
                             min_ratings = 25,
@@ -118,10 +118,9 @@ train_user_model = function(collection,
 
 prepare_split = function(collection, 
                          games,
-                         end_train_year = 2021,
-                         valid_years = 2,
-                         retrain_years = 1,
-                         v = 5) {
+                         end_train_year,
+                         valid_years,
+                         retrain_years) {
         
         collection_and_games = 
                 join_games_and_collection(
@@ -132,9 +131,7 @@ prepare_split = function(collection,
         
         split = 
                 collection_and_games |>
-                split_by_year(
-                        end_train_year = end_train_year
-                )
+                split_by_year(end_train_year = end_train_year)
         
         train_data = 
                 split |>
@@ -335,15 +332,18 @@ prepare_user_model = function(collection,
                               recipe,
                               model,
                               wflow_id,
-                              end_train_year = 2021,
-                              valid_years = 2,
-                              retrain_years = 1,
-                              min_ratings = 25,
+                              end_train_year,
+                              valid_years,
+                              retrain_years,
+                              min_ratings,
                               v = v) {
         
         tuned = 
                 collection |>
-                prepare_split(games = games) |>
+                prepare_split(games = games,
+                              end_train_year = end_train_year,
+                              valid_years = valid_years,
+                              retrain_years = retrain_years) |>
                 prepare_wflow(recipe = recipe,
                               outcome = {{outcome}},
                               model = model,
@@ -406,46 +406,49 @@ finalize_user_model = function(tuned_wflow) {
         
 }
 
-gather_predictions = function(tuned) {
+gather_predictions = function(tuned,
+                              outcome = own) {
         
         tmp = 
                 tuned |>
-                select(ends_with("_preds"))
+                select(any_of(c("username", "wflow_id")), ends_with("_preds"))
         
         preds = 
-                tmp  |>
-                pivot_longer(cols = c(ends_with("preds")),
-                             names_to = c("set"),
-                             values_to = c("preds")
-                ) |> 
-                mutate(set = gsub("*_preds", "", set)) |>
-                unnest(preds) |>
-                select(-username) |>
-                nest(preds = everything())
+                tmp |>
+                pivot_longer(cols = ends_with("preds"), 
+                             names_to = c("set"), 
+                             values_to = c("preds")) |>
+                mutate(preds = map(preds, ~ .x |> select(-any_of(c("username"))))) |>
+                unnest(preds)
         
-        tuned |>
-                select(-ends_with("_preds")) |>
-                bind_cols(preds)
+        
+        preds |>
+                select(username, 
+                       wflow_id, 
+                       type, 
+                       starts_with(".pred"), 
+                       id, 
+                       .row, 
+                       {{outcome}},
+                       game_id, 
+                       name, 
+                       yearpublished)
         
 }
 
-assess_predictions = function(tuned,
+assess_predictions = function(preds,
                               metrics = tune_metrics(),
                               outcome = own,
                               event_level = 'second') {
         
-                tuned |>
-                select(username, wflow_id, preds) |>
-                unnest(preds) |>
-                group_by(username, wflow_id, type) |>
+        preds |>
                 metrics(
                         {{outcome}},
                         .pred_yes,
                         event_level = 'second'
-                ) |>
-                arrange(username, wflow_id, type)
+                )
 }
-   
+
 
 # recipes for bgg outcomes
 predictor_vars= function(vars =

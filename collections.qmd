@@ -13,6 +13,7 @@ format:
 editor: source
 params:
         username: 'phenrickson'
+        metrics: metrics
 ---
 
 ## View Collections
