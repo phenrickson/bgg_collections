@@ -31,8 +31,22 @@ tar_source("src/visualization/tables.R")
 tar_source("src/visualization/plots.R")
 
 
+# function to render quarto report and output given username
+render_report = function(username,
+                         input,
+                         ...) {
+        
+        
+        quarto::quarto_render(
+                input = input,
+                execute_params = list(username = username),
+                output_file = glue::glue("{username}.html")
+        )
+}
+
 # parameters used in the pipeline
-users = data.frame(username = 'phenrickson')
+users = data.frame(username = c('phenrickson'))
+#'GOBBluth89'))
 #username = "phenrickson"
 end_train_year = 2021
 valid_years = 2
@@ -80,15 +94,45 @@ list(
                                                  retrain_years = retrain_years)
                 ),
                 tar_target(
-                        metrics,
-                        command = 
-                                bind_rows(model_glmnet) |>
-                                gather_predictions() |>
-                                assess_predictions(metrics = tune_metrics())
+                        model_lightgbm,
+                        command =
+                                collection |>
+                                train_user_model(games = games,
+                                                 outcome = own,
+                                                 recipe = recipe_trees,
+                                                 model = lightgbm_spec(),
+                                                 wflow_id = "lightgbm",
+                                                 grid = lightgbm_grid(),
+                                                 metrics = tune_metrics(),
+                                                 metric = 'mn_log_loss',
+                                                 end_train_year = end_train_year,
+                                                 valid_years = valid_years,
+                                                 retrain_years = retrain_years)
                 ),
-                tar_quarto(
-                        name = report,
-                        path = "report"
-                )
+                # tar_target(
+                #         metrics,
+                #         command = 
+                #                 bind_rows(model_glmnet,
+                #                           model_lightgbm) |>
+                #                 gather_predictions() |>
+                #                 assess_predictions(metrics = tune_metrics())
+                # )
+                # tar_target(
+                #         report,
+                #         command = 
+                #                 username |>
+                #                 render_report(
+                #                         input = "analysis.qmd"
+                #                 )
+                #                 
+                # )
+                # tar_target(
+                #         report,
+                #         command =
+                #                 username |>
+                #                 render_report(
+                #                         input = "collections.qmd"
+                #                 )
+                # )
         )
 )

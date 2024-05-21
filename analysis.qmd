@@ -61,19 +61,21 @@ tar_source("src/visualization/plots.R")
 
 ```{r}
 #| echo: false
-tar_load(collection)
-tar_load(tuned)
-tar_load(final_fit)
-tar_load(preds_tuned_best)
-tar_load(preds_valid)
-tar_load(preds_test)
-tar_load(metrics_valid)
-tar_load(metrics_test)
-tar_load(games)
 tar_load(games_raw)
-tar_load(tune_metrics)
-tar_load(metrics_combined)
-tar_load(preds_combined)
+tar_load(games)
+username = params$username
+
+tar_load(paste("collection", username, sep = "_"))
+tar_load(paste("model_glmnet", username, sep = "_"))
+
+collection = 
+        get(ls(pattern = paste("collection", username, sep = "_")))
+
+model_glmnet = 
+        get(ls(pattern = paste("model_glmnet", username, sep = "_")))
+
+model_lightgbm = 
+        get(ls(pattern = paste("model_lightgbm", username, sep = "_")))
 
 theme_set(
         bggUtils::theme_bgg()
@@ -81,7 +83,12 @@ theme_set(
 
 ```
 
-# Collection
+# Predicting User Collections
+
+## Outcome
+
+The outcome of interest is $own$, a binary outcome indicating whether the user has a game in their collection or not.
+
 
 ## Types of Games
 
@@ -140,7 +147,8 @@ Positive values indicate that a feature increases a user’s probability of owni
 ```{r}
 #| include: false
 top_coefs_plot = 
-        final_fit |>
+        model |> 
+        pluck("wflow", 1) |>
         get_coefs.glmnet() |>
         top_coefs_by_sign() |>
         coef_plot.glmnet()
@@ -166,7 +174,8 @@ final_fit |>
 
 ## Partial Effects
 
-What 
+What are the effects of individual features?
+
 Use the buttons below to examine the effects different types of predictors had in predicting the user's collection.
 
 ```{r}
@@ -213,6 +222,16 @@ names(plots) = groups
 #| class: scroll
 #| fig-height: 6
 plots$Categories
+
+```
+
+### Mechanics
+
+```{r}
+#| echo: false
+#| class: scroll
+#| fig-height: 6
+plots$
 
 ```
 

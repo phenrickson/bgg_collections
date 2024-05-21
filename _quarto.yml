@@ -1,4 +1,5 @@
 project:
   output-dir: docs
   render:
-  - analysis.qmd
+ # - analysis.qmd
+  - collections.qmd
