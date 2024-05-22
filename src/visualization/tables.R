@@ -31,10 +31,10 @@ make_image_link = function(link,
         
 }
 
-prep_predictions_tbl = function(predictions, 
-                                outcome = "own",
-                                games = games,
-                                description_length = 300) {
+prep_predictions_gt = function(predictions, 
+                               outcome = "own",
+                               games = games,
+                               description_length = 300) {
         
         predictions |>
                 arrange(desc(.pred_yes)) |>
@@ -48,11 +48,12 @@ prep_predictions_tbl = function(predictions,
                 mutate(link = make_bgg_link(game_id)) |>
                 # sort
                 mutate(
+                        yearpublished,
                         rank = row_number(),
                         game = name,
                         image,
                         description,
-                        published = yearpublished,
+                        yearpublished,
                         game_id,
                         .pred_yes,
                         own,
@@ -61,7 +62,7 @@ prep_predictions_tbl = function(predictions,
                 # remove if missing image
                 filter(!is.na(image)) |>
                 # make link
-                mutate(game = map2(paste0(game, " (", published, ")"),
+                mutate(game = map2(paste0(game),
                                    link,
                                    ~ gt_hyperlink(.x, .y))) |>
                 # truncate description
@@ -91,18 +92,18 @@ gt_predictions_styling = function(tab,
                                   ...) {
         
         tab |>
-                cols_hide(columns = c(published, game_id, link)) %>%
+                cols_hide(columns = c(game_id, link)) %>%
                 gt_img_rows(columns = image, height = 100) %>%
                 cols_align(
-                        columns = c(rank, image, .pred_yes, own),
+                        columns = c(yearpublished, rank, image, .pred_yes, own),
                         align = "center"
                 ) %>%
                 cols_align(
-                        columns = c("description", "game"),
+                        columns = c(description, game),
                         align = "left"
                 ) %>%
                 data_color(
-                        columns = c(".pred_yes"),
+                        columns = c(.pred_yes),
                         method = "numeric",
                         na_color = "grey60",
                         autocolor_text = T,
@@ -119,10 +120,11 @@ gt_predictions_styling = function(tab,
                 ) |>
                 # set columns
                 cols_move(
-                        columns = c("rank", "image", "game", "description", ".pred_yes", "own"),
-                        after = "rank"
+                        columns = c("yearpublished", "rank", "image", "game", "description", ".pred_yes", "own"),
+                        after = "yearpublished"
                 ) |>
                 cols_label(
+                        yearpublished = "Published",
                         rank = "Rank",
                         image = "Image",
                         description = "Description",
@@ -131,29 +133,70 @@ gt_predictions_styling = function(tab,
                         .pred_yes = 'Pr(Own)'
                 ) |>
                 cols_width(
+                        yearpublished  ~ px(100),
                         rank ~ px(100),
                         image ~ px(150),
                         game ~ px(150),
-                        description ~ px(400)
+                        description ~ px(400),
+                        own ~ px(100),
+                        .pred_yes ~ px(100)
                 ) |>
                 gt::fmt_number(
                         columns = starts_with(".pred"),
                         decimals = 3
-                )
+                ) |>
+                gt::opt_row_striping(row_striping = F) 
 }
 
 gt_predictions = function(data,
+                          interactive = T,
                           ...) {
         
-        data |>
-                gt() |>
-                gt_predictions_styling() |>
-                gt_styling() |>
-                gt::opt_interactive(
-                        use_filters = T,
-                        use_resizers = T,
-                        ...
-                )
+        tmp =
+                data |>
+                gt()
+        
+        if (interactive == T) {
+                
+                tmp |>
+                        gt::opt_interactive(
+                                use_filters = T,
+                                use_resizers = T,
+                                ...
+                        )
+        } else {
+                
+                tmp |>                        
+                        gtExtras::gt_theme_espn() |>
+                        gt_predictions_styling()
+
+        }
+}
+
+gt_predictions_by_year = function(preds,
+                                  games,
+                                  top_n = 25) {
+        
+        groups = 
+                preds |>
+                group_by(yearpublished) |>
+                slice_max(.pred_yes, n = top_n) |>
+                prep_predictions_gt(games = games)
+        
+        splits = 
+                groups |>
+                group_split()
+        
+        keys = 
+                groups |>
+                group_keys() |>
+                pull() |>
+                unique()
+        
+        names(splits) = keys
+        
+        map(splits,
+            ~ gt_predictions(.x, interactive = F))
 }
 
 

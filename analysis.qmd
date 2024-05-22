@@ -361,7 +361,11 @@ bind_rows(
 What were the top games from the validation set?
 
 ```{r}
+#| results: asis
 #| class: scroll
+
+# preds_valid |> 
+#         gt_predictions_by_year(games=games, top_n = 50)
 
 preds_valid |>
         slice_max(.pred_yes, n=500) |>
@@ -369,11 +373,25 @@ preds_valid |>
                 games = games
         ) |>
         predictions_datatable()
+
 ```
 
 # Predictions
 
-What were the model's top predictions for upcoming games?
+What were the model's top predictions for new releases?
+
+```{r}
+#| results: asis
+
+tabs = 
+preds_test |>
+        filter(usersrated >=5) |>
+        gt_predictions_by_year(games=games)
+
+qreport::maketabs(tabs)
+
+```
+
 
 ```{r}
 #| class: scroll
