@@ -18,3 +18,13 @@ split_by_year = function(data,
                 bind_rows(train, test)
         )
 }
+
+extract_split = function(model) {
+        
+        model |>
+                pluck("split", 1) |>
+                bind_rows(.id = 'type') |>
+                group_by(username, type) |>
+                mutate(years = paste(min(yearpublished), max(yearpublished), sep = "-")) |>
+                ungroup()
+}
