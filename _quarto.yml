@@ -3,3 +3,4 @@ project:
   render:
   - analysis.qmd
   - collections.qmd
+  - index.qmd
