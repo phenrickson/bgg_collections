@@ -1,0 +1,38 @@
+---
+title: "Predicting Board Game Collections"
+format: 
+        html:
+                code-fold: true
+                code-overflow: scroll
+                code-summary: 'Show the code'
+                self-contained: true
+                toc: true
+                fig-align: center
+                theme: cerulean
+                message: false
+editor: source
+---
+
+# About
+
+This report details predictive models for individual board game collections.
+
+## Models
+
+1. [phenrickson (me)](phenrickson.html) 
+1. [GOBBluth89 (my brother)](GOBBluth89.html)
+1. [rahdo](rahdo.html)
+1. [Mark Bigney](Gyges.html)
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+#| echo: false
+library(dplyr)
+library(tidymodels)
+
+targets::tar_load(starts_with("collection_"))
+targets::tar_load(starts_with("preds_"))
+```
+
