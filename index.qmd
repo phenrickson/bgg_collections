@@ -34,5 +34,100 @@ library(tidymodels)
 
 targets::tar_load(starts_with("collection_"))
 targets::tar_load(starts_with("preds_"))
+targets::tar_load(starts_with("metrics_"))
+targets::tar_load(games)
+
+preds = mget(ls(pattern = "^preds_")) |> bind_rows()
+collections = mget(ls(pattern = "^collection_")) |> bind_rows()
+metrics = mget(ls(pattern = "^metrics_")) |> bind_rows()
+
+rm(list=ls(pattern = "^preds_"))
+rm(list=ls(pattern = "^collection_"))
+rm(list=ls(pattern = "^metrics_"))
+
+targets::tar_source("src/visualization/tables.R")
+targets::tar_source("src/visualization/plots.R")
+
 ```
 
+## Metrics
+
+```{r}
+
+metrics |>
+        pivot_wider(names_from = c(".metric"),
+                    values_from = c(".estimate")) |>
+        mutate(type = factor(type, levels = c('resamples', 'valid', 'test'))) |>
+        arrange(type) |>
+        group_by(type) |>
+        gt::gt() |>
+        gt::fmt_number(decimals = 3) |>
+        gt::sub_missing() |>
+        gt_options()
+
+```
+
+<!-- ## Predictions -->
+
+<!-- ```{r} -->
+<!-- #| message: false -->
+<!-- #| warning: false -->
+<!-- table_preds = function(data) { -->
+
+<!--         sums = data |> -->
+<!--                 group_by(wflow_id, type, game_id, name, yearpublished) |>  -->
+<!--                 summarize(mean = mean(.pred_yes), sd = sd(.pred_yes), .groups = 'drop') |> -->
+<!--                 arrange(desc(mean)) -->
+
+<!--         data|> -->
+<!--                 select(-.pred_no, -.pred_class, -id, -.row, -own) |> -->
+<!--                 pivot_wider(names_from = c("username"), -->
+<!--                             values_from = c(".pred_yes")) |> -->
+<!--                 left_join(sums) |> -->
+<!--                 arrange(desc(mean)) -->
+<!-- } -->
+
+<!-- preds |> -->
+<!--         filter(type == 'test') |> -->
+<!--         table_preds() |> -->
+<!--         inner_join( -->
+<!--                 games |> select(game_id, image, usersrated) -->
+<!--         ) |> -->
+<!--         filter(!is.na(image)) |> -->
+<!--         filter(usersrated >= 5) |> -->
+<!--         head(500) |> -->
+<!--         select(-usersrated) |> -->
+<!--         mutate(link = make_bgg_link(game_id)) |> -->
+<!--         mutate(game = map2(paste0(name), -->
+<!--                            link, -->
+<!--                            ~ gtExtras::gt_hyperlink(.x, .y))) |> -->
+<!--         select(-link, -image) |> -->
+<!--         select(yearpublished, game_id, game, everything()) |> -->
+<!--         gt::gt() |> -->
+<!--         gt::tab_options(quarto.disable_processing = T, -->
+<!--                         container.overflow.x = T, -->
+<!--                         container.overflow.y = T) |> -->
+<!--         gt::cols_label( -->
+<!--                 yearpublished = "Published", -->
+<!--                 game = "Game" -->
+<!--         ) |> -->
+<!--         gt::cols_hide(c(wflow_id, type, game_id, name, mean, sd)) |> -->
+<!--         gt::fmt_number(columns = -c(yearpublished, game_id), decimals = 3) |> -->
+<!--         gtExtras::gt_theme_espn() |> -->
+<!--         gt::cols_align( -->
+<!--                 columns = -c(game), -->
+<!--                 align = c("center") -->
+<!--         ) |> -->
+<!--         gt::cols_align( -->
+<!--                 columns = c("game"), -->
+<!--                 align = "left" -->
+<!--         ) |> -->
+<!--         gt::data_color( -->
+<!--                 columns = -c(yearpublished, game), -->
+<!--                 palette = c("white", "dodgerblue2"), -->
+<!--                 domain = c(0, 1), -->
+<!--                 method = "numeric", -->
+<!--                 autocolor_text = T -->
+<!--         ) -->
+
+<!-- ``` -->
