@@ -49,10 +49,17 @@ render_report = function(username,
 }
 
 # parameters used in the pipeline
-users = data.frame(bgg_username = c('phenrickson',
-                                'rahdo',
-                                'GOBBluth89',
-                                'Gyges'))
+users = data.frame(bgg_username = 
+                           c('phenrickson',
+                             'rahdo',
+                             'GOBBluth89',
+                             'Gyges',
+                             'ZeeGarcia',
+                             'J_3MBG',
+                             'VWValker',
+                             'aboardgamebarrage'
+                           )
+                   )
 
 #username = "phenrickson"
 end_train_year = 2022
@@ -61,14 +68,14 @@ retrain_years = 1
 min_ratings = 25
 
 # Replace the target list below with your own:
-list(
+data = list(
         tar_target(
                 name = games_raw,
                 packages = c("googleCloudStorageR"),
                 command = 
                         load_games(
                                 object_name = "raw/objects/games",
-                                generation = "1715797632435985",
+                                generation = "1716489185536915",
                                 bucket = "bgg_data"
                         )
         ),
@@ -78,6 +85,14 @@ list(
                         games_raw |>
                         bggUtils::preprocess_bgg_games()
         ),
+        tar_target(
+                name = quarto,
+                command = "analysis.qmd",
+                format = "file"
+        )
+)
+
+mapped = 
         tar_map(
                 values = users,
                 tar_target(
@@ -136,10 +151,34 @@ list(
                         command =
                                 bgg_username |>
                                 render_report(
-                                        input = "analysis.qmd",
+                                        input = quarto,
                                         metrics = metrics
-                                ),
-                        cue = tar_cue(mode = "always")
+                                )
+                        #   cue = tar_cue(mode = "always")
                 )
         )
+
+# combine objects
+combined_m = tar_combine(
+        combined_metrics,
+        mapped[["metrics"]],
+        command = dplyr::bind_rows(!!!.x)
+)
+
+# combine objects
+combined_p= tar_combine(
+        combined_preds,
+        mapped[["preds"]],
+        command = dplyr::bind_rows(!!!.x)
+)
+
+list(data,
+     mapped,
+     combined_m,
+     combined_p,
+     tar_quarto(
+             name = index,
+             path = ".",
+             quiet = F
+     )
 )

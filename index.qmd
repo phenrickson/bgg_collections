@@ -11,6 +11,7 @@ format:
                 theme: cerulean
                 message: false
 editor: source
+css: styles.css
 ---
 
 # About
@@ -21,8 +22,15 @@ This report details predictive models for individual board game collections.
 
 1. [phenrickson (me)](phenrickson.html) 
 1. [GOBBluth89 (my brother)](GOBBluth89.html)
-1. [rahdo](rahdo.html)
-1. [Mark Bigney](Gyges.html)
+
+Board Game Reviewers:
+
+1. [rahdo (Rahdo Runs Through)](rahdo.html)
+1. [Mark Bigney (So Very Wrong About Games)](Gyges.html)
+1. [Mike Walker (So Very Wrong About Games)](VWValker.html)
+1. [Jarrod Carmichael (3 Minute Boardgames)](J_3MBG.html)
+1. [Zee Garcia (Dice Tower)](ZeeGarcia.html)
+1. [Kellen Laker (Board Game Barrage)](aboardgamebarrage.html)
 
 ```{r}
 #| include: false
@@ -32,18 +40,11 @@ This report details predictive models for individual board game collections.
 library(dplyr)
 library(tidymodels)
 
-targets::tar_load(starts_with("collection_"))
-targets::tar_load(starts_with("preds_"))
-targets::tar_load(starts_with("metrics_"))
+#targets::tar_load(starts_with("collection_"))
 targets::tar_load(games)
 
-preds = mget(ls(pattern = "^preds_")) |> bind_rows()
-collections = mget(ls(pattern = "^collection_")) |> bind_rows()
-metrics = mget(ls(pattern = "^metrics_")) |> bind_rows()
-
-rm(list=ls(pattern = "^preds_"))
-rm(list=ls(pattern = "^collection_"))
-rm(list=ls(pattern = "^metrics_"))
+targets::tar_load(combined_metrics)
+targets::tar_load(combined_preds)
 
 targets::tar_source("src/visualization/tables.R")
 targets::tar_source("src/visualization/plots.R")
@@ -52,9 +53,11 @@ targets::tar_source("src/visualization/plots.R")
 
 ## Metrics
 
-```{r}
+Model performance by collection
 
-metrics |>
+```{r}
+#| class: scroll
+combined_metrics |>
         pivot_wider(names_from = c(".metric"),
                     values_from = c(".estimate")) |>
         mutate(type = factor(type, levels = c('resamples', 'valid', 'test'))) |>
@@ -67,67 +70,201 @@ metrics |>
 
 ```
 
-<!-- ## Predictions -->
+## Correlation
 
-<!-- ```{r} -->
-<!-- #| message: false -->
-<!-- #| warning: false -->
-<!-- table_preds = function(data) { -->
+(Spearman) correlation between predictions for each collection
 
-<!--         sums = data |> -->
-<!--                 group_by(wflow_id, type, game_id, name, yearpublished) |>  -->
-<!--                 summarize(mean = mean(.pred_yes), sd = sd(.pred_yes), .groups = 'drop') |> -->
-<!--                 arrange(desc(mean)) -->
+```{r}
+#| class: scroll
+#| message: false
+#| warning: false
+cor = 
+        combined_preds |>
+        select(username, game_id, name, wflow_id, .pred_yes) |>
+        pivot_wider(values_from = c(".pred_yes"), names_from = c("username")) |>
+        select(-game_id, -name, -wflow_id) |>
+        corrr::correlate(method = "spearman")
 
-<!--         data|> -->
-<!--                 select(-.pred_no, -.pred_class, -id, -.row, -own) |> -->
-<!--                 pivot_wider(names_from = c("username"), -->
-<!--                             values_from = c(".pred_yes")) |> -->
-<!--                 left_join(sums) |> -->
-<!--                 arrange(desc(mean)) -->
-<!-- } -->
+table_cor = function(corr) {
+        
+        corr |>
+                gt::gt() |>
+                gtExtras::gt_theme_espn() |>
+                gt::tab_options(quarto.disable_processing = T,
+                                container.overflow.x = T,
+                                container.overflow.y = T) |>
+                gt::fmt_number(decimals = 3) |>
+                gt::sub_missing() |>
+                gt::cols_label(term = "username") |>
+                gt::cols_align(everything(), align = "center") |>
+                gt::cols_align(term, align = "left") |>
+                gt::cols_width(
+                        everything() ~ px(150)
+                ) |>
+                gt::cols_width(
+                        term ~ px(200)
+                ) |>
+                gt::data_color(columns = -c(term),
+                               method = c("numeric"),
+                               domain = c(-1, 1),
+                               palette = c("red", "white", "deepskyblue1"),
+                               na_color = "white")
+        
+}
 
-<!-- preds |> -->
-<!--         filter(type == 'test') |> -->
-<!--         table_preds() |> -->
-<!--         inner_join( -->
-<!--                 games |> select(game_id, image, usersrated) -->
-<!--         ) |> -->
-<!--         filter(!is.na(image)) |> -->
-<!--         filter(usersrated >= 5) |> -->
-<!--         head(500) |> -->
-<!--         select(-usersrated) |> -->
-<!--         mutate(link = make_bgg_link(game_id)) |> -->
-<!--         mutate(game = map2(paste0(name), -->
-<!--                            link, -->
-<!--                            ~ gtExtras::gt_hyperlink(.x, .y))) |> -->
-<!--         select(-link, -image) |> -->
-<!--         select(yearpublished, game_id, game, everything()) |> -->
-<!--         gt::gt() |> -->
-<!--         gt::tab_options(quarto.disable_processing = T, -->
-<!--                         container.overflow.x = T, -->
-<!--                         container.overflow.y = T) |> -->
-<!--         gt::cols_label( -->
-<!--                 yearpublished = "Published", -->
-<!--                 game = "Game" -->
-<!--         ) |> -->
-<!--         gt::cols_hide(c(wflow_id, type, game_id, name, mean, sd)) |> -->
-<!--         gt::fmt_number(columns = -c(yearpublished, game_id), decimals = 3) |> -->
-<!--         gtExtras::gt_theme_espn() |> -->
-<!--         gt::cols_align( -->
-<!--                 columns = -c(game), -->
-<!--                 align = c("center") -->
-<!--         ) |> -->
-<!--         gt::cols_align( -->
-<!--                 columns = c("game"), -->
-<!--                 align = "left" -->
-<!--         ) |> -->
-<!--         gt::data_color( -->
-<!--                 columns = -c(yearpublished, game), -->
-<!--                 palette = c("white", "dodgerblue2"), -->
-<!--                 domain = c(0, 1), -->
-<!--                 method = "numeric", -->
-<!--                 autocolor_text = T -->
-<!--         ) -->
+cor |>
+        table_cor()
+```
 
-<!-- ``` -->
+
+Correlation network plot. Predictions for users that are highly correlated will appear closer together and be joined by stronger paths.
+
+```{r}
+
+cor |>
+        corrr::rearrange() |>
+        corrr::network_plot(curved = T,
+                            min_cor = 0,
+                            colours = c("red", "white", "deepskyblue1"),
+                            legend = "full")
+
+```
+
+
+## Predictions
+
+Displaying predictions for games with highest (median) probabilities across all users.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+table_preds = function(data,
+                       games,
+                       min_ratings = 1,
+                       n = 500) {
+        
+        sums = data |>
+                group_by(wflow_id, type, game_id, name, yearpublished) |>
+                summarize(median = median(.pred_yes), sd = sd(.pred_yes), .groups = 'drop') |>
+                arrange(desc(median))
+        
+        data |>
+                select(-.pred_no, -.pred_class, -id, -.row, -own) |>
+                pivot_wider(names_from = c("username"),
+                            values_from = c(".pred_yes")) |>
+                left_join(sums) |>
+                arrange(desc(median)) |>
+                inner_join(
+                        games |> select(game_id, image, usersrated)
+                ) |>
+                filter(!is.na(image)) |>
+                filter(usersrated >= min_ratings) |>
+                filter(!is.na(image)) |>
+                filter(usersrated >= 5) |> 
+                head(n) |>
+                select(-usersrated) |>
+                mutate(link = make_bgg_link(game_id)) |> 
+                mutate(game = map2(paste0(name), 
+                                   link, 
+                                   ~ gtExtras::gt_hyperlink(.x, .y))) |>
+                select(-link, -image) |> 
+                select(yearpublished, game_id, game, everything()) 
+}
+
+gt_preds = function(data) {
+        
+        data |>
+                gt::gt() |>
+                gt::cols_label(
+                        yearpublished = "Published",
+                        game = "Game"
+                ) |>
+                gt::cols_hide(c(wflow_id, type, game_id, name, median, sd)) |>
+                gt::fmt_number(columns = -c(yearpublished, game_id), decimals = 3) |>
+                gtExtras::gt_theme_espn() |>
+                gt::tab_options(quarto.disable_processing = T,
+                                container.overflow.x = T,
+                                container.overflow.y = T) |>
+                gt::cols_align(
+                        columns = -c(game),
+                        align = c("center")
+                ) |>
+                gt::cols_align(
+                        columns = c("game"),
+                        align = "left"
+                ) |>
+                gt::cols_width(
+                        everything() ~ px(100),
+                ) |>
+                gt::cols_width(
+                        yearpublished ~ px(75)
+                ) |>
+                gt::data_color(
+                        columns = -c(yearpublished, game),
+                        palette = c("white", "dodgerblue2"),
+                        domain = c(0, 1),
+                        method = "numeric",
+                        autocolor_text = T
+                )
+}
+
+
+```
+
+::: {.panel-tabset}
+
+### Upcoming (Test)
+
+```{r}
+#| class: scroll
+#| message: false
+#| warning: false
+#| column: body-outset-right
+#| results: asis
+
+combined_preds |>
+        filter(type == 'test') |>
+        table_preds(games = games,
+                    n = 100) |>
+        gt_preds()
+
+```
+
+
+### Validation
+
+```{r}
+#| class: scroll
+#| message: false
+#| warning: false
+#| column: body-outset-right
+#| results: asis
+
+combined_preds |>
+        filter(type == 'valid') |>
+        table_preds(games = games,
+                    n = 100) |>
+        gt_preds()
+
+```
+
+
+### Training
+
+```{r}
+#| class: scroll
+#| message: false
+#| warning: false
+#| column: body-outset-right
+#| results: asis
+
+combined_preds |>
+        filter(type == 'resamples') |>
+        table_preds(games = games,
+                    n = 100) |>
+        gt_preds()
+
+```
+
+:::
