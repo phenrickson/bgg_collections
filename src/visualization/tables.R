@@ -338,7 +338,7 @@ prep_collection_datatable = function(collection,
 top_n_preds = function(preds, 
                        games,
                        top_n = 15,
-                       n_years = 10) {
+                       n_years = 15) {
         
         top_preds = 
                 preds |>
@@ -419,7 +419,7 @@ prep_predictions_datatable = function(predictions,
                 ) |>
                 arrange(desc(.pred_yes)) |>
                 mutate(name = make_hyperlink(make_bgg_link(game_id), 
-                                             mytext = paste(name))) |>
+                                             mytext = paste(name, paste0("(", yearpublished, ")")))) |>
                 left_join(
                         games |>
                                 select(game_id, description, image, thumbnail),
@@ -428,7 +428,7 @@ prep_predictions_datatable = function(predictions,
                 filter(!is.na(image)) |>
                 mutate(
                         Rank = row_number(),
-                        Published = factor(yearpublished),
+                    #    Published = factor(yearpublished),
                         Image = make_image_link(thumbnail),
                         Game = name,
                         Description = stringr::str_trunc(description, 200),
@@ -456,7 +456,7 @@ predictions_datatable = function(preds,
         cuts = seq(0, 1.2, 0.05)
         
         targ = c("Rank",
-                 "Published",
+             #    "Published",
                  "Image",
                  "Pr(Own)",
                  "Own")
@@ -475,7 +475,7 @@ predictions_datatable = function(preds,
         if (remove_image == T) {
                 preds = preds |> select(-Image)
                 targ = c("Rank",
-                         "Published",
+                      #   "Published",
                          "Pr(Own)",
                          "Own")
         }

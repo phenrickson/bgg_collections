@@ -1,6 +1,9 @@
 ---
 title: "Predicting Board Game Collections"
 subtitle: "`r params$username`'s Collection"
+author: "Phil Henrickson"
+date: today
+date-format: short
 format: 
         html:
                 code-fold: true
@@ -53,7 +56,7 @@ This report details the results of training and evaluating a classification mode
 
 ::: {.callout-note}
 
-To view games predicted by the model, go to @sec-predictions.
+To view games predicted by the model, go to [Section @sec-predictions: Predictions ].
 
 :::
 
@@ -465,10 +468,10 @@ Displaying the model's top games for individual years in recent years.
 
 preds |>
         filter(type %in% c('resamples', 'valid')) |>
-        filter(yearpublished <= max(yearpublished)-2) |>
         top_n_preds(
                 games = games,
-                top_n = 15
+                top_n = 15,
+                n_years = 15
         ) |>
         gt_top_n(collection = collection |> prep_collection())
 ```
@@ -501,7 +504,9 @@ preds |>
 What were the model's top predictions for older games?
 
 ```{r}
-        
+#| class: scroll
+#| message: false
+#| warning: false  
 preds |>
         filter(type %in% c("resamples", "valid")) |>
         left_join(
