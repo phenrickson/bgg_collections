@@ -338,7 +338,7 @@ prep_collection_datatable = function(collection,
 top_n_preds = function(preds, 
                        games,
                        top_n = 15,
-                       n_years = 10) {
+                       n_years = 15) {
         
         top_preds = 
                 preds |>

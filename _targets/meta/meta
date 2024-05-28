@@ -88,13 +88,14 @@ prepare_split|function|2339a234057f2ff5|||||||||||||||
 prepare_user_model|function|eb62cd45cbe3caae|||||||||||||||
 prepare_wflow|function|9c22751bf3e9da42|||||||||||||||
 preprocess_games|function|100ca0faa69c4f72|||||||||||||||
+quarto|stem|754f648c111e1577|e6682f74e1775939|2c530c1562a7fbd1|-1138454403|analysis.qmd|t19871.5997889077s|335b73bbb276a46c|14217|file|local|vector|||1.718||
 recipe_linear|function|6c57572ec29f6a46|||||||||||||||
 recipe_trees|function|84af2d7cf5c9930b|||||||||||||||
 render_report|function|80b3ce3f9f8ded23|||||||||||||||
-report_GOBBluth89|stem|3b56b8ffa0e62a6f|e7d0614a0b36629f|311811385b8f9341|-2145589515||t19864.9227030497s|28e76c0917097715|38|qs|local|vector|||57.269||
-report_Gyges|stem|3b56b8ffa0e62a6f|cc5a4efd86352ffe|d6913fe6a747ff5d|1907223540||t19864.922040108s|28e76c0917097715|38|qs|local|vector|||56.212||
-report_phenrickson|stem|3b56b8ffa0e62a6f|ca9a039db1501642|24057efcdb310df4|468604336||t19864.92337939s|28e76c0917097715|38|qs|local|vector|||58.428||
-report_rahdo|stem|3b56b8ffa0e62a6f|ef46e48cdeb50fd5|17b9c03c495a0c07|-702049499||t19864.9240685024s|28e76c0917097715|38|qs|local|vector|||59.533||
+report_GOBBluth89|stem|3b56b8ffa0e62a6f|cedf48fdeda73e3e|80b19969b5844a65|-2145589515||t19871.6013844637s|28e76c0917097715|38|qs|local|vector|||64.874||
+report_Gyges|stem|3b56b8ffa0e62a6f|dbaa12d2b168d49b|15ea1ff99c131d63|1907223540||t19871.6006334929s|28e76c0917097715|38|qs|local|vector|||66.56||
+report_phenrickson|stem|3b56b8ffa0e62a6f|bc363271391e029a|81226af571070dd5|468604336||t19871.602176761s|28e76c0917097715|38|qs|local|vector|||68.444||
+report_rahdo|stem|3b56b8ffa0e62a6f|2856119463dab2e5|97d1c5370af4ec9b|-702049499||t19871.6029371751s|28e76c0917097715|38|qs|local|vector|||65.69||
 retrain_years|object|9f0cda529028d8d9|||||||||||||||
 safe_roc_curve|function|435c75c736a48f45|||||||||||||||
 spline_vars|function|b7bb2144a7131415|||||||||||||||
@@ -102,7 +103,7 @@ split_by_year|function|09ec4465e1b6e977|||||||||||||||
 table_collection|function|f0cbe3226cf20701|||||||||||||||
 table_splits|function|1a4a7e0eefbf01e7|||||||||||||||
 top_coefs_by_sign|function|3402ce4265d47e82|||||||||||||||
-top_n_preds|function|051368cbe065cb89|||||||||||||||
+top_n_preds|function|c31368b1a8dc3098|||||||||||||||
 trace_plot.glmnet|function|3bb95205bb1f3b8a|||||||||||||||
 train_user_model|function|8080a79eb22c6a64|||||||||||||||
 tune_metrics|function|b5c3f5fe778ae53c|||||||||||||||
