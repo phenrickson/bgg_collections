@@ -1,6 +1,9 @@
 ---
 title: "Predicting Board Game Collections"
 subtitle: "`r params$username`'s Collection"
+author: "Phil Henrickson"
+date: today
+date-format: short
 format: 
         html:
                 code-fold: true
@@ -53,7 +56,7 @@ This report details the results of training and evaluating a classification mode
 
 ::: {.callout-note}
 
-To view games predicted by the model, go to @sec-predictions.
+To view games predicted by the model, go to [Section @sec-predictions: Predictions ].
 
 :::
 

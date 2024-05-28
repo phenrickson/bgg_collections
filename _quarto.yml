@@ -2,3 +2,4 @@ project:
   output-dir: docs
   render:
   - index.qmd
+  - analysis.qmd
