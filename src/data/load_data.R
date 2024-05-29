@@ -15,7 +15,7 @@ load_user_collection = function(username) {
 # collection = load_user_collection(username = 'phenrickson')
 
 # function to create outcomes and set factors for user variables
-prep_collection = function(collection, high_rating = 8) {
+prep_collection = function(collection, high_rating = 8, like_rating = 6) {
         
         # if less than 25 games ever owned, stop
         if (nrow(collection) < 25) {
@@ -32,11 +32,14 @@ prep_collection = function(collection, high_rating = 8) {
                        rated = case_when(!is.na(rating) ~ 'yes',
                                          TRUE ~ 'no'),
                        highly_rated = case_when(8 >= 8 ~ 'yes',
-                                                TRUE ~ 'no')
+                                                TRUE ~ 'no'),
+                       like = case_when(own == 1 ~ 'yes',
+                                        rating >= 6 ~ 'yes',
+                                        TRUE ~ 'no')
                 ) |>
                 mutate(
                         across(
-                                c("own","rated", "highly_rated"),
+                                c("own","rated", "highly_rated", "like"),
                                 ~ factor(.x, levels = c("no", "yes"))
                         )
                 )

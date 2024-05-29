@@ -166,21 +166,22 @@ plot_collection_by_year = function(data, min_year = 1990) {
 }
 
 plot_separation = 
-        function(preds) {
+        function(preds,
+                 outcome) {
                 
                 ranks = 
                         preds |>
                         group_by(username, wflow_id, type) |>
                         arrange(desc(.pred_yes)) |>
                         mutate(rank = row_number())
-                
+        
                 ranks |>
                         ggplot(aes(x=rank,
                                    y=.pred_yes))+
                         geom_point(size = 0.25,
                                    alpha = 0.25) +
                         geom_vline(data = ranks |>
-                                           filter(own =='yes'),
+                                           filter(if_any(outcome, ~ . =='yes')),
                                    aes(xintercept = rank),
                                    color = 'deepskyblue1',
                                    alpha = 0.25

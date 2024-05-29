@@ -337,6 +337,7 @@ prep_collection_datatable = function(collection,
 
 top_n_preds = function(preds, 
                        games,
+                       outcome,
                        top_n = 15,
                        n_years = 15) {
         
@@ -349,7 +350,7 @@ top_n_preds = function(preds,
                 arrange(desc(.pred_yes)) |>
                 slice_max(.pred_yes, n = top_n) |>
                 mutate(rank =row_number()) |>
-                select(yearpublished, game_id, rank, .pred_yes, own) |>
+                select(yearpublished, game_id, rank, .pred_yes, {{outcome}}) |>
                 inner_join(
                         games |>
                                 select(game_id, name),
@@ -372,6 +373,11 @@ gt_top_n = function(preds, collection) {
                 filter(ever_owned == 'yes') %>%
                 pull(name)
         
+        highlight_rated = 
+                collection %>%
+                filter(like == 'yes') |>
+                pull(name)
+        
         table = preds %>%
                 select(name, yearpublished, rank) %>%
                 pivot_wider(id_cols = c("rank"),
@@ -392,8 +398,9 @@ gt_top_n = function(preds, collection) {
                         method = "factor",
                         na_color = "white",
                         autocolor_text = T,
-                        fn = function(x) case_when(x %in% highlight_own ~ 'dodgerblue2',
-                                                   x %in% highlight_ever_owned ~ 'skyblue1',
+                        fn = function(x) case_when(x %in% highlight_own ~ 'dodgerblue4',
+                                                   x %in% highlight_ever_owned ~ 'deepskyblue2',
+                                                   x %in% highlight_rated ~ 'skyblue1',
                                                    TRUE ~ 'white')
                 ) |>
                 gtExtras::gt_theme_espn() |>
@@ -407,12 +414,16 @@ gt_top_n = function(preds, collection) {
 }
 
 prep_predictions_datatable = function(predictions, 
+                                      outcome,
                                       games) {
+        
+        outcome_lab = stringr::str_to_title({{outcome}})
+        outcome_prob = paste0("Pr(", outcome_lab, ")", sep = "")
         
         predictions |>
                 select(
                         .pred_yes,
-                        own,
+                        {{outcome}},,
                         game_id,
                         name,
                         yearpublished
@@ -428,13 +439,20 @@ prep_predictions_datatable = function(predictions,
                 filter(!is.na(image)) |>
                 mutate(
                         Rank = row_number(),
-                    #    Published = factor(yearpublished),
+                        #    Published = factor(yearpublished),
                         Image = make_image_link(thumbnail),
                         Game = name,
                         Description = stringr::str_trunc(description, 200),
-                        `Pr(Own)` = .pred_yes,
-                        Own = own,
-                        .keep = 'none') 
+                        .pred_yes) |>
+                select(Rank,
+                       Image,
+                       Game,
+                       Description,
+                       .pred_yes,
+                       any_of(outcome)
+                ) |>
+                rename_with(stringr::str_to_title, everything()) |>
+                rename(`Pr(Yes)` = .Pred_yes)
         
 }
 
@@ -449,17 +467,21 @@ gt_options = function(tab) {
 }
 
 predictions_datatable = function(preds,
+                                 outcome,
                                  remove_image = F,
                                  remove_description = F,
                                  pagelength = 10) {
         
         cuts = seq(0, 1.2, 0.05)
         
-        targ = c("Rank",
-             #    "Published",
-                 "Image",
-                 "Pr(Own)",
-                 "Own")
+        outcome_lab = stringr::str_to_title(outcome)
+        outcome_sym = rlang::enquo(outcome_lab)
+        
+        targ = preds |>
+                select(any_of(c("Rank", "Image")),
+                       any_of(starts_with("Pr(")),
+                       any_of(stringr::str_to_title('like'))) |>
+                names()
         
         color = 'dodgerblue2'
         
@@ -473,12 +495,10 @@ predictions_datatable = function(preds,
         }
         
         if (remove_image == T) {
+                targ = targ[-which(targ == 'Image')]
                 preds = preds |> select(-Image)
-                targ = c("Rank",
-                      #   "Published",
-                         "Pr(Own)",
-                         "Own")
         }
+        
         preds |>
                 DT::datatable(escape=F,
                               rownames = F,
@@ -500,16 +520,16 @@ predictions_datatable = function(preds,
                                              )
                               )
                 ) |> 
-                DT::formatRound(columns=c('Pr(Own)'), digits=3) |>
+                DT::formatRound(columns=c('Pr(Yes)'), digits=3) |>
                 DT::formatStyle(
-                        'Own',
-                        valueColumns = 'Own',
+                        outcome_lab,
+                        valueColumns = outcome_lab,
                         backgroundColor = DT::styleEqual(levels = c('yes','no'),
                                                          c(max_color,
                                                            'white'))
                 ) |>
                 DT::formatStyle(
-                        columns = 'Pr(Own)',
+                        columns = 'Pr(Yes)',
                         backgroundColor = 
                                 DT::styleInterval(
                                         cuts = cuts,

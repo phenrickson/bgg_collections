@@ -23,8 +23,9 @@ format:
 css: styles.css
 editor: source
 params:
-        username: phenrickson
+        username: dennisflangley
         metrics: metrics
+        outcome: 'like'
 ---
 
 ```{r}
@@ -64,12 +65,7 @@ To view games predicted by the model, go to [Section @sec-predictions: Predictio
 #| include: false
 #| echo: false
 # load in dependencies from targets
-tar_source("src/data/load_data.R")
-tar_source("src/models/splitting.R")
-tar_source("src/models/training.R")
-tar_source("src/visualization/inference.R")
-tar_source("src/visualization/tables.R")
-tar_source("src/visualization/plots.R")
+tar_source("src")
 
 ```
 
@@ -121,7 +117,7 @@ collection_and_games |>
 
 ```
 
-I evaluate evaluate the model's performance on a training set of historical games via resampling, then validate the model's performance on a set aside set of newer relases. I then refit the model on the training and validation in order and predict upcoming releases in order to find new games that the user is most likely to add to their collection.
+I evaluate the model's performance on a training set of historical games via resampling, then validate the model's performance on a set aside set of newer relases. I then refit the model on the training and validation in order and predict upcoming releases in order to find new games that the user is most likely to add to their collection.
 
 ```{r}
 #| echo: false
@@ -390,9 +386,9 @@ metrics |>
         mutate_if(is.numeric, round, 3) |>
         pivot_wider(
                 names_from = c(".metric"),
-                values_from = c(".estimate")
-        ) |>
+                values_from = c(".estimate")) |>
         gt::gt() |>
+        gt::sub_missing() |>
         gt_options()
 
 ```
@@ -402,10 +398,11 @@ An easy way to visually examine the performance of classification model is to vi
 I plot the predicted probabilities from the model for every game (during resampling) from lowest to highest. I then overlay a blue line for any game that the user does own. A good classifier is one that is able to separate the blue (games owned by the user) from the white (games not owned by the user), with most of the blue occurring at the highest probabilities (left side of the chart).
 
 ```{r}
-
+#| message: false
+#| warning: false
 preds |>
         filter(type %in% c('resamples', 'valid')) |>
-        plot_separation()
+        plot_separation(outcome = params$outcome)
 
 ```
 
@@ -414,10 +411,9 @@ I can more formally assess how well each model did in resampling by looking at t
 ```{r}
 #| warning: false
 #| message: false
-
 preds |>
         nest(data = -c(username, wflow_id, type)) |>
-        mutate(roc_curve = map(data, safely(safe_roc_curve))) |>
+        mutate(roc_curve = map(data, safely( ~ .x |> safe_roc_curve(truth = params$outcome)))) |>
         mutate(result = map(roc_curve, ~ .x |> pluck("result"))) |>
         select(username, wflow_id, type, result) |>
         unnest(result) |>
@@ -436,9 +432,13 @@ What were the model's top games in the training set?
 preds |>
         filter(type == 'resamples') |>
         prep_predictions_datatable(
-                games = games
+                games = games, 
+                outcome = params$outcome
         ) |>
-        predictions_datatable(remove_description = T, remove_image = T, pagelength = 15)
+        predictions_datatable(outcome = params$outcome,
+                remove_description = T, 
+                remove_image = T, 
+                pagelength = 15)
 ```
 
 ## Top Games in Validation
@@ -452,9 +452,14 @@ What were the model's top games in the validation set?
 preds |>
         filter(type %in% c("valid")) |>
         prep_predictions_datatable(
-                games = games
+                games = games,
+                outcome = params$outcome
         ) |>
-        predictions_datatable(remove_description = T, remove_image = T, pagelength = 15)
+        predictions_datatable(
+                outcome = params$outcome,
+                remove_description = T, 
+                remove_image = T, 
+                pagelength = 15)
 ```
 
 ## Top Games by Year
@@ -470,6 +475,7 @@ preds |>
         filter(type %in% c('resamples', 'valid')) |>
         top_n_preds(
                 games = games,
+                outcome = params$outcome,
                 top_n = 15,
                 n_years = 15
         ) |>
@@ -494,9 +500,10 @@ preds |>
         ) |>
         filter(usersrated >= 5) |>
         prep_predictions_datatable(
-                games = games
+                games = games,
+                outcome = params$outcome
         ) |>
-        predictions_datatable()
+        predictions_datatable(outcome = params$outcome)
 ```
 
 ## Older Games
@@ -507,6 +514,7 @@ What were the model's top predictions for older games?
 #| class: scroll
 #| message: false
 #| warning: false  
+#| echo: false
 preds |>
         filter(type %in% c("resamples", "valid")) |>
         left_join(
@@ -515,8 +523,9 @@ preds |>
         filter(usersrated >= 5) |>
         slice_max(.pred_yes, n=500) |>
         prep_predictions_datatable(
-                games = games
+                games = games, 
+                outcome = params$outcome
         ) |>
-        predictions_datatable()
+        predictions_datatable(outcome = params$outcome)
 ```
 

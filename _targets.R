@@ -25,12 +25,7 @@ tar_option_set(
 )
 
 # functions used in project
-tar_source("src/data/load_data.R")
-tar_source("src/models/splitting.R")
-tar_source("src/models/training.R")
-tar_source("src/visualization/inference.R")
-tar_source("src/visualization/tables.R")
-tar_source("src/visualization/plots.R")
+tar_source("src")
 
 
 # function to render quarto report and output given username
@@ -50,14 +45,16 @@ render_report = function(username,
 
 # parameters used in the pipeline
 users = data.frame(bgg_username = 
-                           c('phenrickson',
-                             'rahdo',
-                             'GOBBluth89',
-                             'Gyges',
-                             'ZeeGarcia',
-                             'J_3MBG',
-                             'VWValker',
-                             'aboardgamebarrage'
+                           c(
+                                   # 'phenrickson',
+                                   # 'rahdo',
+                                   # 'GOBBluth89',
+                                   # 'Gyges',
+                                   # 'ZeeGarcia',
+                                   # 'J_3MBG',
+                                   # 'VWValker',
+                                   # 'aboardgamebarrage',
+                                   'dennisflangley'
                            )
 )
 
@@ -66,6 +63,7 @@ end_train_year = 2022
 valid_years = 2
 retrain_years = 1
 min_ratings = 25
+outcome = 'like'
 
 # Replace the target list below with your own:
 data = list(
@@ -104,7 +102,7 @@ mapped =
                         command =
                                 collection |>
                                 train_user_model(games = games,
-                                                 outcome = own,
+                                                 outcome = outcome,
                                                  recipe = recipe_linear,
                                                  model = glmnet_spec(),
                                                  wflow_id = "glmnet",
@@ -113,7 +111,8 @@ mapped =
                                                  metric = 'mn_log_loss',
                                                  end_train_year = end_train_year,
                                                  valid_years = valid_years,
-                                                 retrain_years = retrain_years)
+                                                 retrain_years = retrain_years,
+                                                 v = 3)
                 ),
                 # tar_target(
                 #         model_lightgbm,
@@ -135,7 +134,7 @@ mapped =
                         preds,
                         command = 
                                 model_glmnet |>
-                                gather_predictions()
+                                gather_predictions(outcome = outcome)
                 ),
                 tar_target(
                         metrics,
@@ -143,7 +142,7 @@ mapped =
                                 preds |>
                                 group_by(username, wflow_id, type) |>
                                 assess_predictions(metrics = tune_metrics(),
-                                                   outcome = own,
+                                                   outcome = outcome,
                                                    event_level = 'second')
                 ),
                 tar_target(
@@ -152,43 +151,48 @@ mapped =
                                 bgg_username |>
                                 render_report(
                                         input = quarto,
-                                        metrics = metrics
+                                        metrics = metrics,
+                                        outcome = outcome
                                 )
                         #   cue = tar_cue(mode = "always")
                 )
         )
 
-# combine objects
-combined = 
-        list(
-                tar_combine(
-                        combined_metrics,
-                        mapped[["metrics"]],
-                        command = dplyr::bind_rows(!!!.x)
-                ),
-                tar_combine(
-                        combined_preds,
-                        mapped[["preds"]],
-                        command = dplyr::bind_rows(!!!.x)
-                )
-        )
-
 list(data,
-     mapped,
-     combined,
-     # write metrics out,
-     tar_target(
-             name = tracking,
-             command = 
-                     combined_metrics |> 
-                     pivot_wider(names_from = c(".metric"), 
-                                 values_from = c(".estimate")) |>
-                     write_results(),
-             format = "file"
-     ),
-     tar_quarto(
-             name = index,
-             path = ".",
-             quiet = F
-     )
-)
+     mapped)
+
+# # combine objects
+# combined = 
+#         list(
+#                 tar_combine(
+#                         combined_metrics,
+#                         mapped[["metrics"]],
+#                         command = dplyr::bind_rows(!!!.x)
+#                 ),
+#                 tar_combine(
+#                         combined_preds,
+#                         mapped[["preds"]],
+#                         command = dplyr::bind_rows(!!!.x)
+#                 )
+#         )
+# 
+# list(data,
+#      mapped,
+#      combined
+# )
+#      # write metrics out,
+#      tar_target(
+#              name = tracking,
+#              command = 
+#                      combined_metrics |> 
+#                      pivot_wider(names_from = c(".metric"), 
+#                                  values_from = c(".estimate")) |>
+#                      write_results(),
+#              format = "file"
+#      ),
+#      tar_quarto(
+#              name = index,
+#              path = ".",
+#              quiet = F
+#      )
+# )
