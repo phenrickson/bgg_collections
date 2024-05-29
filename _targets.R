@@ -59,7 +59,7 @@ users = data.frame(bgg_username =
                              'VWValker',
                              'aboardgamebarrage'
                            )
-                   )
+)
 
 #username = "phenrickson"
 end_train_year = 2022
@@ -159,23 +159,33 @@ mapped =
         )
 
 # combine objects
-combined_m = tar_combine(
-        combined_metrics,
-        mapped[["metrics"]],
-        command = dplyr::bind_rows(!!!.x)
-)
-
-# combine objects
-combined_p= tar_combine(
-        combined_preds,
-        mapped[["preds"]],
-        command = dplyr::bind_rows(!!!.x)
-)
+combined = 
+        list(
+                tar_combine(
+                        combined_metrics,
+                        mapped[["metrics"]],
+                        command = dplyr::bind_rows(!!!.x)
+                ),
+                tar_combine(
+                        combined_preds,
+                        mapped[["preds"]],
+                        command = dplyr::bind_rows(!!!.x)
+                )
+        )
 
 list(data,
      mapped,
-     combined_m,
-     combined_p,
+     combined,
+     # write metrics out,
+     tar_target(
+             name = tracking,
+             command = 
+                     combined_metrics |> 
+                     pivot_wider(names_from = c(".metric"), 
+                                 values_from = c(".estimate")) |>
+                     write_results(),
+             format = "file"
+     ),
      tar_quarto(
              name = index,
              path = ".",
