@@ -531,7 +531,7 @@ create_resamples = function(data,
         data |>
                 vfold_cv(
                         v = v,
-                        strata = own
+                        strata = {{strata}}
                 )
 }
 
@@ -555,6 +555,8 @@ add_linear_preprocessing = function(recipe) {
                 add_splines(c("number_mechanics", "number_categories")) |>
                 # remove zero variance
                 add_zv() |>
+                # filter for correlation
+                step_corr(all_numeric_predictors(), threshold = 0.95) |>
                 add_normalize()
 }
 
