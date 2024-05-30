@@ -69,9 +69,9 @@ make_collection_datable|function|f7476b44b75aaf1d|||||||||||||||
 make_hyperlink|function|91570e010b66dc21|||||||||||||||
 make_image_link|function|9d6675dd3c98bb3d|||||||||||||||
 make_web_image|function|100cf929d3f96823|||||||||||||||
-mapped|object|830156c5e052c54a|||||||||||||||
+mapped|object|45be17f0673e2f60|||||||||||||||
 metrics_aboardgamebarrage|stem|5bcebee6140d71eb|28d546e793073d61|8e7789fd9c105f3b|25708448||t19871.6357021409s|eb0bdafacbaf0878|309|qs|local|vector|||0.162||
-metrics_dennisflangley|stem|8a92f6507ac4dfa8|7a8cccf99ad9263e|60793f97d7e1590a|1155246095||t19872.7035047194s|b57036aa47575c77|293|qs|local|vector|||0.072|No event observations were detected in truth with event level yes.. No event observations were detected in truth with event level yes.. There are 0 event cases in truth, results will be meaningless.. There are 0 event cases in truth, results will be meaningless.|
+metrics_dennisflangley|stem|4ecc5713bf078096|7a8cccf99ad9263e|8e10d32f05657543|1155246095||t19872.8437877841s|763d944459e6841f|372|qs|local|vector|||0.135|No event observations were detected in truth with event level yes.. No event observations were detected in truth with event level yes.. No event observations were detected in truth with event level yes.. No event observations were detected in truth with event level yes.. There are 0 event cases in truth, results will be meaningless.. There are 0 event cases in truth, results will be meaningless.. There are 0 event cases in truth, results will be meaningless.. There are 0 event cases in truth, results will be meaningless.|
 metrics_GOBBluth89|stem|062a5939e9063820|324fa35b0470b8e4|de0a8ce6cdf6b4b5|953573731||t19871.6357039386s|3b08e2f63a5e0c0d|300|qs|local|vector|||0.119|No event observations were detected in truth with event level yes.. There are 0 event cases in truth, results will be meaningless.|
 metrics_Gyges|stem|2fce30f821d91527|61ba5652bdc8d235|605386009bc282d1|610092353||t19871.6357117653s|27dd3133729d8b27|296|qs|local|vector|||0.156||
 metrics_J_3MBG|stem|fcf537085b8d089b|8d1c2a97bb16e722|9c1fdd198e8f2e36|-1675941124||t19871.6357051353s|a8a4963516828e49|297|qs|local|vector|||0.075||
@@ -89,6 +89,7 @@ model_glmnet_phenrickson|stem|0a058fbab1cfe864|f93c19d698593220|464880c960bedfc1
 model_glmnet_rahdo|stem|0cadeec08625482b|0cf3e4093d32df38|6eb74338b2f0c1d8|-38498633||t19871.6228710506s|2550792c08f7a4e6|978852305|qs|local|vector|||242.332||
 model_glmnet_VWValker|stem|5f3da339f20408c2|3b791adac0701c46|d46d87ea1206c318|-1130789559||t19871.6318086321s|d493dde99144c4eb|974108256|qs|local|vector|||272.856||
 model_glmnet_ZeeGarcia|stem|2586cb9ab0ac2f0e|7d71a4e4782a59b2|d14c6d1b8c60aaa3|-1789249892||t19871.6252517258s|7b49dcbc5eb30c2d|981335967|qs|local|vector|||188.501||
+model_lightgbm_dennisflangley|stem|50182fd3f97fea7b|4bd52cef2ebb47ce|66461976964099a8|73693383||t19872.8436148706s|d3380f656557dfb8|856973369|qs|local|vector|||112.851|Using an external vector in selections was deprecated in tidyselect 1.1.0.ℹ Please use all_of or any_of instead.   Was  data  selectoutcome   Now  data  selectall_ofoutcomeSee httpstidyselect.rlib.orgreferencefaqexternalvector.html.|
 models|object|8ab0c32259b191d5|||||||||||||||
 outcome|object|9c87024ac05e4ee9|||||||||||||||
 plot_collection_by_category|function|b7bc932b702dd524|||||||||||||||
@@ -99,7 +100,7 @@ predict_split|function|789dd6b7c73551d2|||||||||||||||
 predictions_datatable|function|23e6059da75f742f|||||||||||||||
 predictor_vars|function|e0394bebad18e577|||||||||||||||
 preds_aboardgamebarrage|stem|558a3f7d17b994a3|6edfbecb8e8933a4|395c2f994e25077e|-1860458637||t19871.6347146311s|2014bf33dbc7c52b|1073790|qs|local|vector|||0.168||
-preds_dennisflangley|stem|97f837200d3ccddd|33dc29ef3ef3b5ce|221a758feb4bc369|-1337774699||t19872.7035036912s|70558b16d370c2e7|1045457|qs|local|vector|||0.093||
+preds_dennisflangley|stem|dd48c033c2d3d795|70db824f439b438e|515003374c0e0a16|-1337774699||t19872.843785872s|6619b1ac27e9c772|1964235|qs|local|vector|||0.252||
 preds_GOBBluth89|stem|7deb7673445220b3|f0879ad81079e5e6|572b5ae73b5605e3|196334152||t19871.6348447968s|93e7aa32b010657d|1059580|qs|local|vector|||0.154||
 preds_Gyges|stem|5d12d9deccf03525|bf54f06106c677b1|41491b3012bf9bad|-1999883003||t19871.6356997583s|f83ac49e236ea937|1092069|qs|local|vector|||0.169||
 preds_J_3MBG|stem|c966489fdb38dc91|92d24aa615948171|5a3df4e8424ba599|1964031886||t19871.634935758s|8a0bc7170bb3ed56|1082840|qs|local|vector|||0.183||
@@ -116,7 +117,7 @@ prepare_split|function|b37ec541677f08d1|||||||||||||||
 prepare_user_model|function|717c7925b856378a|||||||||||||||
 prepare_wflow|function|e69dbe3ac50c8b87|||||||||||||||
 preprocess_games|function|100ca0faa69c4f72|||||||||||||||
-quarto|stem|e779186eb3689da3|e6682f74e1775939|2c530c1562a7fbd1|-1138454403|analysis.qmd|t19872.7317254082s|31fb4c6f4f2e090e|14665|file|local|vector|||1.895||
+quarto|stem|cf2ad17e53e9a4dc|e6682f74e1775939|2c530c1562a7fbd1|-1138454403|analysis.qmd|t19872.84142291s|3c88db5cbf1ef64f|14775|file|local|vector|||1.815||
 recipe_linear|function|a9472de4cf96bec7|||||||||||||||
 recipe_trees|function|84af2d7cf5c9930b|||||||||||||||
 render_report|function|80b3ce3f9f8ded23|||||||||||||||

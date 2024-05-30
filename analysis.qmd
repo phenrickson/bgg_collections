@@ -77,7 +77,7 @@ tar_load(games)
 username = params$username
 
 user_collection = paste("collection", username, sep = "_")
-user_model = paste("model_glmnet", username, sep = "_")
+user_model_glmnet = paste("model_glmnet", username, sep = "_")
 user_preds = paste("preds", username, sep = "_")
 user_metrics = paste("metrics", username, sep = "_")
         
@@ -87,6 +87,7 @@ tar_load(user_preds)
 tar_load(user_metrics)
 
 collection = get(ls(pattern = user_collection))
+model_glmnet = get(ls(pattern = user_model))
 model_glmnet = get(ls(pattern = user_model))
 preds = get(ls(pattern = user_preds))
 metrics = get(ls(pattern = user_metrics))

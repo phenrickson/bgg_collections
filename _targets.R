@@ -54,6 +54,7 @@ users = data.frame(bgg_username =
                                    # 'J_3MBG',
                                    # 'VWValker',
                                    # 'aboardgamebarrage',
+                                   "legotortoise",
                                    'dennisflangley'
                            )
 )
@@ -114,22 +115,23 @@ mapped =
                                                  retrain_years = retrain_years,
                                                  v = 3)
                 ),
-                # tar_target(
-                #         model_lightgbm,
-                #         command =
-                #                 collection |>
-                #                 train_user_model(games = games,
-                #                                  outcome = own,
-                #                                  recipe = recipe_trees,
-                #                                  model = lightgbm_spec(),
-                #                                  wflow_id = "lightgbm",
-                #                                  grid = lightgbm_grid(),
-                #                                  metrics = tune_metrics(),
-                #                                  metric = 'mn_log_loss',
-                #                                  end_train_year = end_train_year,
-                #                                  valid_years = valid_years,
-                #                                  retrain_years = retrain_years)
-                # ),
+                tar_target(
+                        model_lightgbm,
+                        command =
+                                collection |>
+                                train_user_model(games = games,
+                                                 outcome = outcome,
+                                                 recipe = recipe_trees,
+                                                 model = lightgbm_spec(),
+                                                 wflow_id = "lightgbm",
+                                                 grid = lightgbm_grid(),
+                                                 metrics = tune_metrics(),
+                                                 metric = 'mn_log_loss',
+                                                 end_train_year = end_train_year,
+                                                 valid_years = valid_years,
+                                                 retrain_years = retrain_years,
+                                                 v = 3)
+                ),
                 tar_target(
                         preds,
                         command = 
@@ -144,18 +146,18 @@ mapped =
                                 assess_predictions(metrics = tune_metrics(),
                                                    outcome = outcome,
                                                    event_level = 'second')
-                ),
-                tar_target(
-                        report,
-                        command =
-                                bgg_username |>
-                                render_report(
-                                        input = quarto,
-                                        metrics = metrics,
-                                        outcome = outcome
-                                )
-                        #   cue = tar_cue(mode = "always")
                 )
+                # tar_target(
+                #         report,
+                #         command =
+                #                 bgg_username |>
+                #                 render_report(
+                #                         input = quarto,
+                #                         metrics = metrics,
+                #                         outcome = outcome
+                #                 )
+                #         #   cue = tar_cue(mode = "always")
+                # )
         )
 
 list(data,
