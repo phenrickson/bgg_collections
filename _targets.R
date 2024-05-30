@@ -6,6 +6,7 @@
 # Load packages required to define the pipeline:
 library(targets)
 library(tarchetypes) # Load other packages as needed.
+library(googleCloudStorageR)
 
 # Set target options:
 tar_option_set(
@@ -20,8 +21,15 @@ tar_option_set(
         # default format for storing targets
         format = "qs",
         seed = 1999,
-        memory = "transient"
-        
+        memory = "transient",
+        # for cloud storage
+        resources = tar_resources(
+                gcp = tar_resources_gcp(
+                        bucket = "bgg_data",
+                        prefix = 'collections'
+                )
+        ),
+        repository = "local"
 )
 
 # functions used in project
@@ -32,30 +40,35 @@ tar_source("src")
 render_report = function(username,
                          input,
                          metrics,
+                         outcome,
                          ...) {
         
         
         quarto::quarto_render(
                 input = input,
                 execute_params = list(username = username,
+                                      outcome = outcome,
                                       metrics = metrics),
-                output_file = glue::glue("{username}.html")
+                output_file = glue::glue("{username}.html"),
+                ...
         )
 }
 
 # parameters used in the pipeline
 users = data.frame(bgg_username = 
                            c(
-                                   # 'phenrickson',
-                                   # 'rahdo',
-                                   # 'GOBBluth89',
-                                   # 'Gyges',
-                                   # 'ZeeGarcia',
-                                   # 'J_3MBG',
-                                   # 'VWValker',
-                                   # 'aboardgamebarrage',
-                                   "legotortoise",
-                                   'dennisflangley'
+                                   'phenrickson',
+                                   'rahdo',
+                                   'GOBBluth89',
+                                   'Gyges',
+                                   'ZeeGarcia',
+                                   'J_3MBG',
+                                   'VWValker',
+                                   'aboardgamebarrage',
+                                   'NellyH99',
+                                   'legotortoise',
+                                   "LupercalFR78"
+                                   #  'dennisflangley'
                            )
 )
 
@@ -64,7 +77,7 @@ end_train_year = 2022
 valid_years = 2
 retrain_years = 1
 min_ratings = 25
-outcome = 'like'
+outcome = 'own'
 
 # Replace the target list below with your own:
 data = list(
@@ -96,7 +109,8 @@ mapped =
                 values = users,
                 tar_target(
                         collection,
-                        load_user_collection(username = bgg_username)
+                        load_user_collection(username = bgg_username),
+                        repository = "gcp"
                 ),
                 tar_target(
                         model_glmnet,
@@ -113,24 +127,8 @@ mapped =
                                                  end_train_year = end_train_year,
                                                  valid_years = valid_years,
                                                  retrain_years = retrain_years,
-                                                 v = 3)
-                ),
-                tar_target(
-                        model_lightgbm,
-                        command =
-                                collection |>
-                                train_user_model(games = games,
-                                                 outcome = outcome,
-                                                 recipe = recipe_trees,
-                                                 model = lightgbm_spec(),
-                                                 wflow_id = "lightgbm",
-                                                 grid = lightgbm_grid(),
-                                                 metrics = tune_metrics(),
-                                                 metric = 'mn_log_loss',
-                                                 end_train_year = end_train_year,
-                                                 valid_years = valid_years,
-                                                 retrain_years = retrain_years,
-                                                 v = 3)
+                                                 v = 5),
+                        repository = "gcp"
                 ),
                 tar_target(
                         preds,
@@ -146,55 +144,52 @@ mapped =
                                 assess_predictions(metrics = tune_metrics(),
                                                    outcome = outcome,
                                                    event_level = 'second')
+                ),
+                tar_target(
+                        report,
+                        command =
+                                bgg_username |>
+                                render_report(
+                                        input = quarto,
+                                        metrics = metrics,
+                                        outcome = outcome,
+                                        quiet = F
+                                )
+                        #   cue = tar_cue(mode = "always")
                 )
-                # tar_target(
-                #         report,
-                #         command =
-                #                 bgg_username |>
-                #                 render_report(
-                #                         input = quarto,
-                #                         metrics = metrics,
-                #                         outcome = outcome
-                #                 )
-                #         #   cue = tar_cue(mode = "always")
-                # )
+        )
+
+# combine objects
+combined =
+        list(
+                tar_combine(
+                        combined_metrics,
+                        mapped[["metrics"]],
+                        command = dplyr::bind_rows(!!!.x)
+                ),
+                tar_combine(
+                        combined_preds,
+                        mapped[["preds"]],
+                        command = dplyr::bind_rows(!!!.x)
+                )
         )
 
 list(data,
-     mapped)
-
-# # combine objects
-# combined = 
-#         list(
-#                 tar_combine(
-#                         combined_metrics,
-#                         mapped[["metrics"]],
-#                         command = dplyr::bind_rows(!!!.x)
-#                 ),
-#                 tar_combine(
-#                         combined_preds,
-#                         mapped[["preds"]],
-#                         command = dplyr::bind_rows(!!!.x)
-#                 )
-#         )
-# 
-# list(data,
-#      mapped,
-#      combined
-# )
-#      # write metrics out,
-#      tar_target(
-#              name = tracking,
-#              command = 
-#                      combined_metrics |> 
-#                      pivot_wider(names_from = c(".metric"), 
-#                                  values_from = c(".estimate")) |>
-#                      write_results(),
-#              format = "file"
-#      ),
-#      tar_quarto(
-#              name = index,
-#              path = ".",
-#              quiet = F
-#      )
-# )
+     mapped,
+     combined,
+     # write metrics out,
+     tar_target(
+             name = tracking,
+             command =
+                     combined_metrics |>
+                     pivot_wider(names_from = c(".metric"),
+                                 values_from = c(".estimate")) |>
+                     write_results(),
+             format = "file"
+     ),
+     tar_quarto(
+             name = index,
+             path = ".",
+             quiet = F
+     )
+)

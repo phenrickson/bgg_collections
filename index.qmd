@@ -22,6 +22,9 @@ This report details predictive models for individual board game collections.
 
 1. [phenrickson (me)](phenrickson.html) 
 1. [GOBBluth89 (my brother)](GOBBluth89.html)
+1. [legotortoise](legotortoise.html)
+1. [LupercalFR78](LupercalFR78.html)
+1. [NellyH99](NellyH99.html)
 
 Board Game Reviewers:
 

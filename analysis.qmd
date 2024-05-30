@@ -23,9 +23,9 @@ format:
 css: styles.css
 editor: source
 params:
-        username: dennisflangley
+        username: phenrickson
         metrics: metrics
-        outcome: 'like'
+        outcome: 'own'
 ---
 
 ```{r}
@@ -77,7 +77,7 @@ tar_load(games)
 username = params$username
 
 user_collection = paste("collection", username, sep = "_")
-user_model_glmnet = paste("model_glmnet", username, sep = "_")
+user_model = paste("model_glmnet", username, sep = "_")
 user_preds = paste("preds", username, sep = "_")
 user_metrics = paste("metrics", username, sep = "_")
         
@@ -87,7 +87,6 @@ tar_load(user_preds)
 tar_load(user_metrics)
 
 collection = get(ls(pattern = user_collection))
-model_glmnet = get(ls(pattern = user_model))
 model_glmnet = get(ls(pattern = user_model))
 preds = get(ls(pattern = user_preds))
 metrics = get(ls(pattern = user_metrics))
@@ -499,7 +498,10 @@ preds |>
         left_join(
                 games |> select(game_id, usersrated), by = join_by(game_id)
         ) |>
-        filter(usersrated >= 5) |>
+        # imposing a minimum threshold to filter out games with no info
+        filter(usersrated >= 1) |>
+        # removing this goddamn boxing game that has every mechanic listed
+        filter(game_id != 420629) |>
         prep_predictions_datatable(
                 games = games,
                 outcome = params$outcome
