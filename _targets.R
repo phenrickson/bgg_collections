@@ -33,7 +33,7 @@ tar_option_set(
 )
 
 # functions used in project
-tar_source("src")
+suppressMessages({tar_source("src")})
 
 
 # function to render quarto report and output given username
@@ -82,6 +82,12 @@ outcome = 'own'
 # Replace the target list below with your own:
 data = list(
         tar_target(
+                model_board,
+                command = 
+                        pins::board_folder(path = "models", versioned = T)
+                
+        ),
+        tar_target(
                 name = games_raw,
                 packages = c("googleCloudStorageR"),
                 command = 
@@ -101,6 +107,22 @@ data = list(
                 name = quarto,
                 command = "analysis.qmd",
                 format = "file"
+        ),
+        tar_target(
+                name = games_new_raw,
+                command = load_games(object_name = "raw/objects/games",
+                                     generation = NULL,
+                                     bucket = "bgg_data"),
+                packages = c("googleCloudStorageR"),
+                cue = tar_cue_age(
+                        name = games_new_raw,
+                        age = as.difftime(7, units = "days")
+                )
+        ),
+        tar_target(
+                name = games_new,
+                command = games_raw |>
+                        bggUtils::preprocess_bgg_games()
         )
 )
 
@@ -131,6 +153,12 @@ mapped =
                         repository = "gcp"
                 ),
                 tar_target(
+                        pin_vetiver,
+                        model_glmnet |>
+                                vetiver_user_model() |>
+                                pin_model(board = model_board)
+                ),
+                tar_target(
                         preds,
                         command = 
                                 model_glmnet |>
@@ -144,6 +172,18 @@ mapped =
                                 assess_predictions(metrics = tune_metrics(),
                                                    outcome = outcome,
                                                    event_level = 'second')
+                ),
+                tar_target(
+                        new_preds,
+                        command = 
+                                {
+                                m = load_model(board = model_board,
+                                           name = username,
+                                           hash = pin_vetiver)
+                                
+                                m |>
+                                        augment(games_new)
+                                }
                 ),
                 tar_target(
                         report,
