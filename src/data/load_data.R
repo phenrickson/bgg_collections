@@ -70,6 +70,30 @@ load_games = function(object_name = "raw/objects/games",
         }
 }
 
+# list of publishers to be allowed
+publisher_allow_list = function() {
+        
+        c(bggUtils:::publishers_allow_list(), 
+          25624 # add leder games
+        )
+}
+
+# prepare games
+# customize preprocessing from bggUtils
+prepare_games = function(data,
+                         publisher_allow = publisher_allow_list(),
+                         families_allow = bggUtils:::families_allow_list(),
+                         families_remove = bggUtils:::families_remove_list(),
+                         ...) {
+        
+        data |>
+                bggUtils:::preprocess_bgg_games(publisher_allow = publisher_allow,
+                                                families_allow = families_allow,
+                                                families_remove = families_remove,
+                                                ...)
+                                                
+}
+
 # join collection with bgg games
 join_games_and_collection = function(games,
                                      collection) {
