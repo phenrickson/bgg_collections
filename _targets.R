@@ -35,24 +35,6 @@ tar_option_set(
 # functions used in project
 suppressMessages({tar_source("src")})
 
-# function to render quarto report and output given username
-render_report = function(username,
-                         input,
-                         metrics,
-                         outcome,
-                         ...) {
-        
-        
-        quarto::quarto_render(
-                input = input,
-                execute_params = list(username = username,
-                                      outcome = outcome,
-                                      metrics = metrics),
-                output_file = glue::glue("{username}.html"),
-                ...
-        )
-}
-
 # parameters used in the pipeline
 users = data.frame(bgg_username = 
                            c(
@@ -192,7 +174,12 @@ mapped =
                                         outcome = outcome,
                                         quiet = F
                                 )
-                        #   cue = tar_cue(mode = "always")
+                ),
+                tar_target(
+                        upload,
+                        command = 
+                                upload_report(file = paste0('docs/', report)),
+                        packages = c('googleCloudStorageR')
                 )
         )
 
