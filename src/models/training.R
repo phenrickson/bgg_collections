@@ -581,11 +581,11 @@ add_dummies = function(recipe,
 
 # standard dummy recipes
 add_bgg_dummies = function(recipe,
-                           mechanics_threshold = 10,
+                           mechanics_threshold = 1,
                            categories_threshold = 1,
                            families_threshold = 100,
                            publishers_threshold = 1,
-                           designers_threshold = 5,
+                           designers_threshold = 10,
                            artists_threshold = 10,
                            components_threshold = 25,
                            themes_threshold = 25,
@@ -629,10 +629,12 @@ add_preprocessing = function(recipe) {
         recipe %>%
                 # indicate missingness in numeric features
                 step_indicate_na(all_numeric_predictors(),
+                                 all_nominal_predictors(),
                                  prefix = "missing") %>%
-                # indicate missingness in image, description, or thumbnail
-                step_indicate_na(image, thumbnail,
-                                 prefix = "missing") %>%
+                # # indicate missingness in image, description, or thumbnail
+                # step_indicate_na(image, thumbnail,
+                #                  prefix = "missing") %>%
+                # set role of image and thumbnail as ids
                 update_role(image, thumbnail,
                             new_role = "id") %>%
                 # make time per player variable
