@@ -1,4 +1,4 @@
 "","username","wflow_id","type",".estimator","mn_log_loss","roc_auc","pr_auc"
-"1","phenrickson","glmnet","resamples","binary",0.0189,0.958,0.2151
-"2","phenrickson","glmnet","test","binary",0.0063,0.9715,0.0331
-"3","phenrickson","glmnet","valid","binary",0.0115,0.9755,0.1687
+"1","phenrickson","glmnet","resamples","binary",0.0192,0.9599,0.1873
+"2","phenrickson","glmnet","test","binary",0.0064,0.977,0.0436
+"3","phenrickson","glmnet","valid","binary",0.0111,0.9766,0.2478
