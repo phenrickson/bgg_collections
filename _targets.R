@@ -39,13 +39,13 @@ suppressMessages({tar_source("src")})
 users = data.frame(bgg_username = 
                            c(
                                    'phenrickson'
-                                   # ,'rahdo'
-                                   # ,'GOBBluth89'
-                                   # ,'Gyges'
-                                   # ,'ZeeGarcia'
-                                   # ,'J_3MBG'
-                                   # ,'VWValker'
-                                   # ,'aboardgamebarrage'
+                                   ,'rahdo'
+                                   ,'GOBBluth89'
+                                   ,'Gyges'
+                                   ,'ZeeGarcia'
+                                   ,'J_3MBG'
+                                   ,'VWValker'
+                                   ,'aboardgamebarrage'
                                    # ,'NellyH99'
                                    # ,'legotortoise'
                                    # ,"LupercalFR78"

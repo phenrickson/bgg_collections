@@ -34,3 +34,5 @@ rsconnect/
 *.DS_Store
 /.quarto/
 /models
+/docs/*
+!/docs/index.html
