@@ -33,42 +33,23 @@ tar_option_set(
 )
 
 # functions used in project
-tar_source("src")
-
-
-# function to render quarto report and output given username
-render_report = function(username,
-                         input,
-                         metrics,
-                         outcome,
-                         ...) {
-        
-        
-        quarto::quarto_render(
-                input = input,
-                execute_params = list(username = username,
-                                      outcome = outcome,
-                                      metrics = metrics),
-                output_file = glue::glue("{username}.html"),
-                ...
-        )
-}
+suppressMessages({tar_source("src")})
 
 # parameters used in the pipeline
 users = data.frame(bgg_username = 
                            c(
-                                   'phenrickson',
-                                   'rahdo',
-                                   'GOBBluth89',
-                                   'Gyges',
-                                   'ZeeGarcia',
-                                   'J_3MBG',
-                                   'VWValker',
-                                   'aboardgamebarrage',
-                                   'NellyH99',
-                                   'legotortoise',
-                                   "LupercalFR78"
-                                   #  'dennisflangley'
+                                   'phenrickson'
+                                   ,'rahdo'
+                                   ,'GOBBluth89'
+                                   ,'Gyges'
+                                   ,'ZeeGarcia'
+                                   ,'J_3MBG'
+                                   ,'VWValker'
+                                   ,'aboardgamebarrage'
+                                   # ,'NellyH99'
+                                   # ,'legotortoise'
+                                   # ,"LupercalFR78"
+                                   # ,'dennisflangley'
                            )
 )
 
@@ -82,25 +63,45 @@ outcome = 'own'
 # Replace the target list below with your own:
 data = list(
         tar_target(
+                model_board,
+                command = 
+                        pins::board_folder(path = "models", versioned = T)
+                
+        ),
+        tar_target(
                 name = games_raw,
                 packages = c("googleCloudStorageR"),
                 command = 
-                        load_games(
-                                object_name = "raw/objects/games",
-                                generation = "1716489185536915",
-                                bucket = "bgg_data"
-                        )
+                        load_games(object_name = "raw/objects/games",
+                                   generation = "1719427179309064",
+                                   bucket = "bgg_data")
         ),
         tar_target(
                 name = games,
                 command = 
                         games_raw |>
-                        bggUtils::preprocess_bgg_games()
+                        prepare_games()
         ),
         tar_target(
                 name = quarto,
                 command = "analysis.qmd",
                 format = "file"
+        ),
+        tar_target(
+                name = games_new_raw,
+                command = load_games(object_name = "raw/objects/games",
+                                     generation = NULL,
+                                     bucket = "bgg_data"),
+                packages = c("googleCloudStorageR"),
+                cue = tar_cue_age(
+                        name = games_new_raw,
+                        age = as.difftime(7, units = "days")
+                )
+        ),
+        tar_target(
+                name = games_new,
+                command = games_new_raw |>
+                        prepare_games()
         )
 )
 
@@ -110,7 +111,7 @@ mapped =
                 tar_target(
                         collection,
                         load_user_collection(username = bgg_username),
-                        repository = "gcp"
+                        repository = "gcp",
                 ),
                 tar_target(
                         model_glmnet,
@@ -130,6 +131,12 @@ mapped =
                                                  v = 5),
                         repository = "gcp"
                 ),
+                # tar_target(
+                #         pin_vetiver,
+                #         model_glmnet |>
+                #                 vetiver_user_model() |>
+                #                 pin_model(board = model_board)
+                # ),
                 tar_target(
                         preds,
                         command = 
@@ -145,6 +152,18 @@ mapped =
                                                    outcome = outcome,
                                                    event_level = 'second')
                 ),
+                # tar_target(
+                #         new_preds,
+                #         command = 
+                #                 {
+                #                         m = load_model(board = model_board,
+                #                                        name = username,
+                #                                        hash = pin_vetiver)
+                #                         
+                #                         m |>
+                #                                 augment(games_new)
+                #                 }
+                # ),
                 tar_target(
                         report,
                         command =
@@ -155,7 +174,12 @@ mapped =
                                         outcome = outcome,
                                         quiet = F
                                 )
-                        #   cue = tar_cue(mode = "always")
+                ),
+                tar_target(
+                        upload,
+                        command = 
+                                upload_report(file = paste0('docs/', report)),
+                        packages = c('googleCloudStorageR')
                 )
         )
 

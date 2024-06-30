@@ -32,5 +32,7 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 *.DS_Store
-
 /.quarto/
+/models
+/docs/*
+!/docs/index.html
