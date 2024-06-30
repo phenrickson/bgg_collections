@@ -20,20 +20,20 @@ This report details predictive models for individual board game collections.
 
 ## Models
 
-1. [phenrickson (me)](phenrickson.html) 
-1. [GOBBluth89 (my brother)](GOBBluth89.html)
-1. [legotortoise](legotortoise.html)
-1. [LupercalFR78](LupercalFR78.html)
-1. [NellyH99](NellyH99.html)
+1. [phenrickson (me)](bgg_reports/bgg_collections/docs/phenrickson.html) 
+1. [GOBBluth89 (my brother)](bgg_reports/bgg_collections/docs/GOBBluth89.html)
+<!-- 1. [legotortoise](bgg_reports/bgg_collections/docs/legotortoise.html) -->
+<!-- 1. [LupercalFR78](bgg_reports/bgg_collections/docs/LupercalFR78.html) -->
+<!-- 1. [NellyH99](bgg_reports/bgg_collections/docs/NellyH99.html) -->
 
 Board Game Reviewers:
 
-1. [rahdo (Rahdo Runs Through)](rahdo.html)
-1. [Mark Bigney (So Very Wrong About Games)](Gyges.html)
-1. [Mike Walker (So Very Wrong About Games)](VWValker.html)
-1. [Jarrod Carmichael (3 Minute Boardgames)](J_3MBG.html)
-1. [Zee Garcia (Dice Tower)](ZeeGarcia.html)
-1. [Kellen Laker (Board Game Barrage)](aboardgamebarrage.html)
+1. [rahdo (Rahdo Runs Through)](bgg_reports/bgg_collections/docs/rahdo.html)
+1. [Mark Bigney (So Very Wrong About Games)](bgg_reports/bgg_collections/docs/Gyges.html)
+1. [Mike Walker (So Very Wrong About Games)](bgg_reports/bgg_collections/docs/VWValker.html)
+1. [Jarrod Carmichael (3 Minute Boardgames)](bgg_reports/bgg_collections/docs/J_3MBG.html)
+1. [Zee Garcia (Dice Tower)](bgg_reports/bgg_collections/docs/ZeeGarcia.html)
+1. [Kellen Laker (Board Game Barrage)](bgg_reports/bgg_collections/docs/aboardgamebarrage.html)
 
 ```{r}
 #| include: false
