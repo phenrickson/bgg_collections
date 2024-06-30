@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|af7100017c6470c3|||||||||||||||
+.Random.seed|object|91abaeb16a32ed29|||||||||||||||
 add_bgg_dummies|function|25815f44bbe7e35a|||||||||||||||
 add_bgg_preprocessing|function|edbcafa937c6fbb3|||||||||||||||
 add_corr|function|a7156d710f1b0e97|||||||||||||||
@@ -63,7 +63,7 @@ gt_predictions_styling|function|3d35fb302b23c33d|||||||||||||||
 gt_styling|function|46f7b8a14fa1b2be|||||||||||||||
 gt_top_n|function|42df52dc0acde8b4|||||||||||||||
 id_vars|function|e26c5d41a2559d7b|||||||||||||||
-index|stem|32ee4ce2cf7f02e9|a2724ef0a15a16be|24f09e056759067e|1538056465|docs*analysis.qmd*index.qmd*_quarto.yml|t19904.6760219932s|80fd6ad9e0918b24|153566898|file|local|vector|||102.667||
+index|stem|318ea711cac48612|a2724ef0a15a16be|24f09e056759067e|1538056465|docs*analysis.qmd*index.qmd*_quarto.yml|t19904.6828958774s|8c755536c06aa55a|23262014|file|local|vector|||107.882||
 join_games_and_collection|function|5ab640919917fd95|||||||||||||||
 lightgbm_grid|function|3cfec1aacaa08965|||||||||||||||
 lightgbm_spec|function|09ef7913fc2d2739|||||||||||||||
