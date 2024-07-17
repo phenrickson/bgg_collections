@@ -64,16 +64,16 @@ outcome = 'own'
 data = list(
         tar_target(
                 model_board,
+                packages = c("googleCloudStorageR"),
                 command = 
-                        pins::board_folder(path = "models", versioned = T)
-                
+                        pins::board_gcs(bucket = "bgg_models", prefix = "model/collections/", versioned = T)
         ),
         tar_target(
                 name = games_raw,
                 packages = c("googleCloudStorageR"),
                 command = 
                         load_games(object_name = "raw/objects/games",
-                                   generation = "1719427179309064",
+                                   generation = "1721147850023745",
                                    bucket = "bgg_data")
         ),
         tar_target(
@@ -131,12 +131,12 @@ mapped =
                                                  v = 5),
                         repository = "gcp"
                 ),
-                # tar_target(
-                #         pin_vetiver,
-                #         model_glmnet |>
-                #                 vetiver_user_model() |>
-                #                 pin_model(board = model_board)
-                # ),
+                tar_target(
+                        pin_vetiver,
+                        model_glmnet |>
+                                vetiver_user_model() |>
+                                pin_model(board = model_board)
+                ),
                 tar_target(
                         preds,
                         command = 
@@ -152,18 +152,19 @@ mapped =
                                                    outcome = outcome,
                                                    event_level = 'second')
                 ),
-                # tar_target(
-                #         new_preds,
-                #         command = 
-                #                 {
-                #                         m = load_model(board = model_board,
-                #                                        name = username,
-                #                                        hash = pin_vetiver)
-                #                         
-                #                         m |>
-                #                                 augment(games_new)
-                #                 }
-                # ),
+                tar_target(
+                        new_preds,
+                        command =
+                                {
+                                        m = load_model(board = model_board,
+                                                       name = bgg_username,
+                                                       hash = pin_vetiver)
+
+                                        m |>
+                                                predict_user_model(games = games_new,
+                                                                   collection = collection)
+                                }
+                ),
                 tar_target(
                         report,
                         command =
@@ -194,6 +195,11 @@ combined =
                 tar_combine(
                         combined_preds,
                         mapped[["preds"]],
+                        command = dplyr::bind_rows(!!!.x)
+                ),
+                tar_combine(
+                        combined_new_preds,
+                        mapped[["new_preds"]],
                         command = dplyr::bind_rows(!!!.x)
                 )
         )

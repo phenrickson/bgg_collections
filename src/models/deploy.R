@@ -43,3 +43,55 @@ load_model = function(board, name, version, hash = NULL, ...) {
                                   name = name,
                                   ...)
 }
+
+predict_user_model = function(model,
+                              games,
+                              collection) {
+        
+        # get user settings
+        settings = model$metadata$user$settings
+        
+        # data used in training model
+        training = model$metadata$user$data |> bind_cols()
+        
+        # games to input
+        prepped = games |>
+                join_games_and_collection(
+                        collection = collection 
+                ) |>
+                prep_collection()
+        
+        # predict
+        preds = 
+                model |>
+                augment(prepped) |>
+                select(-.pred_class, -.pred_no, -load_ts)
+        
+        # type of preds; some of these were in the training set
+        in_games = 
+                preds |>
+                inner_join(
+                        training |>
+                                select(game_id),
+                        by = join_by(game_id)
+                ) |>
+                mutate(type = 'training')
+        
+        out_games = 
+                preds |>
+                anti_join(
+                        training |>
+                                select(game_id),
+                        by = join_by(game_id)
+                ) |>
+                mutate(type = 
+                               case_when(
+                                       yearpublished > settings$end_train_year ~ 'upcoming',
+                                       TRUE ~ 'filtered'
+                               )
+                )
+        
+        bind_rows(in_games,
+                  out_games) |>
+                select(type, username, everything())
+}
