@@ -73,6 +73,7 @@ tar_source("src")
 #| echo: false
 #| include: false
 tar_load(games_raw)
+tar_load(games_new)
 tar_load(games)
 username = params$username
 
@@ -80,15 +81,18 @@ user_collection = paste("collection", username, sep = "_")
 user_model = paste("model_glmnet", username, sep = "_")
 user_preds = paste("preds", username, sep = "_")
 user_metrics = paste("metrics", username, sep = "_")
+new_preds = paste("new_preds", username, sep = "_")
         
 tar_load(user_collection)
 tar_load(user_model)
 tar_load(user_preds)
 tar_load(user_metrics)
+tar_load(new_preds)
 
 collection = get(ls(pattern = user_collection))
 model_glmnet = get(ls(pattern = user_model))
-preds = get(ls(pattern = user_preds))
+preds = get(ls(pattern = paste0("^", user_preds)))
+new_preds = get(ls(pattern = new_preds))
 metrics = get(ls(pattern = user_metrics))
 
 rm(list = ls(pattern = paste(params$username)))
@@ -493,17 +497,14 @@ What were the model's top predictions for new and upcoming board game releases?
 #| class: scroll
 #| message: false
 #| warning: false
-preds |>
-        filter(type %in% c("test")) |>
-        left_join(
-                games |> select(game_id, usersrated), by = join_by(game_id)
-        ) |>
+new_preds |>
+        filter(type == 'upcoming') |>
         # imposing a minimum threshold to filter out games with no info
         filter(usersrated >= 1) |>
         # removing this goddamn boxing game that has every mechanic listed
         filter(game_id != 420629) |>
         prep_predictions_datatable(
-                games = games,
+                games = games_new,
                 outcome = params$outcome
         ) |>
         predictions_datatable(outcome = params$outcome)
