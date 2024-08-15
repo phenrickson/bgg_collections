@@ -180,7 +180,12 @@ mapped =
                         upload,
                         command = 
                                 upload_report(file = paste0('docs/', report)),
-                        packages = c('googleCloudStorageR')
+                        packages = c('googleCloudStorageR'),
+                        cue = 
+                                tar_cue_age(
+                                        name = report,
+                                        age = as.difftime(7, units = "days")
+                                )
                 )
         )
 

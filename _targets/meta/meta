@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|a96d7970726df0f7|||||||||||||||
+.Random.seed|object|e9c9d28a835f11d2|||||||||||||||
 add_bgg_dummies|function|25815f44bbe7e35a|||||||||||||||
 add_bgg_preprocessing|function|edbcafa937c6fbb3|||||||||||||||
 add_corr|function|a7156d710f1b0e97|||||||||||||||
@@ -64,7 +64,7 @@ gt_predictions_styling|function|3d35fb302b23c33d|||||||||||||||
 gt_styling|function|46f7b8a14fa1b2be|||||||||||||||
 gt_top_n|function|42df52dc0acde8b4|||||||||||||||
 id_vars|function|e26c5d41a2559d7b|||||||||||||||
-index|stem|8f05e67c7f5d656a|308aadd0c3127bf9|f07c8dfbe1c1d475|1538056465|docs*analysis.qmd*index.qmd*_quarto.yml|t19950.6772246336s|831a2dbadcd405d7|156071861|file|local|vector|||99.375||
+index|stem|8f05e67c7f5d656a|308aadd0c3127bf9|f07c8dfbe1c1d475|1538056465|docs*analysis.qmd*index.qmd*_quarto.yml|t19950.6772254551s|6d73d8f7f0d92c3f|23564|file|local|vector|||99.375||
 join_games_and_collection|function|5ab640919917fd95|||||||||||||||
 lightgbm_grid|function|3cfec1aacaa08965|||||||||||||||
 lightgbm_spec|function|09ef7913fc2d2739|||||||||||||||
@@ -76,7 +76,7 @@ make_collection_datable|function|f7476b44b75aaf1d|||||||||||||||
 make_hyperlink|function|91570e010b66dc21|||||||||||||||
 make_image_link|function|9d6675dd3c98bb3d|||||||||||||||
 make_web_image|function|100cf929d3f96823|||||||||||||||
-mapped|object|4451923de9ce9d87|||||||||||||||
+mapped|object|fff16bb679055db5|||||||||||||||
 metrics_aboardgamebarrage|stem|ed3dbfea65c32b61|eaf5badf37e83f89|b4f24459b4e13dbf|25708448||t19921.6874989705s|eb0bdafacbaf0878|309|qs|local|vector|||0.046||
 metrics_dennisflangley|stem|4ecc5713bf078096|7a8cccf99ad9263e|8e10d32f05657543|1155246095||t19872.8437877841s|763d944459e6841f|372|qs|local|vector|||0.135|No event observations were detected in truth with event level yes.. No event observations were detected in truth with event level yes.. No event observations were detected in truth with event level yes.. No event observations were detected in truth with event level yes.. There are 0 event cases in truth, results will be meaningless.. There are 0 event cases in truth, results will be meaningless.. There are 0 event cases in truth, results will be meaningless.. There are 0 event cases in truth, results will be meaningless.|
 metrics_GOBBluth89|stem|c6de0f7e2cbaf613|e66a42331892cbde|b7f7144b2d913f81|953573731||t19921.6874951101s|ac5883799cfc915b|301|qs|local|vector|||0.059|No event observations were detected in truth with event level yes.. There are 0 event cases in truth, results will be meaningless.|
@@ -184,15 +184,15 @@ train_user_model|function|d3266e44b1724ed7|||||||||||||||
 tune_metrics|function|b5c3f5fe778ae53c|||||||||||||||
 tune_user_model|function|c8d622ade539de83|||||||||||||||
 tune_wflow|function|bdbd5a0157bddfb9|||||||||||||||
-upload_aboardgamebarrage|stem|e8e9d6cb718d79b0|fc2ea37f68084985|5a0d3f4eeeba5b24|-294442763||t19921.6950087296s|988429bb6428792b|83|qs|local|vector|||1.183||
-upload_GOBBluth89|stem|53dfb0b9614c62f9|68885530eb2053e8|cf2c2241ac858cbe|506001819||t19921.694958617s|e12065d620e41fd5|76|qs|local|vector|||1.049||
-upload_Gyges|stem|a9d0f82050189cd9|bb68f3ba1d32c909|d925073d26ffd3b2|-1196779541||t19921.6949706467s|580e0375f1117643|70|qs|local|vector|||1.025||
-upload_J_3MBG|stem|498368e014eb55f0|befc2b5cdeb8fcd4|823fd397b789421a|-1066034554||t19921.6949827369s|3ed5ce5eeeea6e9a|72|qs|local|vector|||1.028||
-upload_phenrickson|stem|6f803960db67de72|7c673a14555a7dea|19958a0ad1701f9d|-1481286416||t19921.696329913s|04fcf8b2530d31e5|77|qs|local|vector|||1.071||
-upload_rahdo|stem|4dfa8df5f300d026|1dd48d448c4adeaf|5a609a21dc0ba0ea|14500402||t19921.6949948278s|580e0375f1117643|70|qs|local|vector|||1.033||
+upload_aboardgamebarrage|stem|e8e9d6cb718d79b0|fc2ea37f68084985|5a0d3f4eeeba5b24|-294442763||t19950.6852790726s|988429bb6428792b|83|qs|local|vector|||1.078||
+upload_GOBBluth89|stem|53dfb0b9614c62f9|68885530eb2053e8|cf2c2241ac858cbe|506001819||t19950.6853312701s|e12065d620e41fd5|76|qs|local|vector|||0.935||
+upload_Gyges|stem|a9d0f82050189cd9|bb68f3ba1d32c909|d925073d26ffd3b2|-1196779541||t19950.6852510196s|580e0375f1117643|70|qs|local|vector|||0.994||
+upload_J_3MBG|stem|498368e014eb55f0|befc2b5cdeb8fcd4|823fd397b789421a|-1066034554||t19950.685266518s|3ed5ce5eeeea6e9a|72|qs|local|vector|||1.332||
+upload_phenrickson|stem|6f803960db67de72|7c673a14555a7dea|19958a0ad1701f9d|-1481286416||t19950.6853204158s|04fcf8b2530d31e5|77|qs|local|vector|||0.968||
+upload_rahdo|stem|4dfa8df5f300d026|1dd48d448c4adeaf|5a609a21dc0ba0ea|14500402||t19950.6853091624s|580e0375f1117643|70|qs|local|vector|||1.321||
 upload_report|function|6dbf998a3382157c|||||||||||||||
-upload_VWValker|stem|4449721549e77460|7e634c3f2a5aadfb|338949c9d3af4984|698452505||t19921.6949462935s|4be831169559909a|74|qs|local|vector|||1.112||
-upload_ZeeGarcia|stem|3e101fc544ec3ad3|2c7db20ad1a39ced|8e52603b0d02a019|-1512311122||t19921.6949332474s|a057b906461a46f0|75|qs|local|vector|||1.2||
+upload_VWValker|stem|4449721549e77460|7e634c3f2a5aadfb|338949c9d3af4984|698452505||t19950.6852394368s|4be831169559909a|74|qs|local|vector|||1.637||
+upload_ZeeGarcia|stem|3e101fc544ec3ad3|2c7db20ad1a39ced|8e52603b0d02a019|-1512311122||t19950.6852937921s|a057b906461a46f0|75|qs|local|vector|||1.262||
 upset_plot_by_category|function|970f8b2274aeabfe|||||||||||||||
 username|object|d457275cd769e778|||||||||||||||
 usernames|object|a6503edd9325896b|||||||||||||||
