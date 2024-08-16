@@ -3,6 +3,8 @@ render_report = function(username,
                          input,
                          metrics,
                          outcome,
+                         pin_vetiver,
+                         
                          ...) {
         
         file = glue::glue("{username}.html")
@@ -11,7 +13,8 @@ render_report = function(username,
                 input = input,
                 execute_params = list(username = username,
                                       outcome = outcome,
-                                      metrics = metrics),
+                                      metrics = metrics,
+                                      pin_vetiver = pin_vetiver),
                 output_file = file,
                 ...
         )
@@ -21,8 +24,8 @@ render_report = function(username,
 
 # function to upload
 upload_report = function(file,
-                         prefix = 'bgg_collections/',
-                         bucket = 'bgg_reports',
+                         prefix = config::get("prefix"),
+                         bucket = config::get("bucket"),
                          predefinedAcl = 'bucketLevel',
                          type = 'text/html') {
         

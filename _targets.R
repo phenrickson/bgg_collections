@@ -69,6 +69,11 @@ data = list(
                         pins::board_gcs(bucket = "bgg_models", prefix = "model/collections/", versioned = T)
         ),
         tar_target(
+                bgg_model_board,
+                packages = c("googleCloudStorageR"),
+                command = pins::board_gcs(bucket = "bgg_models", prefix = "model/bgg/")
+        ),
+        tar_target(
                 name = games_raw,
                 packages = c("googleCloudStorageR"),
                 command = 
@@ -76,17 +81,32 @@ data = list(
                                    generation = "1721147850023745",
                                    bucket = "bgg_data")
         ),
+        # load games for training
         tar_target(
                 name = games,
                 command = 
                         games_raw |>
                         prepare_games()
         ),
+        # read in models
+        # to estimate averageweight
+        tar_target(
+                averageweight_model,
+                vetiver::vetiver_pin_read(bgg_model_board, 
+                                          name = "averageweight_bgg")
+        ),
+        # to predict whether game will achieve enough ratings for a geek rating
+        tar_target(
+                hurdle_model,
+                vetiver::vetiver_pin_read(bgg_model_board, name = "hurdle_bgg")
+        ),
+        # quarto report for collection analysis
         tar_target(
                 name = quarto,
                 command = "analysis.qmd",
                 format = "file"
         ),
+        # load in new games
         tar_target(
                 name = games_new_raw,
                 command = load_games(object_name = "raw/objects/games",
@@ -100,8 +120,14 @@ data = list(
         ),
         tar_target(
                 name = games_new,
-                command = games_new_raw |>
-                        prepare_games()
+                command = 
+                        games_new_raw |>
+                        prepare_games() |>
+                        predict_averageweight(model = averageweight_model) |>
+                        predict_hurdle(model = hurdle_model,
+                                       threshold = 0.25) |>
+                        filter(.pred_hurdle_class == 'yes')
+                        
         )
 )
 
@@ -173,6 +199,7 @@ mapped =
                                         input = quarto,
                                         metrics = metrics,
                                         outcome = outcome,
+                                        pin_vetiver = pin_vetiver,
                                         quiet = F
                                 )
                 ),
