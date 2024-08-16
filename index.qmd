@@ -1,5 +1,8 @@
 ---
 title: "Predicting Board Game Collections"
+author: "Phil Henrickson"
+date: today
+date-format: short
 format: 
         html:
                 code-fold: true
@@ -45,9 +48,21 @@ library(tidymodels)
 
 #targets::tar_load(starts_with("collection_"))
 targets::tar_load(games)
-
+targets::tar_load(games_new)
 targets::tar_load(combined_metrics)
 targets::tar_load(combined_preds)
+targets::tar_load(combined_new_preds)
+
+combined_new_preds = combined_new_preds |>
+        mutate(wflow_id = "glmnet")
+
+preds = 
+        combined_new_preds |>
+        filter(type == 'upcoming') |>
+        bind_rows(
+                combined_preds |>
+                        filter(type %in% c('resamples', 'valid'))
+        )
 
 targets::tar_source("src/visualization/tables.R")
 targets::tar_source("src/visualization/plots.R")
@@ -82,9 +97,10 @@ combined_metrics |>
 #| message: false
 #| warning: false
 cor = 
-        combined_preds |>
+        preds |>
         select(username, game_id, name, wflow_id, .pred_yes) |>
         pivot_wider(values_from = c(".pred_yes"), names_from = c("username")) |>
+        unnest() |>
         select(-game_id, -name, -wflow_id) |>
         corrr::correlate(method = "spearman")
 
@@ -153,7 +169,7 @@ table_preds = function(data,
                 arrange(desc(median))
         
         data |>
-                select(-.pred_no, -.pred_class, -id, -.row, -own) |>
+                select(-any_of(c(".pred_no", ".pred_class", "id", ".row", "own"))) |>
                 pivot_wider(names_from = c("username"),
                             values_from = c(".pred_yes")) |>
                 left_join(sums) |>
@@ -226,9 +242,10 @@ gt_preds = function(data) {
 #| column: body-outset-right
 #| results: asis
 
-combined_preds |>
-        filter(type == 'test') |>
-        table_preds(games = games,
+combined_new_preds |>
+        select(any_of(names(combined_preds))) |>
+        filter(type == 'upcoming') |>
+        table_preds(games = games_new,
                     n = 100) |>
         gt_preds()
 
@@ -246,7 +263,7 @@ combined_preds |>
 
 combined_preds |>
         filter(type == 'valid') |>
-        table_preds(games = games,
+        table_preds(games = games_new,
                     n = 100) |>
         gt_preds()
 
