@@ -88,18 +88,6 @@ data = list(
                         games_raw |>
                         prepare_games()
         ),
-        # read in models
-        # to estimate averageweight
-        tar_target(
-                averageweight_model,
-                vetiver::vetiver_pin_read(bgg_model_board, 
-                                          name = "averageweight_bgg")
-        ),
-        # to predict whether game will achieve enough ratings for a geek rating
-        tar_target(
-                hurdle_model,
-                vetiver::vetiver_pin_read(bgg_model_board, name = "hurdle_bgg")
-        ),
         # quarto report for collection analysis
         tar_target(
                 name = quarto,
@@ -121,13 +109,20 @@ data = list(
         tar_target(
                 name = games_new,
                 command = 
-                        games_new_raw |>
-                        prepare_games() |>
-                        predict_averageweight(model = averageweight_model) |>
-                        predict_hurdle(model = hurdle_model,
-                                       threshold = 0.25) |>
-                        filter(.pred_hurdle_class == 'yes')
-                        
+                        {
+                                # load in models
+                                averageweight_model =  vetiver::vetiver_pin_read(bgg_model_board, name = "averageweight_bgg")
+                                hurdle_model = vetiver::vetiver_pin_read(bgg_model_board, name = "hurdle_bgg")
+                                
+                                # prepare, predict, and filter based on hurdle
+                                games_new_raw |>
+                                        prepare_games() |>
+                                        predict_averageweight(model =  averageweight_model) |>
+                                        predict_hurdle(model = hurdle_model, 
+                                                       threshold = 0.25) |>
+                                        filter(.pred_hurdle_class == 'yes')
+                                
+                        }
         )
 )
 
@@ -185,7 +180,7 @@ mapped =
                                         m = load_model(board = model_board,
                                                        name = bgg_username,
                                                        hash = pin_vetiver)
-
+                                        
                                         m |>
                                                 predict_user_model(games = games_new,
                                                                    collection = collection)
@@ -194,14 +189,24 @@ mapped =
                 tar_target(
                         report,
                         command =
-                                bgg_username |>
-                                render_report(
-                                        input = quarto,
-                                        metrics = metrics,
-                                        outcome = outcome,
-                                        pin_vetiver = pin_vetiver,
-                                        quiet = F
-                                )
+                                {
+                                        glue::glue(
+                                                new_preds |> 
+                                                        filter(type == 'upcoming') |> 
+                                                        nrow(), 
+                                                " new games for ", 
+                                                bgg_username
+                                        )
+                                        
+                                        bgg_username |>
+                                                render_report(
+                                                        input = quarto,
+                                                        metrics = metrics,
+                                                        outcome = outcome,
+                                                        pin_vetiver = pin_vetiver,
+                                                        quiet = F
+                                                )
+                                }
                 ),
                 tar_target(
                         upload,

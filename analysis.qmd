@@ -26,6 +26,7 @@ params:
         board: model_board
         username: phenrickson
         metrics: metrics
+        preds: new_preds
         outcome: 'own'
         pin_vetiver: pin_vetiver
 ---
