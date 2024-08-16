@@ -23,9 +23,11 @@ format:
 css: styles.css
 editor: source
 params:
+        board: model_board
         username: phenrickson
         metrics: metrics
         outcome: 'own'
+        pin_vetiver: pin_vetiver
 ---
 
 ```{r}
@@ -72,10 +74,15 @@ tar_source("src")
 ```{r}
 #| echo: false
 #| include: false
+
+# load games
 tar_load(games_raw)
 tar_load(games_new)
 tar_load(games)
 username = params$username
+
+# load model board
+tar_load(model_board)
 
 user_collection = paste("collection", username, sep = "_")
 user_model = paste("model_glmnet", username, sep = "_")
@@ -92,7 +99,6 @@ tar_load(new_preds)
 collection = get(ls(pattern = user_collection))
 model_glmnet = get(ls(pattern = user_model))
 preds = get(ls(pattern = paste0("^", user_preds)))
-new_preds = get(ls(pattern = new_preds))
 metrics = get(ls(pattern = user_metrics))
 
 rm(list = ls(pattern = paste(params$username)))
@@ -102,6 +108,25 @@ theme_set(
 )
 
 ```
+
+```{r}
+#| include: false
+#| echo: false
+#| message: false
+#| 
+# load user model and predict new games
+m = load_model(
+        board = model_board, 
+        name = params$username,
+        hash = params$pin_vetiver)
+
+# predict games
+new_preds = 
+        m |>
+        predict_user_model(games = games_new, collection = collection)
+
+```
+
 
 # Collection
 

@@ -125,3 +125,60 @@ join_games_and_collection = function(games,
                 mutate(username = unique(collection$username))
         
 }
+
+add_hurdle = function(data, ratings) {
+        
+        data |>
+                mutate(hurdle = case_when(usersrated >= ratings ~ 'yes',
+                                          TRUE ~ 'no'),
+                       hurdle = factor(hurdle, levels = c("no", "yes")))
+}
+
+add_pred_class = function(data, threshold) {
+        
+        data |>
+                mutate(.pred_class = case_when(.pred_yes > threshold ~ 'yes',
+                                               TRUE ~ 'no'),
+                       .pred_class = factor(.pred_class, levels = c("no", "yes"))
+                )
+}
+
+# estimate whether game will receive geek rating
+predict_hurdle = function(data, 
+                          model, 
+                          threshold, 
+                          ratings = 25) {
+        
+        data |>
+                add_hurdle(ratings = ratings) |>
+                augment(new_data = _,
+                        model) |>
+                select(-.pred_class, -.pred_no) |>
+                add_pred_class(threshold = threshold) |>
+                rename(.pred_hurdle_yes = .pred_yes,
+                       .pred_hurdle_class = .pred_class)
+        
+}
+
+
+# estimate averageweight
+predict_averageweight = function(data,
+                                 model) {
+        
+        model |>
+                augment(new_data = data) |>
+                mutate(.pred = truncate_averageweight(.pred)) |>
+                rename(est_averageweight = .pred)
+        
+}
+
+# truncate
+truncate_averageweight = function(x) {
+        
+        
+        case_when(x > 5 ~ 5,
+                  x < 1 ~ 1,
+                  TRUE ~ x)
+        
+}
+
