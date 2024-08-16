@@ -1,0 +1,7 @@
+default:
+        bucket: "bgg_reports"
+        prefix: "bgg_collections-dev/"
+        
+prod:
+        bucket: "bgg_reports"
+        prefix: "bgg_collections"
