@@ -4,4 +4,4 @@ default:
         
 prod:
         bucket: "bgg_reports"
-        prefix: "bgg_collections"
+        prefix: "bgg_collections/"

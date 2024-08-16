@@ -211,13 +211,13 @@ mapped =
                 tar_target(
                         upload,
                         command = 
-                                upload_report(file = paste0('docs/', report)),
-                        packages = c('googleCloudStorageR'),
-                        cue = 
-                                tar_cue_age(
-                                        name = report,
-                                        age = as.difftime(7, units = "days")
-                                )
+                                {
+                                        print(config::get("prefix"))
+                                        upload_report(file = paste0('docs/', report),
+                                                      bucket = config::get("bucket"),
+                                                      prefix = config::get("prefix"))
+                                },
+                        packages = c('googleCloudStorageR')
                 )
         )
 

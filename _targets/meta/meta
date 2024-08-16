@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|3d084b12b9dddc7b|||||||||||||||
+.Random.seed|object|4ac6e24fbf5f2bcd|||||||||||||||
 add_bgg_dummies|function|25815f44bbe7e35a|||||||||||||||
 add_bgg_preprocessing|function|edbcafa937c6fbb3|||||||||||||||
 add_corr|function|a7156d710f1b0e97|||||||||||||||
@@ -43,7 +43,7 @@ combined_metrics|stem|e25944c210e3bf47|7b478646d98e7415|13939ad53a1dd7fd|1674184
 combined_new_preds|stem|60210800e6924e1e|801d556a5f6d61ec|542493e1c719e12e|-174717926||t19951.6528235575s|3c522fd32cc46e80|178635129|qs|local|vector|||1.699||
 combined_preds|stem|1bcedf04f6a04ed0|41057a04e6c1ab66|9cb2839508eb7c2b|-1707341240||t19921.6875026237s|34c1a00b7c3ef205|8565980|qs|local|vector|||0.101||
 create_resamples|function|6caa795b0f99aeb2|||||||||||||||
-data|object|322d63555dc41b09|||||||||||||||
+data|object|a6b6488d2ce0304e|||||||||||||||
 discrete_vars|function|80bc599945b9e2ed|||||||||||||||
 ecipe_linear|function|6c57572ec29f6a46|||||||||||||||
 end_train_year|object|43a1223249ea92a6|||||||||||||||
@@ -69,7 +69,7 @@ gt_styling|function|46f7b8a14fa1b2be|||||||||||||||
 gt_top_n|function|42df52dc0acde8b4|||||||||||||||
 hurdle_model|stem|6df28c2426084eca|08645851b0148f6a|77d4c613f48902fe|1485286621||t19951.6356736269s|168e702b7e112ade|217469155|qs|local|vector|||29.634||
 id_vars|function|e26c5d41a2559d7b|||||||||||||||
-index|stem|d1cca5ec6d521190|13a5e99b9efbc446|3a7966af2f8911d5|1538056465|docs*analysis.qmd*index.qmd*_quarto.yml|t19951.6882057098s|8398f9b6583c93ea|142381302|file|local|vector|||123.157||
+index|stem|d1cca5ec6d521190|13a5e99b9efbc446|3a7966af2f8911d5|1538056465|docs*analysis.qmd*index.qmd*_quarto.yml|t19951.6882066685s|5b1586abdd502552|24000|file|local|vector|||123.157||
 join_games_and_collection|function|5ab640919917fd95|||||||||||||||
 lightgbm_grid|function|3cfec1aacaa08965|||||||||||||||
 lightgbm_spec|function|09ef7913fc2d2739|||||||||||||||
@@ -81,7 +81,7 @@ make_collection_datable|function|f7476b44b75aaf1d|||||||||||||||
 make_hyperlink|function|91570e010b66dc21|||||||||||||||
 make_image_link|function|9d6675dd3c98bb3d|||||||||||||||
 make_web_image|function|100cf929d3f96823|||||||||||||||
-mapped|object|04fcdb954b2b7a8b|||||||||||||||
+mapped|object|938f9721d754176f|||||||||||||||
 metrics_aboardgamebarrage|stem|ed3dbfea65c32b61|eaf5badf37e83f89|b4f24459b4e13dbf|25708448||t19921.6874989705s|eb0bdafacbaf0878|309|qs|local|vector|||0.046||
 metrics_dennisflangley|stem|4ecc5713bf078096|7a8cccf99ad9263e|8e10d32f05657543|1155246095||t19872.8437877841s|763d944459e6841f|372|qs|local|vector|||0.135|No event observations were detected in truth with event level yes.. No event observations were detected in truth with event level yes.. No event observations were detected in truth with event level yes.. No event observations were detected in truth with event level yes.. There are 0 event cases in truth, results will be meaningless.. There are 0 event cases in truth, results will be meaningless.. There are 0 event cases in truth, results will be meaningless.. There are 0 event cases in truth, results will be meaningless.|
 metrics_GOBBluth89|stem|c6de0f7e2cbaf613|e66a42331892cbde|b7f7144b2d913f81|953573731||t19921.6874951101s|ac5883799cfc915b|301|qs|local|vector|||0.059|No event observations were detected in truth with event level yes.. There are 0 event cases in truth, results will be meaningless.|
@@ -184,7 +184,7 @@ split_by_year|function|09ec4465e1b6e977|||||||||||||||
 table_collection|function|f0cbe3226cf20701|||||||||||||||
 table_splits|function|1a4a7e0eefbf01e7|||||||||||||||
 top_coefs_by_sign|function|3402ce4265d47e82|||||||||||||||
-top_n_preds|function|d0040abc0e186dd7|||||||||||||||
+top_n_preds|function|a8d5d688462b1d3c|||||||||||||||
 trace_plot.glmnet|function|3bb95205bb1f3b8a|||||||||||||||
 tracking|stem|08d5f59e833de599|99bb628c325cdf77|2cbaa8a90bffd4ee|-2095002692||t0s|a10b0861f057ffab|0|file|local|vector|||0.024||
 train_user_model|function|d3266e44b1724ed7|||||||||||||||
@@ -192,15 +192,15 @@ truncate_averageweight|function|5db94c7894653da2|||||||||||||||
 tune_metrics|function|b5c3f5fe778ae53c|||||||||||||||
 tune_user_model|function|c8d622ade539de83|||||||||||||||
 tune_wflow|function|bdbd5a0157bddfb9|||||||||||||||
-upload_aboardgamebarrage|stem|9b75d7b9f4a4eed0|fc2ea37f68084985|3c643866f72858cc|-294442763||t19951.686711583s|96f99064b4288aae|87|qs|local|vector|||0.875||
-upload_GOBBluth89|stem|41e6637c0737a938|68885530eb2053e8|2b977f92ad4a3355|506001819||t19951.6867214073s|87bbe5f41aaaedf6|80|qs|local|vector|||0.836||
-upload_Gyges|stem|539aee6d3759e8b2|bb68f3ba1d32c909|90026fd6bead6238|-1196779541||t19951.6882196362s|a057b906461a46f0|75|qs|local|vector|||1.004||
-upload_J_3MBG|stem|9fa9ca3981244afc|befc2b5cdeb8fcd4|5c1fc8f48e50c63c|-1066034554||t19951.6866787001s|e12065d620e41fd5|76|qs|local|vector|||0.988||
-upload_phenrickson|stem|3e855ff1490b02b0|7c673a14555a7dea|6297e6acc08432b9|-1481286416||t19951.6866895258s|4179e472436f3418|81|qs|local|vector|||0.925||
-upload_rahdo|stem|0bcda01e9a60d119|1dd48d448c4adeaf|68f952d5b07e4e32|14500402||t19951.6867013721s|a057b906461a46f0|75|qs|local|vector|||1.017||
+upload_aboardgamebarrage|stem|e8e9d6cb718d79b0|82ffa35e401e604a|3c643866f72858cc|-294442763||t19951.710956027s|988429bb6428792b|83|qs|local|vector|||1.018||
+upload_GOBBluth89|stem|53dfb0b9614c62f9|587cb5ead0b43cb9|2b977f92ad4a3355|506001819||t19951.7109678443s|e12065d620e41fd5|76|qs|local|vector|||1.014||
+upload_Gyges|stem|a9d0f82050189cd9|95344887a68f4f5d|90026fd6bead6238|-1196779541||t19951.7109821624s|580e0375f1117643|70|qs|local|vector|||1.129||
+upload_J_3MBG|stem|498368e014eb55f0|9d0711564f8f32c2|5c1fc8f48e50c63c|-1066034554||t19951.7109215909s|3ed5ce5eeeea6e9a|72|qs|local|vector|||1.085||
+upload_phenrickson|stem|6f803960db67de72|b38b24e1713266d9|6297e6acc08432b9|-1481286416||t19951.7109334875s|04fcf8b2530d31e5|77|qs|local|vector|||1.024||
+upload_rahdo|stem|4dfa8df5f300d026|63c78fb4a993130a|68f952d5b07e4e32|14500402||t19951.7109441709s|580e0375f1117643|70|qs|local|vector|||0.917||
 upload_report|function|1acc8cf16a10f979|||||||||||||||
-upload_VWValker|stem|f2e66725acb542f1|7e634c3f2a5aadfb|be5df825a60bc696|698452505||t19951.686667114s|d22c29dc585b97b0|78|qs|local|vector|||1.059||
-upload_ZeeGarcia|stem|cb2d29fc79374508|2c7db20ad1a39ced|602adc7ddf3a8cd9|-1512311122||t19951.686654737s|abfed6147cb58a5b|79|qs|local|vector|||0.953||
+upload_VWValker|stem|4449721549e77460|532bb3e332a481bc|be5df825a60bc696|698452505||t19951.7109089816s|4be831169559909a|74|qs|local|vector|||0.904||
+upload_ZeeGarcia|stem|3e101fc544ec3ad3|40bfaf4bc8400c80|602adc7ddf3a8cd9|-1512311122||t19951.7108984243s|a057b906461a46f0|75|qs|local|vector|||0.947||
 upset_plot_by_category|function|970f8b2274aeabfe|||||||||||||||
 username|object|d457275cd769e778|||||||||||||||
 usernames|object|a6503edd9325896b|||||||||||||||
