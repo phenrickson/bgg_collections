@@ -212,10 +212,9 @@ mapped =
                         upload,
                         command = 
                                 {
-                                        print(config::get("prefix"))
                                         upload_report(file = paste0('docs/', report),
                                                       bucket = config::get("bucket"),
-                                                      prefix = config::get("prefix"))
+                                                      prefix = "bgg_collections")
                                 },
                         packages = c('googleCloudStorageR')
                 )
