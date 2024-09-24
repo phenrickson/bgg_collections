@@ -1,6 +1,6 @@
 default:
         bucket: "bgg_reports"
-        prefix: "bgg_collections-dev/"
+        prefix: "bgg_collections/"
         
 prod:
         bucket: "bgg_reports"

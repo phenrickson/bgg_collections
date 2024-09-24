@@ -207,17 +207,17 @@ mapped =
                                                         quiet = F
                                                 )
                                 }
-                ),
-                tar_target(
-                        upload,
-                        command = 
-                                {
-                                        upload_report(file = paste0('docs/', report),
-                                                      bucket = config::get("bucket"),
-                                                      prefix = "bgg_collections")
-                                },
-                        packages = c('googleCloudStorageR')
                 )
+                # tar_target(
+                #         upload,
+                #         command = 
+                #                 {
+                #                         upload_report(file = paste0('docs/', report),
+                #                                       bucket = config::get("bucket"),
+                #                                       prefix = "bgg_collections")
+                #                 },
+                #         packages = c('googleCloudStorageR')
+                # )
         )
 
 # combine objects
