@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|a7608d9b16d3870b|||||||||||||||
+.Random.seed|object|630346e1ca93567d|||||||||||||||
 add_bgg_dummies|function|25815f44bbe7e35a|||||||||||||||
 add_bgg_preprocessing|function|edbcafa937c6fbb3|||||||||||||||
 add_corr|function|a7156d710f1b0e97|||||||||||||||
@@ -40,7 +40,7 @@ color_colorbar|function|c23c30ca969fb853|||||||||||||||
 color_fill_gradient|function|6e14abe4e8d2a6c2|||||||||||||||
 combined|object|f3ced335a8d02878|||||||||||||||
 combined_metrics|stem|e25944c210e3bf47|7b478646d98e7415|13939ad53a1dd7fd|1674184139||t19921.6939707654s|7b0bf587034614e7|849|qs|local|vector|||0.001||
-combined_new_preds|stem|ae18652c611ac776|801d556a5f6d61ec|554a2fe02c1a2f60|-174717926||t20007.8714258379s|f2cb102d85844ffa|180845277|qs|local|vector|||0.903||
+combined_new_preds|stem|9266599a393582ef|801d556a5f6d61ec|f71452ed79222408|-174717926||t20027.889074761s|564c5d12bae65849|181538934|qs|local|vector|||0.952||
 combined_preds|stem|1bcedf04f6a04ed0|41057a04e6c1ab66|9cb2839508eb7c2b|-1707341240||t19921.6875026237s|34c1a00b7c3ef205|8565980|qs|local|vector|||0.101||
 create_resamples|function|6caa795b0f99aeb2|||||||||||||||
 data|object|3828bee3f557e124|||||||||||||||
@@ -52,8 +52,8 @@ fill_colorbar|function|68fdafe0b37a741d|||||||||||||||
 finalize_user_model|function|8b9374b91f9c9d70|||||||||||||||
 fit_wflow|function|eabf759bbe376cef|||||||||||||||
 games|stem|db28bc65c926e998|27979539048b25d2|f4818af8699bb275|-1798292153||t19921.6272728962s|f1a17e6043194932|57331791|qs|local|vector|||23.58||
-games_new|stem|6e413c3ad2321e19|06ec7447f0280ec5|9fe38645edb5e724|-175975082||t20007.8624709302s|329dd2f1a23fa386|23558875|qs|local|vector|||107.629||
-games_new_raw|stem|c3b25ec124df2df8|10fe587939cc86a9|ad1d8fb276ee8fb2|1336226133||t20007.8611725084s|52a5a2fa0e3a3312|74947741|qs|local|vector|||5.363||
+games_new|stem|6792bf32276f3c1e|06ec7447f0280ec5|0f53283325b8c127|-175975082||t20027.8791835634s|c14fed8d7d20cc99|23655887|qs|local|vector|||125.095||
+games_new_raw|stem|da3f0fb4ee6402ab|10fe587939cc86a9|ad1d8fb276ee8fb2|1336226133||t20027.8776796768s|b43a9ff3b99a009c|75280380|qs|local|vector|||5.457||
 games_raw|stem|b3ab54cf53e83b72|9865188a4ebe7289|ad1d8fb276ee8fb2|-2023409613||t19921.6266106233s|a0421b3c6f65277f|73766496|qs|local|vector|||4.876||
 gather_predictions|function|ba1af0053c12b156|||||||||||||||
 get_best_preds|function|7640cca936237726|||||||||||||||
@@ -69,7 +69,7 @@ gt_styling|function|46f7b8a14fa1b2be|||||||||||||||
 gt_top_n|function|42df52dc0acde8b4|||||||||||||||
 hurdle_model|stem|6df28c2426084eca|08645851b0148f6a|77d4c613f48902fe|1485286621||t19951.6356736269s|168e702b7e112ade|217469155|qs|local|vector|||29.634||
 id_vars|function|e26c5d41a2559d7b|||||||||||||||
-index|stem|d01bc20ed4161a1c|ca48c41715e6e5c6|3e2c98ee734dd0a5|1538056465|docs*analysis.qmd*index.qmd*_quarto.yml|t20007.8740131584s|b4a04658b36fb7bf|144025427|file|local|vector|||119.511||
+index|stem|01db905fd69a7d38|ca48c41715e6e5c6|f90028eef8c9a9ca|1538056465|docs*analysis.qmd*index.qmd*_quarto.yml|t20027.8920173284s|9aea11bd3135511a|144460286|file|local|vector|||133.69||
 join_games_and_collection|function|5ab640919917fd95|||||||||||||||
 lightgbm_grid|function|3cfec1aacaa08965|||||||||||||||
 lightgbm_spec|function|09ef7913fc2d2739|||||||||||||||
@@ -110,14 +110,14 @@ model_glmnet_VWValker|stem|e6a5340aaae1c13e|c4595ea11d117ff8|6f1220dc8dc05145|-1
 model_glmnet_ZeeGarcia|stem|6fe9d0aae41264d6|5a967bab30e0ba44|ecdecbe1a3527c4c|-1789249892|bucket=bgg_data*key=collections/objects/model_glmnet_ZeeGarcia*version=1721229212997016|t19921.6339082577s||986109383|qs|gcp|vector|||558.381|Using an external vector in selections was deprecated in tidyselect 1.1.0.ℹ Please use all_of or any_of instead.   Was  data  selectoutcome   Now  data  selectall_ofoutcomeSee httpstidyselect.rlib.orgreferencefaqexternalvector.html.|
 model_lightgbm_dennisflangley|stem|50182fd3f97fea7b|4bd52cef2ebb47ce|66461976964099a8|73693383||t19872.8436148706s|d3380f656557dfb8|856973369|qs|local|vector|||112.851|Using an external vector in selections was deprecated in tidyselect 1.1.0.ℹ Please use all_of or any_of instead.   Was  data  selectoutcome   Now  data  selectall_ofoutcomeSee httpstidyselect.rlib.orgreferencefaqexternalvector.html.|
 models|object|8ab0c32259b191d5|||||||||||||||
-new_preds_aboardgamebarrage|stem|4611bf4860260a1f|55be7b04d4218066|900d7e94d4b93502|575282980||t20007.8628807475s|d467574681caa000|23785690|qs|local|vector|||10.085||
-new_preds_GOBBluth89|stem|fd0fcb6a9f164c01|206c2dd046d92f04|6ee427773649b4c8|-931599775||t20007.8634947019s|a3d4d63a8a0c245b|23788867|qs|local|vector|||10.002||
-new_preds_Gyges|stem|0ae3221f978221b1|5daf2847824d5d14|1c2d46e21dde6d60|1229768480||t20007.8626331897s|15f74389c711c931|23879546|qs|local|vector|||13.034||
-new_preds_J_3MBG|stem|e4261f9821137081|d283131ae566ce33|e939dd68d7bb5906|1428060336||t20007.8630038034s|b5a4d8882be35d75|23813468|qs|local|vector|||10.004||
-new_preds_phenrickson|stem|66c445fbb300d92e|56acb75a6177092d|600a6d61942dcf13|108738701||t20007.8632479138s|4241cd0f39314c84|23793089|qs|local|vector|||9.935||
-new_preds_rahdo|stem|ea46896287bfad7f|fdc32e9fb50a43de|b75355145d9d8c2a|-388109039||t20007.8633704452s|ce727aba6c867451|23866529|qs|local|vector|||9.908||
-new_preds_VWValker|stem|140bb59acf41c620|1bb9a23664a3b1fc|fbf9e9727371b7b9|616559790||t20007.8631259629s|4b7bade5605f155e|23795271|qs|local|vector|||9.916||
-new_preds_ZeeGarcia|stem|268371d0c14aae83|22dfe608d09d14ab|5a9cc5d6c666101a|-690581381||t20007.8627565107s|cfd27ce004a7a19f|23908282|qs|local|vector|||9.979||
+new_preds_aboardgamebarrage|stem|842c6ce0c7a817fa|55be7b04d4218066|f941df3c3588a5ce|575282980||t20027.8796172377s|2ce1190e485d453e|23887808|qs|local|vector|||10.382||
+new_preds_GOBBluth89|stem|dae10a79bc7d5f4c|206c2dd046d92f04|a0faf86d8308029c|-931599775||t20027.8802843116s|3fe042d36caeaacd|23886349|qs|local|vector|||10.499||
+new_preds_Gyges|stem|4de1a993dd6191b2|5daf2847824d5d14|abcd2067c1fa2857|1229768480||t20027.8793591815s|7595fb1ba5e4aed5|23980044|qs|local|vector|||14.412||
+new_preds_J_3MBG|stem|456ecd434982917b|d283131ae566ce33|3e89ded4ebd0c5b3|1428060336||t20027.8797467546s|2335a9e71d67bfdf|23921084|qs|local|vector|||10.557||
+new_preds_phenrickson|stem|05170294547911dd|56acb75a6177092d|2174bd5f5a40d6c0|108738701||t20027.8800045877s|c713823690f8a713|23894277|qs|local|vector|||10.456||
+new_preds_rahdo|stem|8b99d5ff565da2ae|fdc32e9fb50a43de|0bc33f668cbbca03|-388109039||t20027.8801541826s|00b93ee1cf05387c|23970678|qs|local|vector|||11.727||
+new_preds_VWValker|stem|2f85d9e42a4f68e8|1bb9a23664a3b1fc|c5297c1f92358aab|616559790||t20027.8798759353s|14a9cc0e6ff5109d|23897681|qs|local|vector|||10.493||
+new_preds_ZeeGarcia|stem|4feaa7677283ec7f|22dfe608d09d14ab|d455ab190bc8b544|-690581381||t20027.8794885554s|6b2f79ac2e0a137c|24014389|qs|local|vector|||10.419||
 outcome|object|301220b0270f7aa9|||||||||||||||
 pin_model|function|392b622e137670c0|||||||||||||||
 pin_vetiver_aboardgamebarrage|stem|3dabf07b00b6bfec|45c54bfbbd486c24|2495e785ce8d13c1|467255123||t19921.6866611239s|a33fb1da66f6e09f|55|qs|local|vector|||16.62||
@@ -165,18 +165,18 @@ quarto|stem|5f3ba6cea593e0fc|e6682f74e1775939|2c530c1562a7fbd1|-1138454403|analy
 recipe_linear|function|5ed3be9862ea2ea6|||||||||||||||
 recipe_trees|function|4cfaab4cb19c4568|||||||||||||||
 render_report|function|65c4bab3147778f8|||||||||||||||
-report_aboardgamebarrage|stem|a1bfd91743ee17a4|f85abb41b2552d1a|07f7202cb2178336|-397949136||t20007.8669401883s|e5403c57657c131e|84|qs|local|vector|||103.48||
+report_aboardgamebarrage|stem|a1bfd91743ee17a4|f85abb41b2552d1a|070f54e8be5a4a67|-397949136||t20027.8839547939s|e5403c57657c131e|84|qs|local|vector|||100.257||
 report_dennisflangley|stem|3b56b8ffa0e62a6f|38e11f9bdd9a31c6|263cba2bb3b99365|1320883821||t19872.7335028997s|28e76c0917097715|38|qs|local|vector|||69.607||
-report_GOBBluth89|stem|06043cbf11e038b8|af8e5eca837ebc58|91855ed1e6924c35|-2145589515||t20007.8725627032s|04fcf8b2530d31e5|77|qs|local|vector|||97.956||
-report_Gyges|stem|2f20e3386a994dce|d9f091baf617f538|100e70218f24a2b6|1907223540||t20007.8646294459s|3ed5ce5eeeea6e9a|72|qs|local|vector|||97.869||
-report_J_3MBG|stem|1e523d20990861fb|bdec7dfb53590350|0104d27e7315c3ae|1985837839||t20007.8680760507s|e7b83425a991cb39|73|qs|local|vector|||97.964||
+report_GOBBluth89|stem|06043cbf11e038b8|af8e5eca837ebc58|a65af089cb010467|-2145589515||t20027.8903994703s|04fcf8b2530d31e5|77|qs|local|vector|||114.149||
+report_Gyges|stem|2f20e3386a994dce|d9f091baf617f538|701b0050bb781015|1907223540||t20027.8815411929s|3ed5ce5eeeea6e9a|72|qs|local|vector|||108.423||
+report_J_3MBG|stem|1e523d20990861fb|bdec7dfb53590350|f2dd49cd314b0a1b|1985837839||t20027.8852550713s|e7b83425a991cb39|73|qs|local|vector|||112.166||
 report_legotortoise|stem|3b56b8ffa0e62a6f|938010f4de11a2b4|18989fb38f315851|1489903402||t19873.7837231401s|28e76c0917097715|38|qs|local|vector|||76.518||
 report_LupercalFR78|stem|3b56b8ffa0e62a6f|c490d676d2e2dad2|f36a2a89cafa095e|1436813289||t19873.8017202122s|28e76c0917097715|38|qs|local|vector|||357.392||
 report_NellyH99|stem|3b56b8ffa0e62a6f|173719c5b3e8b0a5|cdcd655a2817bead|31135465||t19873.7819530675s|28e76c0917097715|38|qs|local|vector|||76.234||
-report_phenrickson|stem|a21dc3ab4eb836b4|b1024f0c53dcb38f|393f87f2cb343ae7|468604336||t20007.8702346494s|d22c29dc585b97b0|78|qs|local|vector|||93.154||
-report_rahdo|stem|06a78ef297375e99|43a7024fc816c015|e4ad7346e32167e8|-702049499||t20007.8713724024s|3ed5ce5eeeea6e9a|72|qs|local|vector|||98.133||
-report_VWValker|stem|7a03925d71be328b|f68a85e14037fe68|b5c70feefda96028|1684990140||t20007.8691545682s|a057b906461a46f0|75|qs|local|vector|||93.013||
-report_ZeeGarcia|stem|82174ced91f4a459|30c1dcff7aa92028|e69b13d4b502a399|204088869||t20007.8657405011s|e12065d620e41fd5|76|qs|local|vector|||95.824||
+report_phenrickson|stem|a21dc3ab4eb836b4|b1024f0c53dcb38f|9e730f85230b440f|468604336||t20027.8877748404s|d22c29dc585b97b0|78|qs|local|vector|||114.938||
+report_rahdo|stem|06a78ef297375e99|43a7024fc816c015|49df735bbc47b3e1|-702049499||t20027.889014298s|3ed5ce5eeeea6e9a|72|qs|local|vector|||106.871||
+report_VWValker|stem|7a03925d71be328b|f68a85e14037fe68|86a8b60848b4db5d|1684990140||t20027.886441924s|a057b906461a46f0|75|qs|local|vector|||102.314||
+report_ZeeGarcia|stem|82174ced91f4a459|30c1dcff7aa92028|1da9a5032e7b2232|204088869||t20027.8827921972s|e12065d620e41fd5|76|qs|local|vector|||107.891||
 retrain_years|object|9f0cda529028d8d9|||||||||||||||
 safe_roc_curve|function|435c75c736a48f45|||||||||||||||
 spline_vars|function|b7bb2144a7131415|||||||||||||||
