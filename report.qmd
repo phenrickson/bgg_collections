@@ -13,17 +13,15 @@ library(tibble)
 library(gt)
 
 # function for displaying results
-display_results = function(data) {
-        data |>
-                gt::gt() |>
-                gt::fmt_auto() |>
-                gt::tab_options(
-                        container.overflow.y = T
-                ) |>
-                gt::as_raw_html()
-        
+display_results <- function(data) {
+  data |>
+    gt::gt() |>
+    gt::fmt_auto() |>
+    gt::tab_options(
+      container.overflow.y = T
+    ) |>
+    gt::as_raw_html()
 }
-
 ```
 
 ```{r}
@@ -33,7 +31,6 @@ display_results = function(data) {
 tar_load(tuned)
 tar_load(metrics_valid)
 tar_load(metrics_test)
-
 ```
 
 
@@ -55,37 +52,30 @@ cat(c("```mermaid", targets::tar_mermaid(targets_only = T), "```"), sep = "\n")
 tuning results from resampling
 
 ```{r}
-
-tuned |> 
-        collect_metrics() |>
-        mutate(across(where(is.numeric), ~ round(.x, 3))) |>
-        arrange(.metric) |>
-        display_results()
-
+tuned |>
+  collect_metrics() |>
+  mutate(across(where(is.numeric), ~ round(.x, 3))) |>
+  arrange(.metric) |>
+  display_results()
 ```
 
 best tuning parameters via log loss
 
 ```{r}
-
 tuned |>
-        select_best(metric = 'mn_log_loss') |>
-        display_results()
-
+  select_best(metric = "mn_log_loss") |>
+  display_results()
 ```
 
 ```{r}
-
 metrics_valid |>
-        display_results()
+  display_results()
 ```
 
 results on upcoming games
 
 ```{r}
-
 metrics_test |>
-        mutate(across(any_of("yearpublished"), as.character)) |>
-        display_results()
-
+  mutate(across(any_of("yearpublished"), as.character)) |>
+  display_results()
 ```

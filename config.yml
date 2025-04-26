@@ -1,7 +1,16 @@
 default:
+        bucket: "bgg_collections_dev"
+        prefix: "_targets"
+        generation: "1745074120055107"
+
+prod-collections:
+        bucket: "bgg_collections"
+        prefix: "_targets"
+
+test-reports:
         bucket: "bgg_reports"
-        prefix: "bgg_collections/"
+        prefix: "bgg_collections_dev/"
         
-prod:
+prod-reports:
         bucket: "bgg_reports"
         prefix: "bgg_collections/"
