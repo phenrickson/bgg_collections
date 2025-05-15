@@ -8,6 +8,9 @@ library(targets)
 library(tarchetypes) # Load other packages as needed.
 library(googleCloudStorageR)
 
+# Set the QUARTO_PATH environment variable
+Sys.setenv(QUARTO_PATH = "/usr/local/bin/quarto")
+
 # set env based on config
 env <- Sys.getenv("R_CONFIG_ACTIVE", "default")
 cfg <- config::get(config = env)
