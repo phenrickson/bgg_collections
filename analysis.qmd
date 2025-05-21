@@ -3,7 +3,6 @@ title: "Predicting Board Game Collections"
 subtitle: "`r params$username`'s Collection"
 author: "Phil Henrickson"
 date: today
-date-format: short
 format: 
     html:
       code-fold: true
@@ -103,7 +102,7 @@ metrics <- get(ls(pattern = user_metrics))
 rm(list = ls(pattern = paste(params$username)))
 
 theme_set(
-  bggUtils::theme_bgg()
+    bggUtils::theme_bgg()
 )
 ```
 
@@ -114,15 +113,15 @@ theme_set(
 #|
 # load user model and predict new games
 m <- load_model(
-  board = collection_model_board,
-  name = params$username,
-  hash = params$pin_vetiver
+    board = collection_model_board,
+    name = params$username,
+    hash = params$pin_vetiver
 )
 
 # predict games
 new_preds <-
-  m |>
-  predict_user_model(games = games_new, collection = collection)
+    m |>
+    predict_user_model(games = games_new, collection = collection)
 ```
 
 
@@ -136,11 +135,11 @@ I train a classification model at the user level to learn the relationship betwe
 #| message: false
 #| echo: false
 collection_and_games <-
-  model_glmnet |>
-  extract_split()
+    model_glmnet |>
+    extract_split()
 
 collection_and_games |>
-  table_collection()
+    table_collection()
 ```
 
 I evaluate the model's performance on a training set of historical games via resampling, then validate the model's performance on a set aside set of newer relases. I then refit the model on the training and validation in order and predict upcoming releases in order to find new games that the user is most likely to add to their collection.
@@ -149,7 +148,7 @@ I evaluate the model's performance on a training set of historical games via res
 #| echo: false
 
 collection_and_games |>
-  table_splits()
+    table_splits()
 ```
 
 
@@ -160,12 +159,12 @@ What types of game does the user own? The following plot displays the most frequ
 ```{r}
 #| fig-height: 7
 collection |>
-  filter(own == 1) |>
-  collection_by_category(
-    games = games_raw
-  ) |>
-  plot_collection_by_category() +
-  ylab("feature")
+    filter(own == 1) |>
+    collection_by_category(
+        games = games_raw
+    ) |>
+    plot_collection_by_category() +
+    ylab("feature")
 ```
 
 The following plot shows the years in which games in the user's collection were published. This can usually indicate when someone first entered the hobby.
@@ -173,8 +172,8 @@ The following plot shows the years in which games in the user's collection were 
 ```{r}
 #| echo: false
 collection_and_games |>
-  plot_collection_by_year() +
-  facet_wrap(~ params$username)
+    plot_collection_by_year() +
+    facet_wrap(~ params$username)
 ```
 
 ## Games in Collection
@@ -185,12 +184,12 @@ Use the filters above the table to sort/filter based on information about the ga
 
 ```{r}
 collection |>
-  filter(own == 1) |>
-  prep_collection_datatable(
-    games = games_raw
-  ) |>
-  filter(!is.na(image)) |>
-  collection_datatable()
+    filter(own == 1) |>
+    prep_collection_datatable(
+        games = games_raw
+    ) |>
+    filter(!is.na(image)) |>
+    collection_datatable()
 ```
 
 # Modeling
@@ -220,18 +219,18 @@ Positive values indicate that a feature increases a user’s probability of owni
 ```{r}
 #| include: false
 top_coefs_plot <-
-  model_glmnet |>
-  pluck("wflow", 1) |>
-  get_coefs.glmnet() |>
-  top_coefs_by_sign() |>
-  coef_plot.glmnet()
+    model_glmnet |>
+    pluck("wflow", 1) |>
+    get_coefs.glmnet() |>
+    top_coefs_by_sign() |>
+    coef_plot.glmnet()
 ```
 
 ```{r}
 #| echo: false
 #| fig-height: 6
 top_coefs_plot +
-  facet_wrap(~ params$username)
+    facet_wrap(~ params$username)
 ```
 
 The following visualization shows the path of each feature as it enters the model, with highly influential features tending to enter the model early with large positive or negative effects. The dotted line indicates the level of regularization that was selected during tuning.
@@ -241,9 +240,9 @@ The following visualization shows the path of each feature as it enters the mode
 #| message: false
 #|
 model_glmnet |>
-  pluck("wflow", 1) |>
-  trace_plot.glmnet(max.overlaps = 30) +
-  facet_wrap(~ params$username)
+    pluck("wflow", 1) |>
+    trace_plot.glmnet(max.overlaps = 30) +
+    facet_wrap(~ params$username)
 ```
 
 ## Partial Effects
@@ -257,41 +256,41 @@ Use the buttons below to examine the effects different types of predictors had i
 #| message: false
 #| warning: false
 coefs <-
-  model_glmnet |>
-  pluck("wflow", 1) |>
-  get_coefs.glmnet()
+    model_glmnet |>
+    pluck("wflow", 1) |>
+    get_coefs.glmnet()
 
 groups <- c(
-  "Mechanics",
-  "Designers",
-  "Artists",
-  "Publishers",
-  "Categories",
-  "Families",
-  "Themes",
-  "Components",
-  "Mechanisms"
+    "Mechanics",
+    "Designers",
+    "Artists",
+    "Publishers",
+    "Categories",
+    "Families",
+    "Themes",
+    "Components",
+    "Mechanisms"
 )
 
 plots <-
-  map(
-    tolower(groups),
-    ~ coefs |>
-      mutate(term = gsub("themes_theme_", "themes_", term)) |>
-      coef_plot_by_group(group = .x, shrink = F, scales = "free") +
-      ggh4x::facet_grid2(
-        sign ~ .,
-        scales = "free_y"
-      ) +
-      geom_vline(
-        xintercept = c(min(coefs$estimate), max(coefs$estimate)),
-        linetype = "dotted",
-        alpha = 0.25
-      ) +
-      labs(
-        subtitle = ""
-      )
-  )
+    map(
+        tolower(groups),
+        ~ coefs |>
+            mutate(term = gsub("themes_theme_", "themes_", term)) |>
+            coef_plot_by_group(group = .x, shrink = F, scales = "free") +
+            ggh4x::facet_grid2(
+                sign ~ .,
+                scales = "free_y"
+            ) +
+            geom_vline(
+                xintercept = c(min(coefs$estimate), max(coefs$estimate)),
+                linetype = "dotted",
+                alpha = 0.25
+            ) +
+            labs(
+                subtitle = ""
+            )
+    )
 
 names(plots) <- groups
 ```
@@ -402,14 +401,14 @@ The following displays the model's performance in resampling on a training set, 
 
 ```{r}
 metrics |>
-  mutate_if(is.numeric, round, 3) |>
-  pivot_wider(
-    names_from = c(".metric"),
-    values_from = c(".estimate")
-  ) |>
-  gt::gt() |>
-  gt::sub_missing() |>
-  gt_options()
+    mutate_if(is.numeric, round, 3) |>
+    pivot_wider(
+        names_from = c(".metric"),
+        values_from = c(".estimate")
+    ) |>
+    gt::gt() |>
+    gt::sub_missing() |>
+    gt_options()
 ```
 
 An easy way to visually examine the performance of classification model is to view a separation plot.
@@ -420,8 +419,8 @@ I plot the predicted probabilities from the model for every game (during resampl
 #| message: false
 #| warning: false
 preds |>
-  filter(type %in% c("resamples", "valid")) |>
-  plot_separation(outcome = params$outcome)
+    filter(type %in% c("resamples", "valid")) |>
+    plot_separation(outcome = params$outcome)
 ```
 
 I can more formally assess how well each model did in resampling by looking at the area under the ROC curve (roc_auc). A perfect model would receive a score of 1, while a model that cannot predict the outcome will default to a score of 0.5. The extent to which something is a good score depends on the setting, but generally anything in the .8 to .9 range is very good while the .7 to .8 range is perfectly acceptable.
@@ -430,17 +429,17 @@ I can more formally assess how well each model did in resampling by looking at t
 #| warning: false
 #| message: false
 preds |>
-  nest(data = -c(username, wflow_id, type)) |>
-  mutate(
-    roc_curve = map(
-      data,
-      safely(~ .x |> safe_roc_curve(truth = params$outcome))
-    )
-  ) |>
-  mutate(result = map(roc_curve, ~ .x |> pluck("result"))) |>
-  select(username, wflow_id, type, result) |>
-  unnest(result) |>
-  plot_roc_curve()
+    nest(data = -c(username, wflow_id, type)) |>
+    mutate(
+        roc_curve = map(
+            data,
+            safely(~ .x |> safe_roc_curve(truth = params$outcome))
+        )
+    ) |>
+    mutate(result = map(roc_curve, ~ .x |> pluck("result"))) |>
+    select(username, wflow_id, type, result) |>
+    unnest(result) |>
+    plot_roc_curve()
 ```
 
 ## Top Games in Training
@@ -452,17 +451,17 @@ What were the model's top games in the training set?
 #| warning: false
 #| message: false
 preds |>
-  filter(type == "resamples") |>
-  prep_predictions_datatable(
-    games = games,
-    outcome = params$outcome
-  ) |>
-  predictions_datatable(
-    outcome = params$outcome,
-    remove_description = T,
-    remove_image = T,
-    pagelength = 15
-  )
+    filter(type == "resamples") |>
+    prep_predictions_datatable(
+        games = games,
+        outcome = params$outcome
+    ) |>
+    predictions_datatable(
+        outcome = params$outcome,
+        remove_description = T,
+        remove_image = T,
+        pagelength = 15
+    )
 ```
 
 ## Top Games in Validation
@@ -474,17 +473,17 @@ What were the model's top games in the validation set?
 #| warning: false
 #| message: false
 preds |>
-  filter(type %in% c("valid")) |>
-  prep_predictions_datatable(
-    games = games,
-    outcome = params$outcome
-  ) |>
-  predictions_datatable(
-    outcome = params$outcome,
-    remove_description = T,
-    remove_image = T,
-    pagelength = 15
-  )
+    filter(type %in% c("valid")) |>
+    prep_predictions_datatable(
+        games = games,
+        outcome = params$outcome
+    ) |>
+    predictions_datatable(
+        outcome = params$outcome,
+        remove_description = T,
+        remove_image = T,
+        pagelength = 15
+    )
 ```
 
 ## Top Games by Year
@@ -497,14 +496,14 @@ Displaying the model's top games for individual years in recent years.
 #| class: scroll
 
 preds |>
-  filter(type %in% c("resamples", "valid")) |>
-  top_n_preds(
-    games = games,
-    outcome = params$outcome,
-    top_n = 15,
-    n_years = 15
-  ) |>
-  gt_top_n(collection = collection |> prep_collection())
+    filter(type %in% c("resamples", "valid")) |>
+    top_n_preds(
+        games = games,
+        outcome = params$outcome,
+        top_n = 15,
+        n_years = 15
+    ) |>
+    gt_top_n(collection = collection |> prep_collection())
 ```
 
 
@@ -519,16 +518,16 @@ What were the model's top predictions for new and upcoming board game releases?
 #| message: false
 #| warning: false
 new_preds |>
-  filter(type == "upcoming") |>
-  # imposing a minimum threshold to filter out games with no info
-  filter(usersrated >= 1) |>
-  # removing this goddamn boxing game that has every mechanic listed
-  filter(game_id != 420629) |>
-  prep_predictions_datatable(
-    games = games_new,
-    outcome = params$outcome
-  ) |>
-  predictions_datatable(outcome = params$outcome)
+    filter(type == "upcoming") |>
+    # imposing a minimum threshold to filter out games with no info
+    filter(usersrated >= 1) |>
+    # removing this goddamn boxing game that has every mechanic listed
+    filter(game_id != 420629) |>
+    prep_predictions_datatable(
+        games = games_new,
+        outcome = params$outcome
+    ) |>
+    predictions_datatable(outcome = params$outcome)
 ```
 
 ## Older Games
@@ -541,17 +540,17 @@ What were the model's top predictions for older games?
 #| warning: false
 #| echo: false
 preds |>
-  filter(type %in% c("resamples", "valid")) |>
-  left_join(
-    games |> select(game_id, usersrated),
-    by = join_by(game_id)
-  ) |>
-  filter(usersrated >= 5) |>
-  slice_max(.pred_yes, n = 500) |>
-  prep_predictions_datatable(
-    games = games,
-    outcome = params$outcome
-  ) |>
-  predictions_datatable(outcome = params$outcome)
+    filter(type %in% c("resamples", "valid")) |>
+    left_join(
+        games |> select(game_id, usersrated),
+        by = join_by(game_id)
+    ) |>
+    filter(usersrated >= 5) |>
+    slice_max(.pred_yes, n = 500) |>
+    prep_predictions_datatable(
+        games = games,
+        outcome = params$outcome
+    ) |>
+    predictions_datatable(outcome = params$outcome)
 ```
 
